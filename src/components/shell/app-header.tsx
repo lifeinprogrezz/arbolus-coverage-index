@@ -45,7 +45,7 @@ export default function AppHeader({
         scrolled ? "shadow-[var(--shadow-page)]" : ""
       }`}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2.5 no-underline">
           <Image
             src={
@@ -57,10 +57,10 @@ export default function AppHeader({
             width={92}
             height={24}
             priority
-            className="h-6 w-auto"
+            className="h-5 w-auto sm:h-6"
           />
           <span
-            className={`mt-0.5 border-l pl-2.5 font-mono text-caption uppercase tracking-[0.08em] ${
+            className={`mt-0.5 hidden border-l pl-2.5 font-mono text-caption uppercase tracking-[0.08em] lg:inline ${
               variant === "term"
                 ? "border-term-line text-term-muted"
                 : "border-line text-subtle"
@@ -70,12 +70,12 @@ export default function AppHeader({
           </span>
         </Link>
 
-        <nav className="flex flex-1 items-center gap-1">
+        <nav className="flex min-w-0 flex-1 items-center gap-0.5 sm:gap-1">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
-              className={`px-3 py-1.5 text-control no-underline transition-colors ${
+              className={`whitespace-nowrap px-2 py-1.5 text-dense no-underline transition-colors sm:px-3 sm:text-control ${
                 active(n.href)
                   ? `nav-thumb ${variant === "term" ? "!text-term-text" : "!text-ink"} font-medium`
                   : variant === "term"
@@ -88,7 +88,7 @@ export default function AppHeader({
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-3">{right}</div>
+        <div className="hidden shrink-0 items-center gap-3 md:flex">{right}</div>
       </div>
     </header>
   );
