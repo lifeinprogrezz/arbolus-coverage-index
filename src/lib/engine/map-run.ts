@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { cachedFetchText, cachedFetchJson } from "./fetch-cache";
 import { checkEligibility } from "./exclusions";
+import { composeDrafts } from "./composer";
 import { sitemapLane, type SitemapHarvest } from "./lanes/sitemap";
 import { customerPagesLane } from "./lanes/customer-pages";
 import { waybackLane } from "./lanes/wayback";
@@ -59,6 +60,83 @@ export async function ensureVendor(name: string, domain: string): Promise<Vendor
     .single();
   if (error) throw new Error(`vendor insert failed: ${error.message}`);
   return created as Vendor;
+}
+
+// Replay mode: re-stream the vendor's LAST run from the journal + index —
+// no upstream requests, no LLM calls, honest label. This is the demo's
+// safety net (audit 42 §5: failure modes are built, not improvised).
+export async function replayRun(
+  vendor: Vendor,
+  emit: (e: RunEvent) => void
+): Promise<void> {
+  const supa = db();
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const { data: lastJournal } = await supa
+    .from("run_journal")
+    .select("run_id, lane, status, items_found, cost_usd, latency_ms, detail, created_at")
+    .eq("vendor_id", vendor.id)
+    .order("id", { ascending: false })
+    .limit(24);
+  const rows = (lastJournal ?? []).reverse();
+  const runId = rows[0]?.run_id;
+  if (!runId) {
+    emit({ type: "stage", name: "no prior run to replay — run a live map first" });
+    return;
+  }
+  const journal = rows.filter((r) => r.run_id === runId);
+
+  emit({ type: "run_start", run_id: runId, vendor });
+  emit({ type: "stage", name: "replay — cached run, no upstream requests" });
+
+  const { data: cands } = await supa
+    .from("candidates")
+    .select("full_name, title, employer, persona_class, eligible, exclusion_reason, evidence")
+    .eq("vendor_id", vendor.id)
+    .limit(30);
+
+  for (const j of journal) {
+    emit({ type: "lane_start", lane: j.lane });
+    await sleep(250);
+    // stream this lane's share of evidence rows between start and done
+    const laneCands = (cands ?? []).filter(
+      (c) => (c.evidence?.[0]?.type ?? "") !== "" && j.lane === "customer_pages"
+    );
+    for (const c of laneCands.slice(0, 8)) {
+      emit({
+        type: "evidence",
+        lane: j.lane,
+        row: {
+          org_name: c.employer ?? "—",
+          evidence_type: c.evidence?.[0]?.type ?? "case_study",
+          status: "current",
+          person: { full_name: c.full_name ?? "", title: c.title ?? undefined },
+        },
+      });
+      await sleep(120);
+    }
+    emit({
+      type: "lane_done",
+      lane: j.lane,
+      found: j.items_found,
+      cost_usd: Number(j.cost_usd),
+      latency_ms: j.latency_ms ?? 0,
+      note: (j.detail as { note?: string })?.note,
+      error: (j.detail as { error?: string })?.error,
+    });
+    await sleep(150);
+  }
+
+  const b = (await supa.from("vendors").select("book_state").eq("id", vendor.id).single())
+    .data?.book_state as { seeds?: number; keys?: number; excluded?: number } | undefined;
+  emit({
+    type: "run_done",
+    run_id: runId,
+    orgs: b?.keys ?? 0,
+    candidates: b?.seeds ?? 0,
+    excluded: b?.excluded ?? 0,
+    cost_usd: journal.reduce((a, j) => a + Number(j.cost_usd), 0),
+    latency_ms: journal.reduce((a, j) => a + (j.latency_ms ?? 0), 0),
+  });
 }
 
 export async function mapRun(
@@ -262,6 +340,29 @@ export async function mapRun(
       ),
     });
     if (!error) candCount++;
+  }
+
+  // ---- compose: evidence-anchored invite drafts (drafted, NEVER sent) ----
+  emit({ type: "stage", name: "compose" });
+  // scarcity pricing (§9.2): the thinner the book, the higher the bounty
+  const bounty = candCount >= 8 ? 25 : candCount >= 3 ? 50 : 75;
+  try {
+    const t1 = Date.now();
+    const nDrafts = await composeDrafts(vendor, bounty, (m) =>
+      emit({ type: "lane_progress", lane: "compose", message: m })
+    );
+    await supa.from("run_journal").insert({
+      run_id,
+      vendor_id: vendor.id,
+      lane: "compose",
+      status: "done",
+      items_found: nDrafts,
+      cost_usd: 0.01,
+      latency_ms: Date.now() - t1,
+      detail: { bounty, note: "drafts only — sent flag never flips" },
+    });
+  } catch (e) {
+    emit({ type: "lane_progress", lane: "compose", message: `composer skipped: ${String(e)}` });
   }
 
   const totalCost =

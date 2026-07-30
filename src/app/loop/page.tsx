@@ -28,9 +28,9 @@ const METRICS = [
 export default async function LoopPage() {
   const { data: drafts } = await db()
     .from("outreach_drafts")
-    .select("channel, subject, drafted_at, sent")
+    .select("channel, subject, body, drafted_at, sent")
     .order("drafted_at", { ascending: false })
-    .limit(5);
+    .limit(6);
 
   return (
     <div className="page-grain min-h-screen">
@@ -126,11 +126,16 @@ export default async function LoopPage() {
           ) : (
             <div className="flex flex-col gap-1.5">
               {(drafts ?? []).map((d, i) => (
-                <div key={i} className="flex items-center gap-3 rounded-md border border-line bg-card px-3 py-2 text-sm shadow-[var(--shadow-card)]">
-                  <span className="pill bg-city-sanjose">{d.channel}</span>
-                  <span className="text-ink">{d.subject}</span>
-                  <span className="metric ml-auto text-xs text-subtle">sent: {String(d.sent)}</span>
-                </div>
+                <details key={i} className="rounded-md border border-line bg-card shadow-[var(--shadow-card)]">
+                  <summary className="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm">
+                    <span className="pill bg-city-sanjose">{d.channel}</span>
+                    <span className="text-ink">{d.subject}</span>
+                    <span className="metric ml-auto text-xs text-subtle">sent: {String(d.sent)}</span>
+                  </summary>
+                  <div className="whitespace-pre-wrap border-t border-line px-4 py-3 text-sm text-ink-60">
+                    {d.body}
+                  </div>
+                </details>
               ))}
             </div>
           )}

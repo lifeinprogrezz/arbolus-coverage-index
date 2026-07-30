@@ -50,7 +50,10 @@ export interface LaneResult {
 }
 
 export interface LaneCtx {
-  fetchText: (url: string, init?: RequestInit) => Promise<CachedResponse>;
+  fetchText: (
+    url: string,
+    init?: RequestInit & { timeoutMs?: number }
+  ) => Promise<CachedResponse>;
   fetchJson: <T = unknown>(url: string, init?: RequestInit) => Promise<T | null>;
   emit: (event: LaneEvent) => void; // streaming progress → run view
   budget: { maxRequests: number };

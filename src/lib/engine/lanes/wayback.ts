@@ -27,7 +27,8 @@ export function waybackLane(harvest: SitemapHarvest): Lane {
     const cdxUrl = `https://web.archive.org/cdx/search/cdx?url=${vendor.domain}${prefix}/*&output=json&collapse=urlkey&fl=original,timestamp&limit=800`;
     ctx.emit({ type: "lane_progress", lane, message: `CDX query ${prefix}/*`, url: cdxUrl });
 
-    const res = await ctx.fetchText(cdxUrl);
+    // archive.org throttles shared cloud egress IPs — give CDX a long leash
+    const res = await ctx.fetchText(cdxUrl, { timeoutMs: 28_000 });
     requests++;
 
     if (res.status === 200) {
@@ -79,13 +80,18 @@ export function waybackLane(harvest: SitemapHarvest): Lane {
     }
 
     const latency = Date.now() - t0;
+    const throttled = res.status !== 200;
     ctx.emit({
       type: "lane_done",
       lane,
       found: rows.length,
       cost_usd: 0,
       latency_ms: latency,
-      note: rows.length > 0 ? `${rows.length} disappeared customer pages` : "no diff signal",
+      note: throttled
+        ? "archive.org throttles cloud egress — lane degrades to the nightly local pre-seed (stated, not hidden)"
+        : rows.length > 0
+        ? `${rows.length} disappeared customer pages`
+        : "no diff signal",
     });
     return { lane, rows, cost_usd: 0, latency_ms: latency, requests };
   };

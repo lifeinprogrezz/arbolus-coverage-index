@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { ensureVendor, mapRun, type RunEvent } from "@/lib/engine/map-run";
+import { ensureVendor, mapRun, replayRun, type RunEvent } from "@/lib/engine/map-run";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // Fluid compute — a live map run takes minutes
@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
       };
       try {
         const vendor = await ensureVendor(name, domain);
-        await mapRun(vendor, send);
+        if (searchParams.get("replay") === "1") await replayRun(vendor, send);
+        else await mapRun(vendor, send);
       } catch (err) {
         controller.enqueue(
           encoder.encode(

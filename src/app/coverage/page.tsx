@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { laneYields } from "@/lib/engine/learning";
 
 export const dynamic = "force-dynamic";
 
@@ -42,10 +43,13 @@ function bookPill(seeds: number, reservoir: number): { label: string; cls: strin
 }
 
 export default async function CoveragePage() {
-  const { data } = await db()
-    .from("vendors")
-    .select("*")
-    .order("last_mapped_at", { ascending: false, nullsFirst: false });
+  const [{ data }, yields] = await Promise.all([
+    db()
+      .from("vendors")
+      .select("*")
+      .order("last_mapped_at", { ascending: false, nullsFirst: false }),
+    laneYields(),
+  ]);
   const vendors = (data ?? []) as VendorRow[];
 
   return (
@@ -142,6 +146,56 @@ export default async function CoveragePage() {
             </table>
           </div>
         )}
+
+        {/* learning loop — real per-lane economics */}
+        <section className="mt-8">
+          <h2 className="mb-2 text-base font-semibold text-ink">
+            Learning loop{" "}
+            <span className="metric text-xs font-normal text-subtle">
+              real per-lane yield across all runs — reallocates the next run&rsquo;s budget
+            </span>
+          </h2>
+          <div className="overflow-x-auto rounded-md border border-line bg-card shadow-[var(--shadow-card)]">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-line text-left text-xs font-medium uppercase tracking-wide text-subtle">
+                  <th className="px-4 py-2">Lane</th>
+                  <th className="px-4 py-2 text-right">Runs</th>
+                  <th className="px-4 py-2 text-right">Evidence rows</th>
+                  <th className="px-4 py-2 text-right">Cost</th>
+                  <th className="px-4 py-2 text-right">Rows / $</th>
+                  <th className="px-4 py-2 text-right">Avg latency</th>
+                  <th className="px-4 py-2">Next-run share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {yields.map((y) => (
+                  <tr key={y.lane} className="border-b border-line last:border-0">
+                    <td className="metric px-4 py-2">{y.lane}</td>
+                    <td className="metric px-4 py-2 text-right">{y.runs}</td>
+                    <td className="metric px-4 py-2 text-right">{y.found}</td>
+                    <td className="metric px-4 py-2 text-right">${y.cost_usd.toFixed(3)}</td>
+                    <td className="metric px-4 py-2 text-right">
+                      {y.yield_per_dollar == null ? "free" : y.yield_per_dollar.toFixed(0)}
+                    </td>
+                    <td className="metric px-4 py-2 text-right">{(y.avg_latency_ms / 1000).toFixed(1)}s</td>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-28 overflow-hidden rounded-full bg-ink/[.06]">
+                          <div
+                            className="h-full rounded-full bg-violet-link"
+                            style={{ width: `${Math.round(y.share_next * 100)}%` }}
+                          />
+                        </div>
+                        <span className="metric text-xs">{Math.round(y.share_next * 100)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         {/* the missing front door */}
         <div className="mt-8 rounded-lg border border-violet-100 bg-violet-50 p-5">

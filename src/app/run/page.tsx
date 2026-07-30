@@ -62,7 +62,7 @@ export default function RunPage() {
     setLanes((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
   }, []);
 
-  const start = useCallback(() => {
+  const start = useCallback((replay = false) => {
     if (running || !domain) return;
     setLanes(INITIAL_LANES.map((l) => ({ ...l })));
     setFeed([]);
@@ -72,7 +72,7 @@ export default function RunPage() {
     t0.current = Date.now();
 
     const es = new EventSource(
-      `/api/run?domain=${encodeURIComponent(domain)}&name=${encodeURIComponent(name || domain)}`
+      `/api/run?domain=${encodeURIComponent(domain)}&name=${encodeURIComponent(name || domain)}${replay ? "&replay=1" : ""}`
     );
     esRef.current = es;
 
@@ -183,11 +183,19 @@ export default function RunPage() {
             />
           </label>
           <button
-            onClick={start}
+            onClick={() => start()}
             disabled={running || !domain}
             className="rounded-md bg-term-accent px-5 py-2 text-sm font-medium text-ink transition-opacity disabled:opacity-40"
           >
             {running ? "running…" : "map this vendor"}
+          </button>
+          <button
+            onClick={() => start(true)}
+            disabled={running || !domain}
+            title="re-stream the last run from the journal — no upstream requests, no cost"
+            className="rounded-md border border-term-line px-4 py-2 text-sm text-term-soft transition-colors hover:border-term-accent hover:text-term-accent disabled:opacity-40"
+          >
+            replay last run
           </button>
           {summary && (
             <Link
