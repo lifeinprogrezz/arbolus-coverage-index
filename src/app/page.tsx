@@ -5,19 +5,19 @@ const SURFACES = [
     href: "/coverage",
     title: "Coverage board",
     desc: "The index at a glance — vendors, book depth, demand, priority queue.",
-    state: "in build",
+    state: "live",
   },
   {
     href: "/run",
     title: "Map run",
     desc: "The 10 lanes lighting up live: evidence streaming in, per-lane cost and latency.",
-    state: "in build",
+    state: "live",
   },
   {
-    href: "/book",
+    href: "/book/cledara.com",
     title: "Book view",
     desc: "Masked candidates, persona classes, evidence chains, exclusions with reasons.",
-    state: "in build",
+    state: "live",
   },
   {
     href: "/burst",
