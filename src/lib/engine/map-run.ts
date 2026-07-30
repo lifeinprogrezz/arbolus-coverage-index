@@ -35,11 +35,33 @@ export type RunEvent =
       latency_ms: number;
     };
 
+// Masking at the API layer (audit 42 §5 — case-fatal if leaked): the SSE
+// stream never carries full names or quotes; those live in the DB and are
+// revealed only through the book view's explicit unmask toggle.
+function maskEvent(e: LaneEvent): LaneEvent {
+  if (e.type !== "evidence") return e;
+  const { person, evidence_quote, ...rest } = e.row;
+  return {
+    ...e,
+    row: {
+      ...rest,
+      evidence_quote: undefined,
+      person: person
+        ? {
+            full_name: "[MASKED]",
+            title: person.title,
+            role_signal: person.role_signal,
+          }
+        : undefined,
+    },
+  };
+}
+
 function makeCtx(emit: (e: LaneEvent) => void, maxRequests = 40): LaneCtx {
   return {
     fetchText: cachedFetchText,
     fetchJson: cachedFetchJson,
-    emit,
+    emit: (e) => emit(maskEvent(e)),
     budget: { maxRequests },
   };
 }
@@ -75,15 +97,15 @@ export async function replayRun(
     .from("run_journal")
     .select("run_id, lane, status, items_found, cost_usd, latency_ms, detail, created_at")
     .eq("vendor_id", vendor.id)
+    .neq("status", "local_preseed") // preseed rows have per-row run_ids — not replayable runs
     .order("id", { ascending: false })
     .limit(24);
-  const rows = (lastJournal ?? []).reverse();
-  const runId = rows[0]?.run_id;
+  const runId = (lastJournal ?? [])[0]?.run_id; // newest row's run — BEFORE reversing
   if (!runId) {
     emit({ type: "stage", name: "no prior run to replay — run a live map first" });
     return;
   }
-  const journal = rows.filter((r) => r.run_id === runId);
+  const journal = (lastJournal ?? []).filter((r) => r.run_id === runId).reverse();
 
   emit({ type: "run_start", run_id: runId, vendor });
   emit({ type: "stage", name: "replay — cached run, no upstream requests" });
@@ -109,7 +131,7 @@ export async function replayRun(
           org_name: c.employer ?? "—",
           evidence_type: c.evidence?.[0]?.type ?? "case_study",
           status: "current",
-          person: { full_name: c.full_name ?? "", title: c.title ?? undefined },
+          person: { full_name: "[MASKED]", title: c.title ?? undefined },
         },
       });
       await sleep(120);
@@ -157,7 +179,7 @@ export async function mapRun(
       items_found: r.rows.length,
       cost_usd: r.cost_usd,
       latency_ms: r.latency_ms,
-      detail: { requests: r.requests, note: r.note, error: r.error },
+      detail: { requests: r.requests, note: r.note?.slice(0, 200), error: r.error },
     });
   };
 
@@ -165,18 +187,13 @@ export async function mapRun(
   emit({ type: "stage", name: "sitemap" });
   const smRes = await sitemapLane(vendor, makeCtx(emit));
   await journal(smRes);
-  let harvest: SitemapHarvest = {
+  const harvest: SitemapHarvest = (smRes.data as SitemapHarvest) ?? {
     customerPages: [],
     alternativePages: [],
     integrationPages: [],
     competitorsDetected: [],
     allUrls: [],
   };
-  try {
-    harvest = JSON.parse(smRes.note ?? "{}");
-  } catch {
-    /* keep empty harvest */
-  }
 
   // competitor self-declarations extend the vendor row
   if (harvest.competitorsDetected.length > 0) {
@@ -293,7 +310,7 @@ export async function mapRun(
       emit({
         type: "exclusion",
         org_name: first.org_name,
-        person: person.full_name,
+        person: "[MASKED]",
         reason: verdict.reason ?? "unknown",
       });
     }

@@ -209,7 +209,7 @@ export default function RunPage() {
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           {/* lane board */}
-          <section>
+          <section className="min-w-0">
             <h2 className="provenance mb-2 uppercase tracking-wider !text-term-muted">lanes</h2>
             <div className="flex flex-col gap-1.5">
               {lanes.map((l) => (
@@ -246,7 +246,9 @@ export default function RunPage() {
                   <span className="metric w-16 text-right text-xs text-term-mid">
                     {l.latency != null ? `${(l.latency / 1000).toFixed(1)}s` : "—"}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-xs text-term-muted">{l.note ?? ""}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-term-muted">
+                    {(l.note ?? "").slice(0, 140)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -262,7 +264,7 @@ export default function RunPage() {
           </section>
 
           {/* evidence feed */}
-          <section>
+          <section className="min-w-0">
             <h2 className="provenance mb-2 uppercase tracking-wider !text-term-muted">
               evidence stream <span className="normal-case">(identities masked — unmask lives in the book)</span>
             </h2>

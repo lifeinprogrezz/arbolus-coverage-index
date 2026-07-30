@@ -44,7 +44,7 @@ export default async function BurstPage({
   const supa = db();
   const { data: vendors } = await supa
     .from("vendors")
-    .select("name, domain, book_state, hq_country")
+    .select("name, domain, book_state, hq_country, coverage_now, coverage_simulated")
     .order("last_mapped_at", { ascending: false, nullsFirst: false });
   const vendor =
     (vendors ?? []).find((v) => v.domain === vendorParam) ?? (vendors ?? [])[0];
@@ -54,8 +54,10 @@ export default async function BurstPage({
     reservoir_hits?: number;
   };
   const depth = (b.seeds ?? 0) + (b.reservoir_hits ?? 0);
-  const branch =
-    depth >= 8
+  const covered = (vendor?.coverage_now ?? 0) >= 20;
+  const branch = covered
+    ? { label: "WELL COVERED — no gap, no spend", pill: "bg-city-london", note: "coverage already serves clients; the demand event closes with zero budget authorised — scarcity pricing at its self-extinguishing top row" }
+    : depth >= 8
       ? { label: "WARM BOOK — recruit now", pill: "bg-city-london", note: "seeds + reservoir hits are ready; outreach drafts in hours, not weeks" }
       : depth >= 3
       ? { label: "THIN BOOK — emergency map first", pill: "bg-city-newdelhi", note: "a re-map runs in minutes for pennies, then recruit from what it finds" }

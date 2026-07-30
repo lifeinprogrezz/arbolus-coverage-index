@@ -51,9 +51,12 @@ Rules:
 - Works on pages in ANY language; extract to English fields but keep quotes verbatim.
 Respond ONLY with JSON: {"rows": [...]} matching the provided schema. No prose.`;
 
+// Returns null when the model's output could not be parsed — the caller
+// parks the page as "unclassified evidence" (visible, retryable) instead of
+// silently losing it (audit 42 §5).
 export async function classifyPage(
   input: ExtractionInput
-): Promise<ClassifiedEvidence[]> {
+): Promise<ClassifiedEvidence[] | null> {
   const prompt = `Vendor: ${input.vendorName} (${input.vendorDomain})
 Known competitors: ${input.competitorSet.join(", ") || "unknown"}
 Source: ${input.sourceKind} — ${input.sourceUrl}
@@ -80,7 +83,7 @@ Extract rows as JSON:
   try {
     const jsonStart = text.indexOf("{");
     const jsonEnd = text.lastIndexOf("}");
-    if (jsonStart === -1 || jsonEnd <= jsonStart) return [];
+    if (jsonStart === -1 || jsonEnd <= jsonStart) return null; // parse failure ≠ no evidence
     const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
     const rows: ClassifiedEvidence[] = (parsed.rows ?? []).map(
       (r: ClassifiedEvidence) => ({
@@ -90,7 +93,7 @@ Extract rows as JSON:
     );
     return rows;
   } catch {
-    return [];
+    return null; // malformed output parks the page as unclassified, retryable
   }
 }
 

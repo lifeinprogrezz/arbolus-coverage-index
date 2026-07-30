@@ -36,7 +36,12 @@ function tierPill(tier: string): string {
   return "bg-city-sanjose";
 }
 
-function bookPill(seeds: number, reservoir: number): { label: string; cls: string } {
+function bookPill(
+  seeds: number,
+  reservoir: number,
+  coverage: number
+): { label: string; cls: string } {
+  if (coverage >= 20) return { label: "covered — no spend", cls: "bg-city-london" };
   const depth = seeds + reservoir;
   if (depth >= 8) return { label: "warm book", cls: "bg-city-london" };
   if (depth >= 3) return { label: "thin book", cls: "bg-city-newdelhi" };
@@ -112,7 +117,7 @@ export default async function CoveragePage() {
               <tbody>
                 {vendors.map((v) => {
                   const b = v.book_state ?? {};
-                  const pill = bookPill(b.seeds ?? 0, b.reservoir_hits ?? 0);
+                  const pill = bookPill(b.seeds ?? 0, b.reservoir_hits ?? 0, v.coverage_now ?? 0);
                   return (
                     <tr key={v.id} className="border-b border-line last:border-0 hover:bg-ink/[.04]">
                       <td className="px-4 py-3">

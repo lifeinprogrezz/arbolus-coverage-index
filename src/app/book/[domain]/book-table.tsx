@@ -20,6 +20,7 @@ export interface CandidateItem {
   full_name: string | null;
   title: string | null;
   employer: string | null;
+  employer_domain: string | null;
   persona_class: number | null;
   role_signal: string | null;
   evidence: EvidenceItem[];
@@ -29,6 +30,14 @@ export interface CandidateItem {
   eligible: boolean;
   exclusion_reason: string | null;
   reservoir_match: boolean;
+}
+
+// first-initial + last-name @ employer domain — the cheapest resolution rung
+function patternGuess(fullName: string, domain: string, unmasked: boolean): string {
+  const parts = fullName.trim().toLowerCase().split(/\s+/);
+  const guess = `${parts[0]?.[0] ?? ""}${parts[parts.length - 1] ?? ""}`;
+  if (!unmasked) return `${guess[0] ?? "•"}${"•".repeat(Math.max(guess.length - 1, 2))}@${domain}`;
+  return `${guess}@${domain}`;
 }
 
 function ConfidenceBar({ value, parts }: { value: number | null; parts: Record<string, number> | null }) {
@@ -79,6 +88,24 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
           {unmasked ? "masking OFF — identities visible" : "unmask identities"}
         </button>
       </div>
+
+      {eligible.length === 0 && (
+        <div className="mb-4 rounded-lg border border-city-newdelhi/50 bg-warn-bg p-6">
+          <div className="flex items-center gap-3">
+            <span className="pill bg-city-sanjose">cold book</span>
+            <span className="text-base font-semibold text-ink">
+              No public evidence surfaced for this vendor — and that is a branch, not a failure.
+            </span>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm text-subtle-deep">
+            The burst playbook branches here: an emergency map re-runs on demand (minutes,
+            pennies) · scarcity pricing raises the first-review bounty toward the $75+ tier ·
+            consent-first capture and the reservoir carry more of the walk · and the clock
+            honestly extends. Demand-gating means <strong>$0 was spent</strong> reaching this
+            conclusion — the engine only pays where a client already asked.
+          </p>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-md border border-line bg-card shadow-[var(--shadow-card)]">
         <table className="w-full border-collapse text-sm">
@@ -145,8 +172,18 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
                           </div>
                         ))}
                         <div className="provenance">
-                          contact_state: <span className="metric">{c.contact_state}</span> · resolution +
-                          verification are production steps (named API) — the state machine is the argument
+                          contact_state: <span className="metric">{c.contact_state}</span>
+                          {c.employer_domain && c.full_name && (
+                            <>
+                              {" "}· pattern-guess:{" "}
+                              <span className="metric">
+                                {patternGuess(c.full_name, c.employer_domain, unmasked)}
+                              </span>
+                            </>
+                          )}{" "}
+                          · verification = production step (NeverBounce-class API) — the{" "}
+                          <span className="metric">unresolved → resolved → verified → bounced</span>{" "}
+                          state machine is the argument, not the SMTP handshake
                         </div>
                       </div>
                     </td>

@@ -16,6 +16,7 @@ export function customerPagesLane(harvest: SitemapHarvest): Lane {
     let cost = 0;
     let requests = 0;
     const rows: EvidenceRow[] = [];
+    let unclassified = 0;
 
     ctx.emit({ type: "lane_start", lane });
 
@@ -50,6 +51,16 @@ export function customerPagesLane(harvest: SitemapHarvest): Lane {
       });
       cost += estimateClassifyCost(Math.min(page.body.length, 24_000));
 
+      if (classified === null) {
+        unclassified++;
+        ctx.emit({
+          type: "lane_progress",
+          lane,
+          message: "classification unparseable — page parked as unclassified (retryable)",
+          url,
+        });
+        continue;
+      }
       for (const row of classified) {
         rows.push(row);
         ctx.emit({ type: "evidence", lane, row });
@@ -63,7 +74,7 @@ export function customerPagesLane(harvest: SitemapHarvest): Lane {
       found: rows.length,
       cost_usd: cost,
       latency_ms: latency,
-      note: `${targets.length} pages read`,
+      note: `${targets.length} pages read${unclassified ? ` · ${unclassified} parked unclassified (retryable)` : ""}`,
     });
     return { lane, rows, cost_usd: cost, latency_ms: latency, requests };
   };

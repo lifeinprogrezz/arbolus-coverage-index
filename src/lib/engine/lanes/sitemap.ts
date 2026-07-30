@@ -84,13 +84,14 @@ export const sitemapLane: Lane = async (vendor: Vendor, ctx: LaneCtx): Promise<L
     }
   }
 
+  const note = `${harvest.customerPages.length} customer pages · ${harvest.alternativePages.length} rival pages · ${harvest.competitorsDetected.length} competitors self-declared`;
   ctx.emit({
     type: "lane_done",
     lane: "sitemap",
     found: harvest.customerPages.length + harvest.alternativePages.length,
     cost_usd: 0,
     latency_ms: Date.now() - t0,
-    note: `${harvest.customerPages.length} customer pages · ${harvest.alternativePages.length} rival pages · ${harvest.competitorsDetected.length} competitors self-declared`,
+    note,
   });
 
   return {
@@ -99,6 +100,7 @@ export const sitemapLane: Lane = async (vendor: Vendor, ctx: LaneCtx): Promise<L
     cost_usd: 0,
     latency_ms: Date.now() - t0,
     requests,
-    note: JSON.stringify(harvest),
+    note,
+    data: harvest,
   };
 };

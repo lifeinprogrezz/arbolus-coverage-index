@@ -75,6 +75,10 @@ export const serpLane: Lane = async (vendor: Vendor, ctx: LaneCtx): Promise<Lane
         text: page.body,
       });
       cost += estimateClassifyCost(Math.min(page.body.length, 24_000));
+      if (classified === null) {
+        ctx.emit({ type: "lane_progress", lane, message: "unparseable — parked unclassified (retryable)", url: r.link });
+        continue;
+      }
       for (const row of classified) {
         rows.push(row);
         ctx.emit({ type: "evidence", lane, row });

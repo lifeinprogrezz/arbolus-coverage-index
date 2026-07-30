@@ -46,7 +46,8 @@ export interface LaneResult {
   latency_ms: number;
   requests: number;
   error?: string;
-  note?: string;
+  note?: string; // human-short — journaled and rendered
+  data?: unknown; // lane-to-orchestrator payload (e.g. sitemap harvest) — never journaled
 }
 
 export interface LaneCtx {

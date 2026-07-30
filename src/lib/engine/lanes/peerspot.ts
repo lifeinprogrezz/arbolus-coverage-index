@@ -44,6 +44,10 @@ export const peerspotLane: Lane = async (
     });
     cost += estimateClassifyCost(Math.min(page.body.length, 24_000));
 
+    if (classified === null) {
+      ctx.emit({ type: "lane_progress", lane, message: "unparseable — parked unclassified (retryable)", url });
+      continue;
+    }
     for (const row of classified) {
       row.evidence_type = "review_site";
       rows.push(row);

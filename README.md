@@ -4,6 +4,9 @@ Working prototype for the Arbolus Senior Product Manager (Growth) case study —
 
 **Live:** https://arbolus-coverage-index.vercel.app
 
+![Map run — lanes streaming, identities masked at the API layer](docs/screens/map-run-replay.jpg)
+![Coverage board — book depth, map queue, learning loop](docs/screens/coverage-board.jpg)
+
 ## The thesis
 
 The index is built **ahead of demand** from public evidence, with provenance and eligibility rules — so when a client opens an uncovered company and the 30-day clock starts, the trigger looks up a **warm book** instead of starting a cold search. One machine, two triggers: the continuous crawl plus activation loops are Challenge 1; the on-demand burst served from the index is Challenge 2.
