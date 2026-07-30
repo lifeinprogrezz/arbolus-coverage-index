@@ -136,6 +136,10 @@ export async function mapRun(
   emit({ type: "stage", name: "write" });
   const allRows: EvidenceRow[] = [...stage2.flatMap((r) => r.rows), ...atsRes.rows];
 
+  // a map run REFRESHES the vendor's book — no cross-run duplicate rows
+  await supa.from("candidates").delete().eq("vendor_id", vendor.id);
+  await supa.from("customer_orgs").delete().eq("vendor_id", vendor.id);
+
   let orgCount = 0;
   let candCount = 0;
   let exclCount = 0;
@@ -154,7 +158,7 @@ export async function mapRun(
             org_name: row.org_name,
             org_domain: row.org_domain ?? null,
             evidence_type: row.evidence_type,
-            evidence_url: row.evidence_url ?? null,
+            evidence_url: row.evidence_url ?? "",
             evidence_date: row.evidence_date ?? null,
             evidence_quote: row.evidence_quote ?? null,
             status: row.status ?? "current",
@@ -172,44 +176,70 @@ export async function mapRun(
       }
     }
 
-    if (row.person?.full_name) {
-      const verdict = checkEligibility(row, vendor);
-      if (!verdict.eligible) {
-        exclCount++;
-        emit({
-          type: "exclusion",
-          org_name: row.org_name,
-          person: row.person.full_name,
-          reason: verdict.reason ?? "unknown",
-        });
-      }
-      const cls = (row as { persona_class?: number }).persona_class;
-      const { error } = await supa.from("candidates").insert({
-        vendor_id: vendor.id,
-        org_id: orgIds.get(orgKey) ?? null,
-        full_name: row.person.full_name,
-        title: row.person.title ?? null,
-        employer: row.person.employer ?? row.org_name,
-        employer_domain: row.person.employer_domain ?? row.org_domain ?? null,
-        persona_class: cls && cls >= 1 && cls <= 4 ? cls : null,
-        role_signal: row.person.role_signal ?? null,
-        evidence: [
-          {
-            url: row.evidence_url,
-            date: row.evidence_date,
-            type: row.evidence_type,
-            quote: row.evidence_quote,
-            source_domain: row.evidence_url ? new URL(row.evidence_url).hostname : null,
-          },
-        ],
-        confidence: (row as { confidence?: number }).confidence ?? null,
-        confidence_parts:
-          (row as { confidence_parts?: object }).confidence_parts ?? null,
-        eligible: verdict.eligible,
-        exclusion_reason: verdict.reason,
+  }
+
+  // ---- person rows: merge per (name, employer) so one candidate carries
+  // its whole evidence chain instead of one row per quote ----
+  const persons = new Map<string, EvidenceRow[]>();
+  for (const row of allRows) {
+    if (!row.person?.full_name) continue;
+    const key = `${row.person.full_name.toLowerCase()}|${(row.person.employer ?? row.org_name).toLowerCase()}`;
+    persons.set(key, [...(persons.get(key) ?? []), row]);
+  }
+
+  for (const group of persons.values()) {
+    const first = group[0];
+    const person = first.person!;
+    const orgKey = first.org_name.toLowerCase();
+    const verdict = checkEligibility(first, vendor);
+    if (!verdict.eligible) {
+      exclCount++;
+      emit({
+        type: "exclusion",
+        org_name: first.org_name,
+        person: person.full_name,
+        reason: verdict.reason ?? "unknown",
       });
-      if (!error) candCount++;
     }
+    const cls = group
+      .map((r) => (r as { persona_class?: number }).persona_class)
+      .find((c) => c && c >= 1 && c <= 4);
+    const confidences = group
+      .map((r) => (r as { confidence?: number }).confidence)
+      .filter((c): c is number => typeof c === "number");
+    const evidenceSeen = new Set<string>();
+    const evidence = group
+      .filter((r) => {
+        const k = `${r.evidence_url}|${r.evidence_quote}`;
+        if (evidenceSeen.has(k)) return false;
+        evidenceSeen.add(k);
+        return true;
+      })
+      .map((r) => ({
+        url: r.evidence_url,
+        date: r.evidence_date,
+        type: r.evidence_type,
+        quote: r.evidence_quote,
+        source_domain: r.evidence_url ? new URL(r.evidence_url).hostname : null,
+      }));
+
+    const { error } = await supa.from("candidates").insert({
+      vendor_id: vendor.id,
+      org_id: orgIds.get(orgKey) ?? null,
+      full_name: person.full_name,
+      title: person.title ?? null,
+      employer: person.employer ?? first.org_name,
+      employer_domain: person.employer_domain ?? first.org_domain ?? null,
+      persona_class: cls ?? null,
+      role_signal: person.role_signal ?? null,
+      evidence,
+      confidence: confidences.length ? Math.max(...confidences) : null,
+      confidence_parts:
+        (first as { confidence_parts?: object }).confidence_parts ?? null,
+      eligible: verdict.eligible,
+      exclusion_reason: verdict.reason,
+    });
+    if (!error) candCount++;
   }
 
   // ---- reservoir join (synthetic base, real join logic) ----

@@ -9,8 +9,11 @@ export interface ExclusionVerdict {
   reason: string | null; // which check fired
 }
 
+// Intermediaries are third-party FIRMS (investors, consultancies, industry
+// analysts) — an in-house "Financial Analyst" at the customer org is a user,
+// not an intermediary, so bare "analyst" must NOT match.
 const INTERMEDIARY_RE =
-  /\b(investor|venture|capital|consultan|analyst|advisor|agency|reseller|partner manager|account executive)\b/i;
+  /\b(investor|venture|capital|consultan(?:t|cy|ting)|industry analyst|research analyst|equity analyst|advisor|advisory|agency|reseller)\b/i;
 
 function domainsMatch(a?: string, b?: string): boolean {
   if (!a || !b) return false;

@@ -79,7 +79,9 @@ Extract rows as JSON:
     .join("");
   try {
     const jsonStart = text.indexOf("{");
-    const parsed = JSON.parse(text.slice(jsonStart));
+    const jsonEnd = text.lastIndexOf("}");
+    if (jsonStart === -1 || jsonEnd <= jsonStart) return [];
+    const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
     const rows: ClassifiedEvidence[] = (parsed.rows ?? []).map(
       (r: ClassifiedEvidence) => ({
         ...r,
