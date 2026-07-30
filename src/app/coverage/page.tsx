@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { laneYields } from "@/lib/engine/learning";
 import { mapQueue } from "@/lib/engine/demand";
+import RequestCoverage from "./request-coverage";
 
 export const dynamic = "force-dynamic";
 
@@ -143,9 +144,12 @@ export default async function CoveragePage() {
                           : "never"}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Link href={`/book/${v.domain}`} className="text-sm">
-                          book →
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <RequestCoverage domain={v.domain} />
+                          <Link href={`/book/${v.domain}`} className="text-sm">
+                            book →
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -260,12 +264,13 @@ export default async function CoveragePage() {
 
         {/* the missing front door */}
         <div className="mt-8 rounded-lg border border-violet-100 bg-violet-50 p-5">
-          <h2 className="text-base font-semibold text-ink">Request coverage</h2>
+          <h2 className="text-base font-semibold text-ink">Request coverage — the missing front door</h2>
           <p className="mt-1 max-w-2xl text-sm text-subtle-deep">
-            The client-side front door that exists on no Arbolus page today: a client
-            names a company, the demand event authorises the budget, the clock starts —
-            warm. In this prototype the same action is the{" "}
-            <Link href="/run">map-a-vendor run</Link>.
+            No Arbolus page today lets a client say &ldquo;I need coverage on this
+            company.&rdquo; Each row&rsquo;s <em>request coverage</em> button fires a
+            simulated searched-and-empty event: the queue reorders, the{" "}
+            <Link href="/burst">burst budget</Link> is authorised, and every euro traces
+            to a client who asked and left empty-handed.
           </p>
         </div>
       </main>

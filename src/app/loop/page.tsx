@@ -27,8 +27,16 @@ const METRICS = [
 ];
 
 export default async function LoopPage() {
+  const supa = db();
+  const { data: mappedVendors } = await supa
+    .from("vendors")
+    .select("name, domain")
+    .not("last_mapped_at", "is", null)
+    .order("last_mapped_at", { ascending: false })
+    .limit(4);
+
   // drafts render NAME-REDACTED — same masking contract as the book
-  const { data: rawDrafts } = await db()
+  const { data: rawDrafts } = await supa
     .from("outreach_drafts")
     .select("channel, subject, body, drafted_at, sent, candidates(full_name)")
     .order("drafted_at", { ascending: false })
@@ -104,6 +112,27 @@ export default async function LoopPage() {
             </div>
           </section>
         </div>
+
+        {/* per-vendor conversion pages — where {{conversion_page}} resolves */}
+        <section className="mt-10 rounded-md border border-line bg-card p-5 shadow-[var(--shadow-card)]">
+          <h2 className="text-base font-semibold text-ink">
+            The destination{" "}
+            <span className="metric text-xs font-normal text-subtle">
+              — every invite&rsquo;s {"{{conversion_page}}"} resolves to a per-vendor page
+            </span>
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(mappedVendors ?? []).map((v) => (
+              <Link key={v.domain} href={`/join/${v.domain}`} className="pill bg-violet-50 !text-violet-link no-underline hover:bg-violet-100">
+                /join/{v.domain}
+              </Link>
+            ))}
+          </div>
+          <p className="provenance mt-2">
+            destination, not magnet — traffic arrives from the invite channels; the page
+            itself never runs ads or SEO
+          </p>
+        </section>
 
         {/* 5-review unlock flow */}
         <section className="mt-10">

@@ -39,6 +39,7 @@ const surfaces = [
   "/loop",
   "/api/vendors",
   ...(vendors ?? []).map((v) => `/book/${v.domain}`),
+  ...(vendors ?? []).map((v) => `/join/${v.domain}`),
 ];
 
 const headers = GATE ? { cookie: `ci_gate=${GATE}` } : {};
