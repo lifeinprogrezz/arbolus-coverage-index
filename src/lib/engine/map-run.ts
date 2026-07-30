@@ -178,6 +178,24 @@ export async function mapRun(
 
   }
 
+  // ---- reservoir join first (synthetic base, real join logic), so each
+  // candidate row can carry its reservoir_match flag ----
+  emit({ type: "stage", name: "reservoir" });
+  const allDomains = [
+    ...new Set(allRows.map((r) => r.org_domain).filter(Boolean)),
+  ] as string[];
+  let reservoirHits: { employer_domain: string | null }[] = [];
+  if (allDomains.length > 0) {
+    const { data: hits } = await supa
+      .from("reservoir_experts")
+      .select("employer_domain")
+      .in("employer_domain", allDomains);
+    reservoirHits = hits ?? [];
+  }
+  const reservoirDomains = new Set(
+    reservoirHits.map((h) => h.employer_domain).filter(Boolean)
+  );
+
   // ---- person rows: merge per (name, employer) so one candidate carries
   // its whole evidence chain instead of one row per quote ----
   const persons = new Map<string, EvidenceRow[]>();
@@ -238,20 +256,12 @@ export async function mapRun(
         (first as { confidence_parts?: object }).confidence_parts ?? null,
       eligible: verdict.eligible,
       exclusion_reason: verdict.reason,
+      reservoir_match: Boolean(
+        (person.employer_domain ?? first.org_domain) &&
+          reservoirDomains.has(person.employer_domain ?? first.org_domain ?? "")
+      ),
     });
     if (!error) candCount++;
-  }
-
-  // ---- reservoir join (synthetic base, real join logic) ----
-  emit({ type: "stage", name: "reservoir" });
-  const domains = [...new Set(allRows.map((r) => r.org_domain).filter(Boolean))];
-  let reservoirHits = 0;
-  if (domains.length > 0) {
-    const { data: hits } = await supa
-      .from("reservoir_experts")
-      .select("id, employer_domain")
-      .in("employer_domain", domains as string[]);
-    reservoirHits = hits?.length ?? 0;
   }
 
   const totalCost =
@@ -266,7 +276,7 @@ export async function mapRun(
         seeds: candCount,
         keys: orgCount,
         excluded: exclCount,
-        reservoir_hits: reservoirHits,
+        reservoir_hits: reservoirHits.length,
         last_run: run_id,
       },
     })

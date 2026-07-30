@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { candidateLabel, redactQuote, sourceDomain, PERSONA_LABEL, PERSONA_PILL } from "@/lib/mask";
 
 // Client half of the book view: the candidate table under the §1.3 masking
@@ -96,9 +96,8 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
           </thead>
           <tbody>
             {eligible.map((c, i) => (
-              <>
+              <Fragment key={c.id}>
                 <tr
-                  key={c.id}
                   className="cursor-pointer border-b border-line last:border-0 hover:bg-ink/[.04]"
                   onClick={() => setOpen(open === c.id ? null : c.id)}
                 >
@@ -126,7 +125,7 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
                   </td>
                 </tr>
                 {open === c.id && (
-                  <tr key={`${c.id}-d`} className="border-b border-line bg-ground-tint">
+                  <tr className="border-b border-line bg-ground-tint">
                     <td colSpan={8} className="px-6 py-4">
                       <div className="flex flex-col gap-2">
                         {c.evidence.map((e, j) => (
@@ -153,7 +152,7 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>
