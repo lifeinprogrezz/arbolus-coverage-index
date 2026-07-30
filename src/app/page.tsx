@@ -23,13 +23,13 @@ const SURFACES = [
     href: "/burst",
     title: "Burst view",
     desc: "The 30-day clock: playbook stages, path to 20, cost vs the manual baseline.",
-    state: "in build",
+    state: "live",
   },
   {
     href: "/loop",
     title: "Activation loop",
     desc: "Conversion page, 5-review unlock, colleague invites, the compounding metrics.",
-    state: "in build",
+    state: "live",
   },
 ];
 
