@@ -1,26 +1,298 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Arbolus prototype skin — "Arbolus paper + glass elevation"
+   Tokens extracted from arbolus.com / community.arbolus.com /
+   media kit (research file 14). Ink-first, violet-accented.
+   ============================================================ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist), "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-fragment-mono), "source-code-pro", Menlo, Consolas, monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
+
+  /* --- Arbolus core palette (file 14 §1) --- */
+  --color-ink: #0b1a1d;
+  --color-ink-hover: #172428;
+  --color-ink-active: #2a3a3d;
+  --color-ink-70: #545f61;
+  --color-ink-65: #606a6c;
+  --color-ink-60: #6d7677;
+  --color-ink-35: #aaafb0;
+  --color-ink-30: #b6babb;
+  --color-ink-25: #c2c6c6;
+
+  --color-violet-50: #ececfb;
+  --color-violet-100: #d9d9f7;
+  --color-violet-200: #c3c2fa;
+  --color-violet-300: #b3b2ee;
+  --color-violet-400: #a09eea; /* logo violet — graphic only on white */
+  --color-violet-500: #918fe4;
+  --color-violet-600: #8280de;
+  --color-violet-700: #7270d8;
+  --color-violet-800: #6361d2;
+  --color-violet-900: #5452cc;
+  --color-violet-link: #5c58e8; /* text-safe interactive violet */
+
+  --color-ground: #fbf9f7;
+  --color-ground-tint: #f6f2ef;
+  --color-ground-tint-hover: #efe7e2;
+  --color-ground-card: #ffffff;
+
+  --color-line: #e4e2e1;
+  --color-line-strong: #aaaaaa;
+  --color-line-warm: #ded8d4;
+  --color-line-onviolet: #ccced9;
+
+  --color-subtle: #7a7d7e;
+  --color-subtle-deep: #687275;
+  --color-subtle-disabled: #aaaaaa;
+
+  /* city pastels — the coverage/state language (file 14 §3) */
+  --color-city-london: #dcf5bc;    /* covered / complete */
+  --color-city-barcelona: #aef0ff; /* in-progress / live */
+  --color-city-newyork: #ffc8f3;   /* new / highlight */
+  --color-city-newdelhi: #f5c89d;  /* gap / pending */
+  --color-city-sanjose: #ded8d4;   /* neutral / archived */
+
+  --color-success: #389e0d;
+  --color-success-text: #237804;
+  --color-warn: #e05e00;
+  --color-warn-bg: #fff2e8;
+  --color-warn-border: #ffbc88;
+  --color-warn-text: #b84d00;
+  --color-error: #ff4d4f;
+
+  /* dark terminal variant (file 14 §10) — run view only */
+  --color-term-ground: #0b1a1d;
+  --color-term-surface: #102023;
+  --color-term-raised: #16262a;
+  --color-term-line: #1e2b37;
+  --color-term-line-bright: #313b50;
+  --color-term-dim: #434c6a;
+  --color-term-mid: #565c83;
+  --color-term-soft: #7b7db7;
+  --color-term-bright: #8d8dd1;
+  --color-term-accent: #a09eea;
+  --color-term-text: #e9edee;
+  --color-term-muted: #8fa0a3;
+
+  /* shadows (file 14 §7 + auditjob.me paper shadows) */
+  --shadow-card: 0 2px 4px 0 hsla(0, 0%, 89%, 0.5);
+  --shadow-raised: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-halo: 0 0 8px 2px hsla(0, 0%, 89%, 0.5);
+  --shadow-glow-violet: 0 2px 8px rgba(92, 88, 232, 0.15);
+  --shadow-glow-violet-lg: 0 4px 12px rgba(92, 88, 232, 0.3);
+  --shadow-glow-ink: 0 0 15px 5px rgba(11, 26, 29, 0.1);
+  --shadow-focus: 0 0 0 2px rgba(11, 26, 29, 0.1);
+  --shadow-term-glow: 0 0 12px 2px rgba(160, 158, 234, 0.18);
+  --shadow-page: 0 1px 2px 0 rgb(11 31 38 / 0.04), 0 12px 32px -16px rgb(11 31 38 / 0.1);
+  --shadow-page-lift: 0 2px 4px 0 rgb(11 31 38 / 0.04), 0 24px 48px -16px rgb(11 31 38 / 0.16);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* --- shadcn semantic mapping: Arbolus paper (light, default) --- */
+:root {
+  --background: #fbf9f7;
+  --foreground: #0b1a1d;
+  --card: #ffffff;
+  --card-foreground: #0b1a1d;
+  --popover: #ffffff;
+  --popover-foreground: #0b1a1d;
+  --primary: #0b1a1d; /* primary button is INK, not violet */
+  --primary-foreground: #ffffff;
+  --secondary: #f6f2ef;
+  --secondary-foreground: #0b1a1d;
+  --muted: #f6f2ef;
+  --muted-foreground: #7a7d7e;
+  --accent: #ececfb; /* soft violet — reward/invite moments */
+  --accent-foreground: #5c58e8;
+  --destructive: #ff4d4f;
+  --border: #e4e2e1;
+  --input: #aaaaaa;
+  --ring: rgba(11, 26, 29, 0.1);
+  --chart-1: #5c58e8;
+  --chart-2: #a09eea;
+  --chart-3: #dcf5bc;
+  --chart-4: #f5c89d;
+  --chart-5: #7a7d7e;
+  --radius: 8px; /* the Arbolus radius */
+  --sidebar: #fbf9f7;
+  --sidebar-foreground: #0b1a1d;
+  --sidebar-primary: #0b1a1d;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f6f2ef;
+  --sidebar-accent-foreground: #0b1a1d;
+  --sidebar-border: #e4e2e1;
+  --sidebar-ring: rgba(11, 26, 29, 0.1);
+}
+
+/* --- terminal variant: violet-on-ink (run view wraps in .dark) --- */
+.dark {
+  --background: #0b1a1d;
+  --foreground: #e9edee;
+  --card: #102023;
+  --card-foreground: #e9edee;
+  --popover: #102023;
+  --popover-foreground: #e9edee;
+  --primary: #a09eea;
+  --primary-foreground: #0b1a1d;
+  --secondary: #16262a;
+  --secondary-foreground: #e9edee;
+  --muted: #16262a;
+  --muted-foreground: #8fa0a3;
+  --accent: #16262a;
+  --accent-foreground: #a09eea;
+  --destructive: #ff6b6b;
+  --border: #1e2b37;
+  --input: #313b50;
+  --ring: rgba(160, 158, 234, 0.25);
+  --chart-1: #a09eea;
+  --chart-2: #7b7db7;
+  --chart-3: #565c83;
+  --chart-4: #434c6a;
+  --chart-5: #8fa0a3;
+  --sidebar: #0b1a1d;
+  --sidebar-foreground: #e9edee;
+  --sidebar-primary: #a09eea;
+  --sidebar-primary-foreground: #0b1a1d;
+  --sidebar-accent: #16262a;
+  --sidebar-accent-foreground: #e9edee;
+  --sidebar-border: #1e2b37;
+  --sidebar-ring: rgba(160, 158, 234, 0.25);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 14px;
+  }
+  h1, h2, h3, h4 {
+    font-weight: 600;
+  }
+  a {
+    color: var(--color-violet-link);
+  }
+  a:hover {
+    color: var(--color-ink-hover);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================================
+   Component idioms (file 14 §9) — shared utility classes
+   ============================================================ */
+
+/* uppercase mono pill — coverage states, run stages, statuses */
+.pill {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono uppercase;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-ink);
+}
+.pill-dark {
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+/* metric text — every number in a table/ticker */
+.metric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* evidence/provenance line */
+.provenance {
+  @apply font-mono text-xs;
+  color: var(--color-subtle);
+}
+
+/* paper grain (ported from auditjob.me) — page shells opt in */
+.page-grain {
+  position: relative;
+}
+.page-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.043 0 0 0 0 0.102 0 0 0 0 0.114 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* glass elevation — hero surfaces ONLY (headbar, run-view HUD) */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  border: 1px solid rgba(228, 226, 225, 0.8);
+  box-shadow: var(--shadow-page);
+}
+.dark .glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(160, 158, 234, 0.12);
+}
+
+/* streaming-stage shimmer (run view active lane) */
+@keyframes lane-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.lane-active {
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(160, 158, 234, 0.12) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: lane-shimmer 1.6s linear infinite;
+  box-shadow: var(--shadow-term-glow);
 }
