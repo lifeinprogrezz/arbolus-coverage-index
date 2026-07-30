@@ -119,6 +119,30 @@
   --color-term-text: #e9edee;
   --color-term-muted: #8fa0a3;
 
+  /* type scale (auditjob.me density scale — file 11 §2) */
+  --text-micro: 10px;
+  --text-micro--line-height: 14px;
+  --text-caption: 11px;
+  --text-caption--line-height: 15px;
+  --text-dense: 12px;
+  --text-dense--line-height: 17px;
+  --text-control: 13px;
+  --text-control--line-height: 18px;
+  --text-body: 14px;
+  --text-body--line-height: 21px;
+  --text-title: 16px;
+  --text-title--line-height: 23px;
+  --text-title--font-weight: 600;
+  --text-section: 18px;
+  --text-section--line-height: 25px;
+  --text-section--font-weight: 600;
+  --text-page: 24px;
+  --text-page--line-height: 30px;
+  --text-page--font-weight: 600;
+  --text-display: 32px;
+  --text-display--line-height: 38px;
+  --text-display--font-weight: 650;
+
   /* shadows (file 14 §7 + auditjob.me paper shadows) */
   --shadow-card: 0 2px 4px 0 hsla(0, 0%, 89%, 0.5);
   --shadow-raised: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -278,6 +302,225 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 1px 0 rgba(160, 158, 234, 0.12);
+}
+
+/* ============================================================
+   S-tier layer — rim-light panes, spotlight, density idioms,
+   motion (ported from auditjob.me glass system, re-accented)
+   ============================================================ */
+
+/* paper pane — white card with the two-layer ink page shadow + top catch-light */
+.pane {
+  background: var(--color-ground-card);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    var(--shadow-page);
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+.pane-lift:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    var(--shadow-page-lift);
+  transform: translateY(-1px);
+}
+
+/* terminal pane — rim-light stack: top hairline + violet icy band + seat */
+.dark .pane,
+.pane-term {
+  background: var(--color-term-surface);
+  border: 1px solid var(--color-term-line);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 10px 22px -16px rgba(160, 158, 234, 0.28),
+    0 10px 28px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* cursor-spotlight card (set --mx/--my from ONE container mousemove listener) */
+.spot {
+  position: relative;
+  overflow: hidden;
+}
+.spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(92, 88, 232, 0.08),
+    transparent 65%
+  );
+}
+.spot:hover::after {
+  opacity: 1;
+}
+.dark .spot::after {
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(160, 158, 234, 0.12),
+    transparent 65%
+  );
+}
+
+/* sunken input well (inverse rim: dark top inset, faint bottom light) */
+.well {
+  background: var(--color-ground-tint);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1.5px 3px rgba(11, 26, 29, 0.07),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+}
+.well:focus-within {
+  border-color: var(--color-ink);
+  box-shadow:
+    inset 0 1.5px 3px rgba(11, 26, 29, 0.07),
+    0 0 0 2px rgba(11, 26, 29, 0.08);
+}
+.dark .well {
+  background: rgba(11, 26, 29, 0.55);
+  border-color: var(--color-term-line);
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+.dark .well:focus-within {
+  border-color: var(--color-term-accent);
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.45),
+    0 0 0 2px rgba(160, 158, 234, 0.2);
+}
+
+/* active-nav raised thumb */
+.nav-thumb {
+  background: var(--color-ground-card);
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(11, 31, 38, 0.06);
+}
+.dark .nav-thumb {
+  background: var(--color-term-raised);
+  border-color: var(--color-term-line-bright);
+  box-shadow: 0 0 10px 1px rgba(160, 158, 234, 0.12);
+}
+
+/* 4px data bars (score/confidence — flat fill, no gradients) */
+.dbar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(11, 26, 29, 0.07);
+  overflow: hidden;
+}
+.dbar > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-violet-link);
+}
+.dark .dbar {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dark .dbar > i {
+  background: var(--color-term-accent);
+}
+
+/* labeled fact grid */
+.dg {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 14px;
+}
+.dg-k {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-subtle);
+  align-self: baseline;
+  padding-top: 2px;
+}
+.dg-v {
+  font-size: 13px;
+  color: var(--color-ink);
+}
+.dark .dg-v {
+  color: var(--color-term-text);
+}
+
+/* themed thin scrollbar */
+.tracker-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(11, 26, 29, 0.25) transparent;
+}
+.tracker-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.tracker-scroll::-webkit-scrollbar-thumb {
+  background: rgba(11, 26, 29, 0.25);
+  border-radius: 999px;
+}
+.dark .tracker-scroll {
+  scrollbar-color: rgba(160, 158, 234, 0.3) transparent;
+}
+.dark .tracker-scroll::-webkit-scrollbar-thumb {
+  background: rgba(160, 158, 234, 0.3);
+}
+
+/* reveal-on-mount motion (route/section entrances) */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  animation: reveal-up 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.reveal-d1 {
+  animation-delay: 60ms;
+}
+.reveal-d2 {
+  animation-delay: 120ms;
+}
+.reveal-d3 {
+  animation-delay: 180ms;
+}
+.reveal-d4 {
+  animation-delay: 240ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-d1,
+  .reveal-d2,
+  .reveal-d3,
+  .reveal-d4 {
+    animation: none;
+  }
+  .lane-active {
+    animation: none;
+  }
+}
+
+/* eyebrow label — section voice */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-subtle);
+}
+.dark .eyebrow {
+  color: var(--color-term-muted);
 }
 
 /* streaming-stage shimmer (run view active lane) */

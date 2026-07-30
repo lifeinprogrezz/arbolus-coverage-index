@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
+    "@formkit/auto-animate": "^0.10.0",
+    "@number-flow/react": "^0.6.2",
     "@supabase/supabase-js": "^2.109.0",
     "@types/ws": "^8.18.1",
     "class-variance-authority": "^0.7.1",
