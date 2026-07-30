@@ -1,119 +1,139 @@
-import Link from "next/link";
+import AppHeader from "@/components/shell/app-header";
+import InfoHint from "@/components/ui/info-hint";
+import SurfaceCards from "./surface-cards";
 
-const SURFACES = [
-  {
-    href: "/coverage",
-    title: "Coverage board",
-    desc: "The index at a glance — vendors, book depth, demand, priority queue.",
-    state: "live",
-  },
-  {
-    href: "/run",
-    title: "Map run",
-    desc: "The 10 lanes lighting up live: evidence streaming in, per-lane cost and latency.",
-    state: "live",
-  },
-  {
-    href: "/book/cledara.com",
-    title: "Book view",
-    desc: "Masked candidates, persona classes, evidence chains, exclusions with reasons.",
-    state: "live",
-  },
-  {
-    href: "/burst",
-    title: "Burst view",
-    desc: "The 30-day clock: playbook stages, path to 20, cost vs the manual baseline.",
-    state: "live",
-  },
-  {
-    href: "/loop",
-    title: "Activation loop",
-    desc: "Conversion page, 5-review unlock, colleague invites, the compounding metrics.",
-    state: "live",
-  },
-];
+// The case's cover page. Reads in 10 seconds: thesis → five surfaces →
+// lane status → city footer. Rationale lives in InfoHint, not prose.
 
-function laneStatus() {
+type LaneChip = { name: string; state: "live" | "nightly" | "dark" };
+
+// Mirrors the run view's lane registry (run/run-types.ts INITIAL_LANES) —
+// same names, same order. Nightly lanes run on a schedule, not inside a run.
+function laneStatus(): LaneChip[] {
   return [
-    { name: "sitemap", lit: true },
-    { name: "customer pages", lit: true },
-    { name: "wayback diff", lit: true },
-    { name: "ats sweep", lit: true },
-    { name: "peerspot", lit: true },
-    { name: "serp long-tail", lit: Boolean(process.env.SERPER_API_KEY) },
-    { name: "claude classify", lit: Boolean(process.env.ANTHROPIC_API_KEY) },
-    {
-      name: "supabase index",
-      lit: Boolean(
-        process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY
-      ),
-    },
+    { name: "sitemap", state: "live" },
+    { name: "customer pages", state: "live" },
+    { name: "wayback diff", state: "live" },
+    { name: "logo-wall diff", state: "live" },
+    { name: "ats sweep", state: "live" },
+    { name: "peerspot", state: "live" },
+    { name: "serp", state: process.env.SERPER_API_KEY ? "live" : "dark" },
+    { name: "community", state: "nightly" },
+    { name: "procurement", state: "nightly" },
+    { name: "github", state: "nightly" },
+    { name: "classify", state: process.env.ANTHROPIC_API_KEY ? "live" : "dark" },
   ];
 }
+
+const CITIES: [string, string][] = [
+  ["London", "bg-city-london"],
+  ["Barcelona", "bg-city-barcelona"],
+  ["New York", "bg-city-newyork"],
+  ["New Delhi", "bg-city-newdelhi"],
+  ["San José", "bg-city-sanjose"],
+];
 
 export default function Home() {
   const lanes = laneStatus();
   return (
-    <div className="page-grain min-h-screen">
-      <header className="glass sticky top-0 z-10">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-[6px] bg-violet-400 font-mono text-sm font-bold text-white">
-              C
-            </span>
-            <span className="font-semibold">Coverage Index</span>
-            <span className="pill bg-city-barcelona">prototype</span>
+    <div className="page-grain flex min-h-screen flex-col">
+      <AppHeader
+        variant="paper"
+        right={<span className="pill bg-city-sanjose">prototype</span>}
+      />
+
+      <main className="relative z-[1] mx-auto w-full max-w-5xl flex-1 px-6 pb-16">
+        {/* hero */}
+        <section className="reveal pt-14">
+          <p className="eyebrow">Arbolus growth case · working prototype</p>
+          <h1 className="mt-4 max-w-3xl text-display tracking-[-0.01em] text-ink md:text-[40px] md:leading-[46px]">
+            The index is built ahead of demand, so the clock starts warm.
+          </h1>
+          <p className="mt-3 max-w-xl text-pretty text-body text-subtle-deep">
+            We read the public evidence about B2B software vendors and turn it
+            into a book of customers we can name and verify.
+          </p>
+        </section>
+
+        {/* the five surfaces */}
+        <section className="reveal reveal-d1 mt-10">
+          <SurfaceCards />
+        </section>
+
+        {/* engine lanes */}
+        <section className="reveal reveal-d2 mt-12">
+          <div className="flex items-center gap-2">
+            <h2 className="eyebrow">Engine lanes</h2>
+            <InfoHint>
+              <p>
+                Each lane is one way of finding evidence. A dark lane has no API
+                key in this build, so it is skipped and shown dark. Its output is
+                never faked.
+              </p>
+              <p className="mt-2">
+                Nightly lanes run on a schedule rather than inside a live run, so
+                a run never waits on them.
+              </p>
+              <p className="mt-2">
+                The index itself is a Supabase database. That is where every
+                lane writes, so it is not a lane of its own.
+              </p>
+            </InfoHint>
           </div>
-          <span className="provenance">Arbolus growth case · build day 1</span>
-        </div>
-      </header>
-
-      <main className="relative z-[1] mx-auto max-w-5xl px-6 py-12">
-        <p className="max-w-2xl text-lg leading-relaxed text-ink">
-          The index is built <em>ahead of demand</em> from public evidence, with
-          provenance and eligibility rules — so when the 30-day clock starts, the
-          trigger looks up a <strong>warm book</strong> instead of starting a cold
-          search.
-        </p>
-
-        <h2 className="mt-10 mb-3 text-sm font-medium uppercase tracking-wide text-subtle">
-          Surfaces
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {SURFACES.map((s) => (
-            <Link
-              key={s.href}
-              href={s.href}
-              className="rounded-md border border-line bg-card p-4 no-underline shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-raised)]"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-ink">{s.title}</span>
-                <span className="pill bg-city-newdelhi">{s.state}</span>
-              </div>
-              <p className="mt-1 text-sm text-subtle">{s.desc}</p>
-            </Link>
-          ))}
-        </div>
-
-        <h2 className="mt-10 mb-3 text-sm font-medium uppercase tracking-wide text-subtle">
-          Engine lanes
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {lanes.map((l) => (
-            <span
-              key={l.name}
-              className={`pill ${l.lit ? "bg-city-london" : "bg-city-sanjose"}`}
-              title={l.lit ? "live" : "dark — key not configured"}
-            >
-              {l.name} {l.lit ? "· live" : "· dark"}
-            </span>
-          ))}
-        </div>
-        <p className="provenance mt-3">
-          A dark lane names why it is dark — the engine degrades under stated
-          rules, it never pretends.
-        </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {lanes.map((l) => (
+              <span
+                key={l.name}
+                title={
+                  l.state === "live"
+                    ? "live in every run"
+                    : l.state === "nightly"
+                      ? "runs nightly, not inside a run"
+                      : "dark — no key configured in this build"
+                }
+                className={`pill ${
+                  l.state === "live"
+                    ? "bg-city-london"
+                    : l.state === "nightly"
+                      ? "bg-city-sanjose"
+                      : "bg-city-sanjose !text-ink-60"
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    l.state === "live"
+                      ? "bg-success"
+                      : l.state === "nightly"
+                        ? "bg-ink-60"
+                        : "border border-ink-35"
+                  }`}
+                />
+                {l.name}
+                {l.state === "nightly" && (
+                  <span className="text-ink-60">· nightly</span>
+                )}
+              </span>
+            ))}
+          </div>
+        </section>
       </main>
+
+      <footer className="reveal reveal-d3 relative z-[1] border-t border-line-warm">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-6 py-10">
+          <div className="flex flex-wrap justify-center gap-2">
+            {CITIES.map(([name, bg]) => (
+              <span key={name} className={`pill ${bg}`}>
+                {name}
+              </span>
+            ))}
+          </div>
+          <p className="provenance text-center">
+            coverage-index prototype · built for the Arbolus growth case ·
+            candidate identities masked
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

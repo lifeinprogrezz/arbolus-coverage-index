@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -24,35 +25,52 @@ function GateForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col items-center gap-3">
-      <div className="flex items-center gap-3">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] bg-violet-400 font-mono font-bold text-white">
-          C
-        </span>
-        <span className="text-lg font-semibold text-ink">Coverage Index</span>
+    <div className="pane reveal relative z-[1] w-full max-w-sm p-8">
+      <div className="flex flex-col items-center gap-2.5">
+        <Image
+          src="/brand/Arbolus-full-logo-standard.png"
+          alt="Arbolus"
+          width={116}
+          height={30}
+          priority
+          className="h-7 w-auto"
+        />
+        <span className="eyebrow">Coverage Index</span>
       </div>
-      <p className="text-sm text-subtle">access code is in the memo</p>
-      <input
-        type="password"
-        value={pw}
-        onChange={(e) => setPw(e.target.value)}
-        autoFocus
-        className="metric w-56 rounded-md border border-line-strong px-3 py-2 text-center text-ink outline-none focus:border-ink"
-      />
-      {err && <p className="text-xs text-error">not it — check the memo</p>}
-      <button
-        type="submit"
-        className="rounded-md bg-ink px-6 py-2 text-sm font-medium text-white hover:bg-ink-hover"
-      >
-        enter
-      </button>
-    </form>
+
+      <form onSubmit={submit} className="mt-7 flex flex-col gap-3">
+        <p className="text-center text-control text-subtle">
+          Access code is in the memo.
+        </p>
+        <div className="well">
+          <input
+            type="password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            autoFocus
+            aria-label="Access code"
+            className="metric w-full bg-transparent px-3 py-2.5 text-center text-ink outline-none"
+          />
+        </div>
+        {err && (
+          <p className="text-center text-caption text-warn-text">
+            Not it. Check the memo.
+          </p>
+        )}
+        <button
+          type="submit"
+          className="rounded-[10px] bg-ink px-6 py-2.5 text-control font-medium text-white transition-colors duration-150 hover:bg-ink-hover active:bg-ink-active"
+        >
+          Enter
+        </button>
+      </form>
+    </div>
   );
 }
 
 export default function GatePage() {
   return (
-    <div className="page-grain flex min-h-screen items-center justify-center">
+    <div className="page-grain flex min-h-screen items-center justify-center px-6">
       <Suspense>
         <GateForm />
       </Suspense>

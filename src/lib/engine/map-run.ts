@@ -334,6 +334,12 @@ export async function mapRun(
     const first = group[0];
     const person = first.person!;
     const orgKey = first.org_name.toLowerCase();
+    // placeholder employer ("Unknown", "Anonymous") falls back to the org
+    // the evidence came from — and if both are placeholders, skip entirely
+    if (person.employer && PLACEHOLDER_RE.test(person.employer.trim())) {
+      person.employer = undefined;
+    }
+    if (PLACEHOLDER_RE.test(first.org_name.trim())) continue;
     const verdict = checkEligibility(first, vendor);
     if (!verdict.eligible) {
       exclCount++;

@@ -2,7 +2,12 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { laneYields } from "@/lib/engine/learning";
 import { mapQueue } from "@/lib/engine/demand";
+import AppHeader from "@/components/shell/app-header";
+import CoLogo from "@/components/ui/co-logo";
+import InfoHint from "@/components/ui/info-hint";
+import { vendorName } from "../vendor-name";
 import RequestCoverage from "./request-coverage";
+import MapQueue from "./map-queue";
 
 export const dynamic = "force-dynamic";
 
@@ -31,22 +36,40 @@ interface VendorRow {
   map_cost_usd: number;
 }
 
-function tierPill(tier: string): string {
-  if (tier === "hot") return "bg-city-newyork";
-  if (tier === "warm") return "bg-city-newdelhi";
-  return "bg-city-sanjose";
-}
+// plain names for the engine's internal lane keys
+const LANE_LABEL: Record<string, string> = {
+  sitemap: "Site map",
+  customer_pages: "Customer pages",
+  wayback: "Older page versions",
+  logo_diff: "Logo-wall diff",
+  ats: "Job posts",
+  peerspot: "Review site",
+  serp: "Web search",
+};
 
 function bookPill(
   seeds: number,
   reservoir: number,
   coverage: number
 ): { label: string; cls: string } {
-  if (coverage >= 20) return { label: "covered — no spend", cls: "bg-city-london" };
+  if (coverage >= 20) return { label: "covered", cls: "bg-city-london" };
   const depth = seeds + reservoir;
   if (depth >= 8) return { label: "warm book", cls: "bg-city-london" };
   if (depth >= 3) return { label: "thin book", cls: "bg-city-newdelhi" };
   return { label: "cold", cls: "bg-city-sanjose" };
+}
+
+function timeAgo(iso: string | null): string {
+  if (!iso) return "never";
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return `${Math.floor(d / 30)}mo ago`;
 }
 
 export default async function CoveragePage() {
@@ -63,196 +86,221 @@ export default async function CoveragePage() {
 
   return (
     <div className="page-grain min-h-screen">
-      <header className="glass sticky top-0 z-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="font-semibold !text-ink no-underline">
-              Coverage Index
-            </Link>
-            <span className="pill bg-city-barcelona">coverage board</span>
-          </div>
+      <AppHeader
+        variant="paper"
+        right={
           <Link
             href="/run"
-            className="rounded-md bg-ink px-4 py-1.5 text-sm font-medium !text-white no-underline hover:bg-ink-hover"
+            className="rounded-md bg-ink px-4 py-1.5 text-control font-medium !text-white no-underline transition-colors hover:bg-ink-hover active:bg-ink-active"
           >
             map a vendor
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <main className="relative z-[1] mx-auto max-w-6xl px-6 py-8">
-        <div className="mb-6 flex items-end justify-between">
-          <div>
-            <h1 className="text-xl">The index</h1>
-            <p className="mt-1 text-sm text-subtle">
-              Built ahead of demand — every vendor row is a book the 30-day clock can
-              open warm. Coverage counts are{" "}
-              <span className="pill bg-city-sanjose">simulated</span> (Arbolus-internal
-              data); book depth is real, from public evidence.
-            </p>
+        <section className="reveal mb-6">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-page">The index</h1>
+            <span className="pill bg-city-sanjose">coverage simulated</span>
+            <InfoHint>
+              <p>
+                Review counts stand in for Arbolus&rsquo;s own data, so they are
+                simulated here. Everything else on this table is real, built from
+                public evidence.
+              </p>
+              <p className="mt-2 font-medium text-ink">What the columns mean</p>
+              <ul className="mt-1 flex flex-col gap-1">
+                <li>
+                  <span className="font-medium">Book</span> — how much we already
+                  have on this vendor before anyone asks.
+                </li>
+                <li>
+                  <span className="font-medium">People</span> — people we can name
+                  from public evidence.
+                </li>
+                <li>
+                  <span className="font-medium">Companies</span> — companies with
+                  evidence they use the vendor. These are the targets for
+                  room-level outreach.
+                </li>
+                <li>
+                  <span className="font-medium">Reservoir</span> — experts already
+                  in the Arbolus network who work at one of those companies.
+                </li>
+                <li>
+                  <span className="font-medium">Excluded</span> — ruled out, with
+                  the reason kept.
+                </li>
+              </ul>
+            </InfoHint>
           </div>
-        </div>
-
-        {vendors.length === 0 ? (
-          <div className="rounded-md border border-line bg-card p-8 text-center text-subtle shadow-[var(--shadow-card)]">
-            No vendors indexed yet —{" "}
-            <Link href="/run">run the first map</Link>.
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-md border border-line bg-card shadow-[var(--shadow-card)]">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-line text-left text-xs font-medium uppercase tracking-wide text-subtle">
-                  <th className="px-4 py-3">Vendor</th>
-                  <th className="px-4 py-3">Book</th>
-                  <th className="px-4 py-3 text-right">Seeds</th>
-                  <th className="px-4 py-3 text-right">Org keys</th>
-                  <th className="px-4 py-3 text-right">Reservoir</th>
-                  <th className="px-4 py-3 text-right">Excluded</th>
-                  <th className="px-4 py-3">Tier</th>
-                  <th className="px-4 py-3 text-right">Map cost</th>
-                  <th className="px-4 py-3">Last mapped</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {vendors.map((v) => {
-                  const b = v.book_state ?? {};
-                  const pill = bookPill(b.seeds ?? 0, b.reservoir_hits ?? 0, v.coverage_now ?? 0);
-                  return (
-                    <tr key={v.id} className="border-b border-line last:border-0 hover:bg-ink/[.04]">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-ink">{v.name}</div>
-                        <div className="provenance">{v.domain}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`pill ${pill.cls}`}>{pill.label}</span>
-                      </td>
-                      <td className="metric px-4 py-3 text-right">{b.seeds ?? 0}</td>
-                      <td className="metric px-4 py-3 text-right">{b.keys ?? 0}</td>
-                      <td className="metric px-4 py-3 text-right">{b.reservoir_hits ?? 0}</td>
-                      <td className="metric px-4 py-3 text-right">{b.excluded ?? 0}</td>
-                      <td className="px-4 py-3">
-                        <span className={`pill ${tierPill(v.map_tier)}`}>{v.map_tier}</span>
-                      </td>
-                      <td className="metric px-4 py-3 text-right">
-                        ${Number(v.map_cost_usd ?? 0).toFixed(3)}
-                      </td>
-                      <td className="metric px-4 py-3 text-xs text-subtle">
-                        {v.last_mapped_at
-                          ? new Date(v.last_mapped_at).toISOString().slice(0, 16).replace("T", " ")
-                          : "never"}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <RequestCoverage domain={v.domain} />
-                          <Link href={`/book/${v.domain}`} className="text-sm">
-                            book →
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* map queue — what gets indexed next */}
-        <section className="mt-8">
-          <h2 className="mb-2 text-base font-semibold text-ink">
-            Map queue{" "}
-            <span className="metric text-xs font-normal text-subtle">
-              what gets indexed next — demand-ranked (signals simulated, weights documented)
-            </span>
-          </h2>
-          <div className="flex flex-col gap-1.5">
-            {queueTop.map((q, i) => (
-              <div
-                key={q.id}
-                className="flex items-center gap-3 rounded-md border border-line bg-card px-4 py-2.5 shadow-[var(--shadow-card)]"
-              >
-                <span className="metric w-6 text-right text-sm text-subtle">{i + 1}</span>
-                <div className="w-40">
-                  <div className="text-sm font-medium text-ink">{q.name}</div>
-                  <div className="provenance">{q.domain}</div>
-                </div>
-                <span className="metric w-14 text-right text-violet-link">
-                  {q.demand_score.toFixed(1)}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {q.signals.map((s) => (
-                    <span
-                      key={s}
-                      className={`pill ${
-                        s === "searched-empty"
-                          ? "bg-city-newyork"
-                          : s === "funding"
-                          ? "bg-city-newdelhi"
-                          : s === "client-view"
-                          ? "bg-city-barcelona"
-                          : "bg-city-sanjose"
-                      }`}
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
-                <span className={`pill ml-auto ${q.mapped ? "bg-city-london" : "bg-city-sanjose"}`}>
-                  {q.mapped ? "indexed — re-map queued" : "unmapped"}
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="provenance mt-2">
-            weights: searched-and-empty ×3 · funding ×2 · client-view ×2 · watchlist ×1 ·
-            competitor-of-indexed ×1 — the searched-and-empty log both orders this queue AND
-            authorises the burst budget
+          <p className="mt-1 text-body text-subtle">
+            Every row is a book the 30-day clock can open warm.
           </p>
         </section>
 
+        {vendors.length === 0 ? (
+          <div className="pane reveal reveal-d1 p-8 text-center text-subtle">
+            No vendors indexed yet — <Link href="/run">run the first map</Link>.
+          </div>
+        ) : (
+          <section className="reveal reveal-d1">
+            <div className="pane tracker-scroll overflow-x-auto">
+              <table className="w-full border-collapse text-control">
+                <thead>
+                  <tr className="border-b border-line text-left text-dense uppercase tracking-wide text-subtle">
+                    <th className="px-4 py-3 font-medium">Vendor</th>
+                    <th className="px-3 py-3 font-medium">Book</th>
+                    <th className="px-3 py-3 text-right font-medium">People</th>
+                    <th className="px-3 py-3 text-right font-medium">Companies</th>
+                    <th className="px-3 py-3 text-right font-medium">Reservoir</th>
+                    <th className="px-3 py-3 text-right font-medium">Excluded</th>
+                    <th className="px-3 py-3 text-right font-medium">Cost</th>
+                    <th className="px-3 py-3 font-medium">Mapped</th>
+                    <th className="py-3 pl-3 pr-5" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {vendors.map((v) => {
+                    const b = v.book_state ?? {};
+                    const pill = bookPill(
+                      b.seeds ?? 0,
+                      b.reservoir_hits ?? 0,
+                      v.coverage_now ?? 0
+                    );
+                    return (
+                      <tr
+                        key={v.id}
+                        className="border-b border-line transition-colors last:border-0 hover:bg-ink/[.04]"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <CoLogo name={v.name} domain={v.domain} size={26} />
+                            <div className="min-w-0 max-w-[170px]">
+                              <div className="truncate font-medium text-ink">
+                                {vendorName(v.name)}
+                              </div>
+                              <div className="provenance truncate">{v.domain}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          <span className={`pill whitespace-nowrap ${pill.cls}`}>
+                            {pill.label}
+                          </span>
+                        </td>
+                        <td className="metric px-3 py-3 text-right">{b.seeds ?? 0}</td>
+                        <td className="metric px-3 py-3 text-right">{b.keys ?? 0}</td>
+                        <td className="metric px-3 py-3 text-right">
+                          {b.reservoir_hits ?? 0}
+                        </td>
+                        <td className="metric px-3 py-3 text-right">{b.excluded ?? 0}</td>
+                        <td className="metric whitespace-nowrap px-3 py-3 text-right">
+                          ${Number(v.map_cost_usd ?? 0).toFixed(3)}
+                        </td>
+                        <td className="metric whitespace-nowrap px-3 py-3 text-dense text-subtle">
+                          {timeAgo(v.last_mapped_at)}
+                        </td>
+                        <td className="min-w-[190px] whitespace-nowrap py-3 pl-3 pr-5">
+                          <div className="flex items-center justify-end gap-2.5">
+                            <RequestCoverage domain={v.domain} />
+                            <Link
+                              href={`/book/${v.domain}`}
+                              className="whitespace-nowrap text-control"
+                            >
+                              book →
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* map queue — what gets indexed next */}
+        {queueTop.length > 0 && (
+          <section className="reveal reveal-d2 mt-10">
+            <div className="mb-3 flex items-center gap-2">
+              <h2 className="eyebrow">Map queue</h2>
+              <InfoHint>
+                <p>
+                  What gets indexed next, ranked by what clients actually asked
+                  for. A search that came back empty counts ×3, a funding round
+                  ×2, a client opening the company ×2, a watchlist entry ×1, and
+                  being a competitor of a vendor we already index ×1.
+                </p>
+                <p className="mt-2">
+                  Empty searches do two jobs: they order this queue and they
+                  release the burst budget. The signals here are simulated; the
+                  weights are written down, not learned.
+                </p>
+              </InfoHint>
+            </div>
+            <MapQueue rows={queueTop} />
+          </section>
+        )}
+
         {/* learning loop — real per-lane economics */}
-        <section className="mt-8">
-          <h2 className="mb-2 text-base font-semibold text-ink">
-            Learning loop{" "}
-            <span className="metric text-xs font-normal text-subtle">
-              real per-lane yield across all runs — reallocates the next run&rsquo;s budget
-            </span>
-          </h2>
-          <div className="overflow-x-auto rounded-md border border-line bg-card shadow-[var(--shadow-card)]">
-            <table className="w-full border-collapse text-sm">
+        <section className="reveal reveal-d3 mt-10">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="eyebrow">Learning loop</h2>
+            <InfoHint>
+              Measured across every real run: how many rows of evidence each lane
+              returns per dollar spent. That sets its share of the next run&rsquo;s
+              budget, so the lanes that pay off get more of it. Free lanes are
+              ranked on rows alone.
+            </InfoHint>
+          </div>
+          <div className="pane tracker-scroll overflow-x-auto">
+            <table className="w-full border-collapse text-control">
               <thead>
-                <tr className="border-b border-line text-left text-xs font-medium uppercase tracking-wide text-subtle">
-                  <th className="px-4 py-2">Lane</th>
-                  <th className="px-4 py-2 text-right">Runs</th>
-                  <th className="px-4 py-2 text-right">Evidence rows</th>
-                  <th className="px-4 py-2 text-right">Cost</th>
-                  <th className="px-4 py-2 text-right">Rows / $</th>
-                  <th className="px-4 py-2 text-right">Avg latency</th>
-                  <th className="px-4 py-2">Next-run share</th>
+                <tr className="border-b border-line text-left text-dense uppercase tracking-wide text-subtle">
+                  <th className="px-4 py-2.5 font-medium">Lane</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Runs</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Evidence rows</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Cost</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Rows / $</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Time</th>
+                  <th className="py-2.5 pl-3 pr-5 font-medium">Next run</th>
                 </tr>
               </thead>
               <tbody>
                 {yields.map((y) => (
-                  <tr key={y.lane} className="border-b border-line last:border-0">
-                    <td className="metric px-4 py-2">{y.lane}</td>
-                    <td className="metric px-4 py-2 text-right">{y.runs}</td>
-                    <td className="metric px-4 py-2 text-right">{y.found}</td>
-                    <td className="metric px-4 py-2 text-right">${y.cost_usd.toFixed(3)}</td>
-                    <td className="metric px-4 py-2 text-right">
-                      {y.yield_per_dollar == null ? "free" : y.yield_per_dollar.toFixed(0)}
+                  <tr
+                    key={y.lane}
+                    className="border-b border-line transition-colors last:border-0 hover:bg-ink/[.04]"
+                  >
+                    <td className="px-4 py-2.5 text-control text-ink">
+                      {LANE_LABEL[y.lane] ?? y.lane}
                     </td>
-                    <td className="metric px-4 py-2 text-right">{(y.avg_latency_ms / 1000).toFixed(1)}s</td>
-                    <td className="px-4 py-2">
+                    <td className="metric px-3 py-2.5 text-right">{y.runs}</td>
+                    <td className="metric px-3 py-2.5 text-right">{y.found}</td>
+                    <td className="metric whitespace-nowrap px-3 py-2.5 text-right">
+                      ${y.cost_usd.toFixed(3)}
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      {y.yield_per_dollar == null ? (
+                        <span className="pill bg-city-sanjose">free</span>
+                      ) : (
+                        <span className="metric">{y.yield_per_dollar.toFixed(0)}</span>
+                      )}
+                    </td>
+                    <td className="metric whitespace-nowrap px-3 py-2.5 text-right">
+                      {(y.avg_latency_ms / 1000).toFixed(1)}s
+                    </td>
+                    <td className="py-2.5 pl-3 pr-5">
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-28 overflow-hidden rounded-full bg-ink/[.06]">
-                          <div
-                            className="h-full rounded-full bg-violet-link"
-                            style={{ width: `${Math.round(y.share_next * 100)}%` }}
-                          />
+                        <div className="dbar w-28">
+                          <i style={{ width: `${Math.round(y.share_next * 100)}%` }} />
                         </div>
-                        <span className="metric text-xs">{Math.round(y.share_next * 100)}%</span>
+                        <span className="metric text-dense">
+                          {Math.round(y.share_next * 100)}%
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -262,17 +310,23 @@ export default async function CoveragePage() {
           </div>
         </section>
 
-        {/* the missing front door */}
-        <div className="mt-8 rounded-lg border border-violet-100 bg-violet-50 p-5">
-          <h2 className="text-base font-semibold text-ink">Request coverage — the missing front door</h2>
-          <p className="mt-1 max-w-2xl text-sm text-subtle-deep">
-            No Arbolus page today lets a client say &ldquo;I need coverage on this
-            company.&rdquo; Each row&rsquo;s <em>request coverage</em> button fires a
-            simulated searched-and-empty event: the queue reorders, the{" "}
-            <Link href="/burst">burst budget</Link> is authorised, and every euro traces
-            to a client who asked and left empty-handed.
-          </p>
-        </div>
+        {/* the missing front door — quiet strip */}
+        <section className="reveal reveal-d4 mt-10">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-violet-100 bg-violet-50 px-4 py-3">
+            <span className="text-control font-medium text-ink">Request coverage</span>
+            <span className="text-dense text-subtle-deep">
+              each row&rsquo;s button records a client who searched and found
+              nothing. The queue reorders and the{" "}
+              <Link href="/burst">burst budget</Link> is released.
+            </span>
+            <InfoHint align="right">
+              The front door no Arbolus page has today: a client says &ldquo;I need
+              coverage on this company&rdquo; and leaves a trace. Every euro of
+              burst spend then traces back to a client who asked and left
+              empty-handed. The events fired here are simulated.
+            </InfoHint>
+          </div>
+        </section>
       </main>
     </div>
   );

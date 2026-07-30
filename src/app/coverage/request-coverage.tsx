@@ -25,14 +25,16 @@ export default function RequestCoverage({ domain }: { domain: string }) {
     <button
       onClick={fire}
       disabled={state !== "idle"}
-      title="fires a simulated searched-and-empty demand event"
-      className={`rounded-md border px-2.5 py-1 text-xs transition-colors ${
+      title="records a simulated 'a client searched and found nothing' event"
+      className={`whitespace-nowrap rounded-md border px-2.5 py-1 text-caption font-medium transition-all duration-150 active:translate-y-px ${
         state === "fired"
           ? "border-city-london bg-city-london/40 text-ink"
-          : "border-violet-200 bg-violet-50 text-violet-link hover:border-violet-400"
+          : state === "firing"
+          ? "cursor-wait border-violet-200 bg-violet-50 text-violet-link opacity-60"
+          : "border-violet-200 bg-violet-50 text-violet-link hover:border-violet-400 hover:shadow-[var(--shadow-glow-violet)]"
       }`}
     >
-      {state === "fired" ? "demand fired ✓" : state === "firing" ? "…" : "request coverage"}
+      {state === "fired" ? "request logged ✓" : state === "firing" ? "…" : "request coverage"}
     </button>
   );
 }

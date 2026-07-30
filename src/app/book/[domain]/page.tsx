@@ -1,11 +1,25 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { channelMask, CHANNEL_STATE_PILL } from "@/lib/channel-mask";
 import { candidateLabel, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
+import AppHeader from "@/components/shell/app-header";
+import CoLogo from "@/components/ui/co-logo";
+import InfoHint from "@/components/ui/info-hint";
+import { CountTicker } from "@/components/ui/ticker";
+import { vendorName } from "../../vendor-name";
 import BookTable, { type DisplayCandidate } from "./book-table";
 
 export const dynamic = "force-dynamic";
+
+// Plain-English names for the channel-mask states (the raw keys live in lib).
+const CHANNEL_STATE_LABEL: Record<string, string> = {
+  open: "open",
+  locked: "closed",
+  consent_first: "consent first",
+  counsel: "legal check",
+};
 
 // Book view (build spec §7.3). Masking is applied HERE, server-side: the
 // default render's payload contains no names, no raw quotes, no evidence
@@ -85,6 +99,7 @@ export default async function BookPage({
       identity,
       title: c.title,
       employer: c.employer,
+      employer_domain: c.employer_domain,
       persona_class: c.persona_class,
       role_signal: c.role_signal,
       evidence: (c.evidence ?? []).map((e) => ({
@@ -115,87 +130,118 @@ export default async function BookPage({
         .select("title, employer, dormant")
         .in("employer_domain", domains as string[])
     : { data: [] };
+  const hits = reservoirHits ?? [];
 
   const mask = channelMask(vendor.hq_country);
   const churned = (orgs ?? []).filter((o) => o.status === "churned");
+  const toggleHref = unmasked
+    ? `/book/${vendor.domain}`
+    : `/book/${vendor.domain}?unmask=1`;
 
   return (
     <div className="page-grain min-h-screen">
-      <header className="glass sticky top-0 z-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="font-semibold !text-ink no-underline">
-              Coverage Index
-            </Link>
-            <span className="pill bg-city-barcelona">book</span>
-            <span className="font-medium">{vendor.name}</span>
-            <span className="provenance">{vendor.domain}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/coverage" className="text-sm">
-              ← board
+      <AppHeader
+        variant="paper"
+        right={
+          <>
+            <Link
+              href={toggleHref}
+              className={`rounded-md border px-3 py-1.5 text-caption font-medium no-underline transition-colors ${
+                unmasked
+                  ? "border-warn-border bg-warn-bg !text-warn-text hover:border-warn"
+                  : "border-line bg-card !text-ink hover:bg-ground-tint"
+              }`}
+            >
+              {unmasked ? "re-mask" : "unmask identities"}
             </Link>
             <Link
               href="/run"
-              className="rounded-md bg-ink px-4 py-1.5 text-sm font-medium !text-white no-underline hover:bg-ink-hover"
+              className="rounded-md bg-ink px-4 py-1.5 text-control font-medium !text-white no-underline transition-colors hover:bg-ink-hover active:bg-ink-active"
             >
               re-map
             </Link>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       <main className="relative z-[1] mx-auto max-w-6xl px-6 py-8">
-        <BookTable
-          candidates={display}
-          unmasked={unmasked}
-          toggleHref={unmasked ? `/book/${vendor.domain}` : `/book/${vendor.domain}?unmask=1`}
-        />
+        <div className="reveal mb-6 flex flex-wrap items-center gap-3">
+          <CoLogo name={vendor.name} domain={vendor.domain} size={36} />
+          <div>
+            <h1 className="text-page">{vendorName(vendor.name)}</h1>
+            <div className="provenance">
+              {vendor.domain}
+              {vendor.category ? ` · ${vendor.category}` : ""}
+            </div>
+          </div>
+        </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          {/* reservoir panel */}
-          <section className="rounded-lg border border-violet-100 bg-violet-50 p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-ink">Reservoir join</h2>
-              <span className="pill bg-city-sanjose">synthetic base · real join</span>
+        <div className="reveal reveal-d1">
+          <BookTable candidates={display} unmasked={unmasked} />
+        </div>
+
+        <div className="reveal reveal-d2 mt-10 grid items-start gap-6 lg:grid-cols-2">
+          {/* reservoir panel — violet hero */}
+          <section className="self-start rounded-xl border border-violet-100 bg-violet-50 p-5 shadow-[var(--shadow-glow-violet)]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h2 className="eyebrow">Experts we already have</h2>
+                <InfoHint>
+                  Which of our experts already work at a company the index says uses{" "}
+                  {vendorName(vendor.name)}? They are verified and paid already, so
+                  they cost nothing to acquire. How often that match lands, measured
+                  on the real 200k base, is the first claim this experiment can prove
+                  or disprove. Experts who have gone quiet get a re-engagement email.
+                </InfoHint>
+              </div>
+              <span className="pill bg-city-sanjose">simulated base · real matching</span>
             </div>
-            <p className="mt-1 text-sm text-subtle-deep">
-              &ldquo;Which of our experts work at an org the index says uses{" "}
-              {vendor.name}?&rdquo; — already verified, already paid, zero acquisition
-              cost. The measured hit-ratio on the real 200k base is the experiment&rsquo;s
-              first falsifiable claim.
-            </p>
-            <div className="metric mt-3 text-2xl text-violet-link">
-              {(reservoirHits ?? []).length} hits
+            <div className="mt-3 flex items-baseline gap-2.5">
+              <CountTicker value={hits.length} className="text-display text-violet-link" />
+              <span className="text-dense text-subtle-deep">
+                experts already in the network
+              </span>
             </div>
-            <div className="mt-2 flex flex-col gap-1">
-              {(reservoirHits ?? []).slice(0, 6).map((r, i) => (
-                <div key={i} className="provenance">
-                  {r.title} @ {r.employer}
-                  {r.dormant ? " · dormant (reactivation loop)" : ""}
-                </div>
-              ))}
-            </div>
+            {hits.length > 0 && (
+              <div className="dg mt-4">
+                {hits.slice(0, 6).map((r, i) => (
+                  <Fragment key={i}>
+                    <span className="dg-k">{r.employer}</span>
+                    <span className="dg-v">
+                      {r.title}
+                      {r.dormant && (
+                        <span className="pill ml-2 bg-city-newdelhi">dormant</span>
+                      )}
+                    </span>
+                  </Fragment>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* channel-legality mask */}
-          <section className="rounded-lg border border-line bg-card p-5 shadow-[var(--shadow-card)]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-ink">Channel mask</h2>
+          <section className="pane p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="eyebrow">What we can send, and where</h2>
               <span className="provenance">
-                hq: {vendor.hq_country ?? "unknown — defaults shown"}
+                head office: {vendor.hq_country ?? "unknown · defaults shown"}
               </span>
             </div>
-            <div className="mt-3 flex flex-col gap-1.5">
+            <div className="mt-2 flex flex-col">
               {mask.map((r) => (
-                <div key={r.channel} className="flex items-start gap-2">
-                  <span className={`pill mt-0.5 shrink-0 ${CHANNEL_STATE_PILL[r.state]}`}>
-                    {r.state.replace("_", "-")}
+                <div
+                  key={r.channel}
+                  className="flex items-center gap-2.5 border-b border-line/70 py-2 last:border-0"
+                >
+                  <span
+                    className={`pill shrink-0 whitespace-nowrap ${CHANNEL_STATE_PILL[r.state]}`}
+                  >
+                    {CHANNEL_STATE_LABEL[r.state] ?? r.state.replace(/_/g, " ")}
                   </span>
-                  <div>
-                    <span className="text-sm font-medium text-ink">{r.channel}</span>
-                    <span className="ml-2 text-xs text-subtle">{r.why}</span>
-                  </div>
+                  <span className="text-control font-medium text-ink">{r.channel}</span>
+                  <span className="ml-auto">
+                    <InfoHint align="right">{r.why}</InfoHint>
+                  </span>
                 </div>
               ))}
             </div>
@@ -204,17 +250,21 @@ export default async function BookPage({
 
         {/* churn candidates */}
         {churned.length > 0 && (
-          <section className="mt-6 rounded-md border border-line bg-card p-5 shadow-[var(--shadow-card)]">
-            <h2 className="text-base font-semibold text-ink">
-              Churn candidates{" "}
-              <span className="metric text-sm text-subtle">({churned.length})</span>
-            </h2>
-            <p className="mt-1 text-sm text-subtle">
-              Customer evidence that existed historically and vanished from the live site
-              (Wayback page diff + archived logo-wall diff) — flagged as candidates, not
-              facts; premium interview targets (renewal intent, switching factors).
+          <section className="pane reveal reveal-d3 mt-6 p-5">
+            <div className="flex items-center gap-2">
+              <h2 className="eyebrow">Customers who look like they left</h2>
+              <span className="metric text-dense text-subtle">{churned.length}</span>
+              <InfoHint>
+                Found by comparing today&rsquo;s site against older snapshots of it:
+                customers who used to be named or shown as logos and are not any more.
+                They make strong interview targets, because they know why they left
+                and what they switched to.
+              </InfoHint>
+            </div>
+            <p className="mt-1.5 text-dense text-subtle">
+              Flagged as candidates, not facts.
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {churned.map((o) => (
                 <span key={o.org_name} className="pill bg-city-newdelhi">
                   {o.org_name}

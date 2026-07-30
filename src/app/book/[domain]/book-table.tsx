@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Link from "next/link";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import CoLogo from "@/components/ui/co-logo";
+import InfoHint from "@/components/ui/info-hint";
 import { PERSONA_LABEL, PERSONA_PILL } from "@/lib/mask";
 
 // Presentational half of the book view. Masking happens SERVER-SIDE
 // (page.tsx): the default render's payload carries no names, quotes are
-// pre-redacted, and evidence URLs are withheld. The unmask toggle is an
-// explicit server round-trip (?unmask=1) — a deliberate, visible switch.
+// pre-redacted, and evidence URLs are withheld. The unmask toggle lives in
+// the app header — an explicit server round-trip (?unmask=1).
 
 export interface DisplayEvidence {
   type: string | null;
@@ -22,6 +25,7 @@ export interface DisplayCandidate {
   identity: string; // "Candidate #N" or the real name (server-decided)
   title: string | null;
   employer: string | null;
+  employer_domain: string | null;
   persona_class: number | null;
   role_signal: string | null;
   evidence: DisplayEvidence[];
@@ -32,6 +36,35 @@ export interface DisplayCandidate {
   eligible: boolean;
   exclusion_reason: string | null;
   reservoir_match: boolean;
+}
+
+// The engine stores raw enums; nothing raw reaches the screen.
+const SIGNAL_LABEL: Record<string, string> = {
+  decision_maker: "Decision maker",
+  user: "User",
+};
+
+const EVIDENCE_LABEL: Record<string, string> = {
+  case_study: "Case study",
+  job_post: "Job post",
+  review_site: "Review",
+  logo: "Logo",
+  press: "Press",
+  procurement_award: "Procurement",
+  forum: "Forum",
+  serp: "Search result",
+};
+
+function humanize(
+  raw: string | null | undefined,
+  map: Record<string, string>,
+  fallback: string
+): string {
+  if (!raw) return fallback;
+  const key = raw.toLowerCase();
+  if (map[key]) return map[key];
+  const words = key.replace(/[_-]+/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 function ConfidenceBar({
@@ -45,17 +78,17 @@ function ConfidenceBar({
   return (
     <div className="group relative">
       <div className="flex items-center gap-2">
-        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-ink/[.06]">
-          <div className="h-full rounded-full bg-violet-link" style={{ width: `${value * 100}%` }} />
+        <div className="dbar w-16">
+          <i style={{ width: `${value * 100}%` }} />
         </div>
-        <span className="metric text-xs">{value.toFixed(2)}</span>
+        <span className="metric text-dense">{value.toFixed(2)}</span>
       </div>
       {parts && (
-        <div className="absolute left-0 top-6 z-20 hidden w-56 rounded-md border border-line bg-card p-3 shadow-[var(--shadow-raised)] group-hover:block">
+        <div className="pane absolute left-0 top-6 z-20 hidden w-56 p-3 group-hover:block">
           {Object.entries(parts).map(([k, v]) => (
             <div key={k} className="flex items-center justify-between gap-2 py-0.5">
-              <span className="text-xs text-subtle">{k.replace(/_/g, " ")}</span>
-              <span className="metric text-xs">{Number(v).toFixed(2)}</span>
+              <span className="text-dense text-subtle">{k.replace(/_/g, " ")}</span>
+              <span className="metric text-dense">{Number(v).toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -67,157 +100,225 @@ function ConfidenceBar({
 export default function BookTable({
   candidates,
   unmasked,
-  toggleHref,
 }: {
   candidates: DisplayCandidate[];
   unmasked: boolean;
-  toggleHref: string;
 }) {
   const [open, setOpen] = useState<string | null>(null);
+  const [tbodyRef] = useAutoAnimate<HTMLTableSectionElement>();
 
   const eligible = candidates.filter((c) => c.eligible);
   const excluded = candidates.filter((c) => !c.eligible);
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold">
-          The book <span className="metric text-sm text-subtle">({eligible.length} eligible)</span>
-        </h2>
-        <Link
-          href={toggleHref}
-          className={`rounded-md border px-3 py-1.5 text-xs no-underline ${
-            unmasked
-              ? "border-warn-border bg-warn-bg !text-warn-text"
-              : "border-line bg-card !text-ink hover:bg-ground-tint"
-          }`}
-        >
-          {unmasked ? "masking OFF — identities visible" : "unmask identities"}
-        </Link>
+      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+        <h2 className="text-title">The book</h2>
+        <span className="metric text-dense text-subtle">{eligible.length} eligible</span>
+        {unmasked ? (
+          <span className="pill border border-warn-border bg-warn-bg !text-warn-text">
+            identities visible
+          </span>
+        ) : (
+          <span className="pill bg-city-sanjose">masked</span>
+        )}
+        <InfoHint>
+          Names never leave the server. The page you are reading carries no names,
+          quotes arrive with the name taken out, and evidence links are held back.
+          The unmask button in the header is the one switch that shows them. These
+          are real people found in public material, so we demo them carefully.
+        </InfoHint>
       </div>
 
       {eligible.length === 0 && (
-        <div className="mb-4 rounded-lg border border-city-newdelhi/50 bg-warn-bg p-6">
-          <div className="flex items-center gap-3">
-            <span className="pill bg-city-sanjose">cold book</span>
-            <span className="text-base font-semibold text-ink">
-              No public evidence surfaced for this vendor — and that is a branch, not a failure.
-            </span>
-          </div>
-          <p className="mt-2 max-w-3xl text-sm text-subtle-deep">
-            The burst playbook branches here: an emergency map re-runs on demand (minutes,
-            pennies) · scarcity pricing raises the first-review bounty toward the $75+ tier ·
-            consent-first capture and the reservoir carry more of the walk · and the clock
-            honestly extends. Demand-gating means <strong>$0 was spent</strong> reaching this
-            conclusion — the engine only pays where a client already asked.
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warn-border bg-warn-bg p-5 shadow-[var(--shadow-card)]">
+          <span className="pill bg-city-sanjose">cold book</span>
+          <p className="text-control text-ink">
+            No public evidence turned up for this vendor. Reaching that answer cost
+            $0.
           </p>
+          <InfoHint>
+            The 30-day playbook branches here. The first-review bounty rises toward
+            the $75 tier because the people are harder to find, asking people to
+            opt in and the reservoir carry more of the work, and the clock honestly
+            runs longer. An emergency map can re-run on demand in minutes, for
+            pennies.
+          </InfoHint>
+          <Link href="/run" className="ml-auto whitespace-nowrap text-control font-medium">
+            run emergency map →
+          </Link>
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-md border border-line bg-card shadow-[var(--shadow-card)]">
-        <table className="w-full border-collapse text-sm">
+      <div className="pane tracker-scroll overflow-x-auto">
+        <table className="w-full border-collapse text-control">
           <thead>
-            <tr className="border-b border-line text-left text-xs font-medium uppercase tracking-wide text-subtle">
-              <th className="px-4 py-3">Identity</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Employer</th>
-              <th className="px-4 py-3">Class</th>
-              <th className="px-4 py-3">Signal</th>
-              <th className="px-4 py-3">Confidence</th>
-              <th className="px-4 py-3">Evidence</th>
-              <th className="px-4 py-3">Reservoir</th>
+            <tr className="border-b border-line text-left text-dense uppercase tracking-wide text-subtle">
+              <th className="px-4 py-3 font-medium">Identity</th>
+              <th className="px-4 py-3 font-medium">Role</th>
+              <th className="px-4 py-3 font-medium">Employer</th>
+              <th className="px-4 py-3 font-medium">Type</th>
+              <th className="px-4 py-3 font-medium">Signal</th>
+              <th className="px-4 py-3 font-medium">Confidence</th>
+              <th className="px-4 py-3 text-right font-medium">Evidence</th>
+              <th className="py-3 pl-4 pr-5 font-medium">Reservoir</th>
             </tr>
           </thead>
-          <tbody>
-            {eligible.map((c) => (
-              <tr
-                key={c.id}
-                className="cursor-pointer border-b border-line last:border-0 hover:bg-ink/[.04]"
-                onClick={() => setOpen(open === c.id ? null : c.id)}
-              >
-                <td className="px-4 py-3 font-medium text-ink">
-                  {c.identity}
-                  {open === c.id && (
-                    <div className="mt-2 flex flex-col gap-1.5 font-normal">
-                      {c.evidence.map((e, j) => (
-                        <div key={j} className="provenance max-w-md whitespace-normal">
-                          {e.type} · {e.source_domain} · {e.date ?? "undated"} — &ldquo;
-                          {e.quote}&rdquo;
-                          {e.url && (
-                            <>
-                              {" "}
-                              <a href={e.url} target="_blank" rel="noreferrer" onClick={(ev) => ev.stopPropagation()}>
-                                source ↗
-                              </a>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                      <div className="provenance max-w-md whitespace-normal">
-                        contact_state: <span className="metric">{c.contact_state}</span>
-                        {c.contact_guess && (
-                          <>
-                            {" "}· pattern-guess: <span className="metric">{c.contact_guess}</span>
-                          </>
-                        )}{" "}
-                        · verification = production step (NeverBounce-class API) — the state machine
-                        is the argument, not the SMTP handshake
-                      </div>
-                    </div>
-                  )}
-                </td>
-                <td className="px-4 py-3 align-top">{c.title ?? "—"}</td>
-                <td className="px-4 py-3 align-top">{c.employer ?? "—"}</td>
-                <td className="px-4 py-3 align-top">
-                  {c.persona_class ? (
-                    <span className={`pill ${PERSONA_PILL[c.persona_class]}`}>
-                      {c.persona_class} · {PERSONA_LABEL[c.persona_class]}
-                    </span>
-                  ) : (
-                    <span className="text-subtle">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 align-top text-xs text-subtle">{c.role_signal ?? "—"}</td>
-                <td className="px-4 py-3 align-top">
-                  <ConfidenceBar value={c.confidence} parts={c.confidence_parts} />
-                </td>
-                <td className="metric px-4 py-3 align-top text-xs">
-                  {c.evidence.length} item{c.evidence.length === 1 ? "" : "s"}
-                </td>
-                <td className="px-4 py-3 align-top">
-                  {c.reservoir_match ? (
-                    <span className="pill bg-city-newyork">match</span>
-                  ) : (
-                    <span className="text-subtle">—</span>
-                  )}
+          <tbody ref={tbodyRef}>
+            {eligible.length === 0 && (
+              <tr>
+                <td colSpan={8} className="px-4 py-6 text-center text-subtle">
+                  0 candidates yet —{" "}
+                  <Link href="/run" className="whitespace-nowrap">
+                    run the map →
+                  </Link>
                 </td>
               </tr>
+            )}
+            {eligible.map((c) => (
+              <Fragment key={c.id}>
+                <tr
+                  className="cursor-pointer border-b border-line transition-colors last:border-0 hover:bg-ink/[.04]"
+                  onClick={() => setOpen(open === c.id ? null : c.id)}
+                  aria-expanded={open === c.id}
+                >
+                  <td className="whitespace-nowrap px-4 py-3 font-medium text-ink">
+                    <span
+                      className={`mr-1.5 inline-block text-caption text-subtle transition-transform duration-150 ${
+                        open === c.id ? "rotate-90" : ""
+                      }`}
+                      aria-hidden
+                    >
+                      ▸
+                    </span>
+                    {c.identity}
+                  </td>
+                  <td className="px-4 py-3">{c.title ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    {c.employer ? (
+                      <div className="flex items-center gap-2">
+                        <CoLogo name={c.employer} domain={c.employer_domain} size={20} />
+                        <span className="whitespace-nowrap">{c.employer}</span>
+                      </div>
+                    ) : (
+                      <span className="text-subtle">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {c.persona_class ? (
+                      <span
+                        className={`pill whitespace-nowrap ${PERSONA_PILL[c.persona_class]}`}
+                      >
+                        {PERSONA_LABEL[c.persona_class]}
+                      </span>
+                    ) : (
+                      <span className="text-subtle">—</span>
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-dense text-subtle">
+                    {humanize(c.role_signal, SIGNAL_LABEL, "—")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <ConfidenceBar value={c.confidence} parts={c.confidence_parts} />
+                  </td>
+                  <td className="metric px-4 py-3 text-right">{c.evidence.length}</td>
+                  <td className="py-3 pl-4 pr-5">
+                    {c.reservoir_match ? (
+                      <span className="pill bg-city-newyork">match</span>
+                    ) : (
+                      <span className="text-subtle">—</span>
+                    )}
+                  </td>
+                </tr>
+
+                {open === c.id && (
+                  <tr className="border-b border-line bg-ground-tint/50 last:border-0">
+                    <td colSpan={8} className="px-5 py-4">
+                      <div className="dg max-w-3xl">
+                        <span className="dg-k">Evidence</span>
+                        <div className="dg-v flex flex-col gap-2.5">
+                          {c.evidence.map((e, j) => (
+                            <div key={j}>
+                              <p className="text-dense italic text-ink-70">
+                                &ldquo;{e.quote}&rdquo;
+                              </p>
+                              <p className="provenance mt-0.5">
+                                {humanize(e.type, EVIDENCE_LABEL, "Evidence")} ·{" "}
+                                {e.source_domain} · {e.date ?? "undated"}
+                                {e.url && (
+                                  <>
+                                    {" "}
+                                    ·{" "}
+                                    <a
+                                      href={e.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      onClick={(ev) => ev.stopPropagation()}
+                                    >
+                                      source ↗
+                                    </a>
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+
+                        <span className="dg-k">Contact</span>
+                        <div className="dg-v flex items-center gap-1.5">
+                          {c.contact_guess ? (
+                            <span className="metric text-dense">{c.contact_guess}</span>
+                          ) : (
+                            <span className="text-subtle">—</span>
+                          )}
+                          <InfoHint>
+                            Guessed from the name plus the employer&rsquo;s domain, the
+                            cheapest way to reach someone. Checking the address is real
+                            is a production step; this prototype only records what stage
+                            each contact has reached.
+                          </InfoHint>
+                        </div>
+
+                        <span className="dg-k">Stage</span>
+                        <div className="dg-v">
+                          <span className="pill bg-city-sanjose">
+                            {humanize(c.contact_state, {}, "—")}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
       </div>
 
       {excluded.length > 0 && (
-        <div className="mt-6">
-          <h3 className="mb-2 text-sm font-semibold text-ink">
-            Excluded, with reasons{" "}
-            <span className="metric text-xs text-subtle">({excluded.length})</span>
-          </h3>
+        <div className="mt-8">
+          <div className="mb-2 flex items-center gap-2">
+            <h3 className="eyebrow">Ruled out</h3>
+            <span className="metric text-dense text-subtle">{excluded.length}</span>
+            <InfoHint>
+              We keep the rejections instead of dropping them. Ruling someone out is
+              a visible step in the pipeline, and every exclusion keeps its reason.
+            </InfoHint>
+          </div>
           <div className="flex flex-col gap-1.5">
             {excluded.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center gap-3 rounded-md border border-warn-border bg-warn-bg px-3 py-2 text-sm"
+                className="flex flex-wrap items-center gap-3 rounded-lg border border-warn-border bg-warn-bg px-3.5 py-2 text-control"
               >
-                <span className="font-medium">{c.identity}</span>
+                <span className="font-medium text-ink">{c.identity}</span>
                 <span className="text-subtle-deep">{c.title}</span>
-                <span className="metric ml-auto text-xs text-warn-text">{c.exclusion_reason}</span>
+                <span className="metric ml-auto text-caption text-warn-text">
+                  {c.exclusion_reason}
+                </span>
               </div>
             ))}
           </div>
-          <p className="provenance mt-2">
-            rejections are stored, not discarded — the eligibility rules are a visible pipeline stage
-          </p>
         </div>
       )}
     </div>

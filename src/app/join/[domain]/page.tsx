@@ -1,6 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import InfoHint from "@/components/ui/info-hint";
+import { vendorName } from "../../vendor-name";
 
 export const dynamic = "force-dynamic";
 
@@ -29,90 +32,137 @@ export default async function JoinPage({
 
   const seeds = (vendor.book_state as { seeds?: number } | null)?.seeds ?? 0;
   const bounty = seeds >= 8 ? 25 : seeds >= 3 ? 50 : 75;
+  const name = vendorName(vendor.name);
+
+  const steps: { lead: string; sub: string }[] = [
+    {
+      lead: `Review ${name}`,
+      sub: `Your $${bounty} pays out when you finish, within 14 days.`,
+    },
+    {
+      lead: "Review 4 more tools you use",
+      sub: "That unlocks $1–5 every time a client reads one of your reviews.",
+    },
+    {
+      lead: "Invite colleagues who use the same tools",
+      sub: "You earn when their reviews are done.",
+    },
+  ];
 
   return (
     <div className="page-grain flex min-h-screen flex-col">
-      <header className="glass">
+      <header className="glass sticky top-0 z-10">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] bg-violet-400 font-mono text-xs font-bold text-white">
-              A
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/brand/Arbolus-icon-violet-on-white.png"
+              alt="Arbolus"
+              width={24}
+              height={24}
+              priority
+              className="h-6 w-6"
+            />
+            <span className="text-control font-semibold text-ink">
+              Rewards Programme
             </span>
-            <span className="text-sm font-semibold">Rewards Programme</span>
           </div>
-          <span className="pill bg-city-sanjose">prototype — no data collected</span>
+          <span className="pill bg-city-sanjose">prototype</span>
         </div>
       </header>
 
       <main className="relative z-[1] mx-auto w-full max-w-2xl flex-1 px-6 py-12">
-        <h1 className="text-2xl leading-snug text-ink">
-          You&rsquo;ve used <span className="text-violet-link">{vendor.name}</span> at
-          work. That experience is worth money.
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-subtle-deep">
-          Investors and consultants researching {vendor.name} need to hear from real
-          users — not marketing. Your first {vendor.name} review earns a one-time bounty,
-          on top of the programme&rsquo;s ongoing per-read earnings.
-        </p>
-
-        <div className="mt-6 rounded-lg border border-violet-200 bg-violet-50 p-5 shadow-[var(--shadow-glow-violet)]">
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm font-medium text-ink">First {vendor.name} review</span>
-            <span className="metric text-2xl text-violet-link">${bounty}</span>
-          </div>
-          <ul className="mt-2 flex flex-col gap-1 text-sm text-subtle-deep">
-            <li>· about 15 minutes, guided questions</li>
-            <li>· paid on completion, within 14 days — no minimum-payout floor on this one</li>
-            <li>· verified with your work email; your employer is never contacted</li>
-          </ul>
-        </div>
-
-        {/* mock verification step */}
-        <div className="mt-6 rounded-md border border-line bg-card p-5 shadow-[var(--shadow-card)]">
-          <label className="text-sm font-medium text-ink">
-            Verify with your work email
-          </label>
-          <div className="mt-2 flex gap-2">
-            <input
-              disabled
-              placeholder="you@yourcompany.com"
-              className="metric w-full rounded-md border border-line-strong px-3 py-2 text-sm"
-            />
-            <button
-              disabled
-              className="shrink-0 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white opacity-50"
-            >
-              verify
-            </button>
-          </div>
-          <p className="provenance mt-2">
-            [PROTOTYPE] — mock form. Production = their existing Persona verification
-            flow; vendor employees are rejected automatically, with the reason stored.
+        {/* hero */}
+        <div className="reveal">
+          <h1 className="text-balance text-page leading-snug text-ink md:text-display">
+            You&rsquo;ve used <span className="text-violet-link">{name}</span> at
+            work. That experience is worth money.
+          </h1>
+          <p className="mt-3 max-w-lg text-pretty text-body text-subtle-deep">
+            Investors researching {name} pay to hear from people who actually ran
+            it.
           </p>
         </div>
 
-        {/* what happens next */}
-        <ol className="mt-6 flex flex-col gap-2 text-sm text-subtle-deep">
-          <li>
-            <span className="metric text-violet-link">1</span> · Review {vendor.name} —
-            your ${bounty} bounty pays on completion
-          </li>
-          <li>
-            <span className="metric text-violet-link">2</span> · Review ~4 more tools you
-            use daily to unlock ongoing rewards ($1–5 every time a client reads you)
-          </li>
-          <li>
-            <span className="metric text-violet-link">3</span> · Invite colleagues who
-            use the same stack — you earn when their reviews complete
-          </li>
+        {/* offer */}
+        <div className="reveal reveal-d1 mt-7 rounded-xl border border-violet-200 bg-violet-50 p-5 shadow-[var(--shadow-glow-violet-lg)]">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-title text-ink">First {name} review</span>
+            <span className="metric text-[28px] leading-none text-violet-link">
+              ${bounty}
+            </span>
+          </div>
+          <ul className="mt-3 flex flex-col gap-1.5 text-dense text-subtle-deep">
+            <li>15 minutes, guided questions</li>
+            <li>No minimum payout on this one</li>
+            <li>Verified by work email. Your employer is never contacted.</li>
+          </ul>
+        </div>
+
+        {/* three steps — 24px violet-50 dots on a connecting hairline */}
+        <ol className="reveal reveal-d2 relative mt-9 flex flex-col gap-6">
+          <span
+            aria-hidden
+            className="absolute bottom-4 left-[11px] top-3 w-px bg-line"
+          />
+          {steps.map((s, i) => (
+            <li key={s.lead} className="relative flex items-start gap-4">
+              <span className="relative z-[1] flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-50 font-mono text-caption text-violet-link ring-1 ring-violet-200">
+                {i + 1}
+              </span>
+              <div className="pt-0.5">
+                <p className="text-body font-medium text-ink">{s.lead}</p>
+                <p className="mt-0.5 text-dense text-subtle-deep">{s.sub}</p>
+              </div>
+            </li>
+          ))}
         </ol>
 
-        <p className="provenance mt-8">
-          Why you&rsquo;re seeing this: your role appears in public material about{" "}
-          {vendor.name} (a case study, a public profile, or a professional forum). We
-          never post in communities and never contact anyone who opts out — one click,
-          permanent. <Link href="/loop">How this engine works ↗</Link>
-        </p>
+        {/* mock verification */}
+        <div className="pane reveal reveal-d3 mt-9 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-control font-medium text-ink">
+              Verify with your work email
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="pill bg-city-sanjose">prototype</span>
+              <InfoHint align="right">
+                This form is a mock: nothing is sent and nothing is collected. The
+                real version uses Arbolus&rsquo;s existing Persona check. People who
+                work at the vendor are turned down automatically, and the reason is
+                kept.
+              </InfoHint>
+            </span>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <div className="well flex-1">
+              <input
+                disabled
+                placeholder="you@yourcompany.com"
+                aria-label="Work email"
+                className="metric w-full bg-transparent px-3 py-2 text-control text-ink outline-none placeholder:text-subtle-disabled"
+              />
+            </div>
+            <button
+              disabled
+              className="shrink-0 cursor-not-allowed rounded-[10px] bg-ink px-4 py-2 text-control font-medium text-white opacity-50"
+            >
+              Verify
+            </button>
+          </div>
+        </div>
+
+        {/* provenance */}
+        <div className="reveal reveal-d4 mt-9 flex flex-wrap items-center gap-4">
+          <InfoHint label="Why am I seeing this?">
+            Your role shows up in public material about {name}: a case study, a
+            public profile, or a professional forum. We never post in communities,
+            and anyone who opts out is never contacted again. One click, and it
+            is permanent.
+          </InfoHint>
+          <Link href="/loop" className="text-caption">
+            How this works ↗
+          </Link>
+        </div>
       </main>
     </div>
   );

@@ -2,44 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import AppHeader from "@/components/shell/app-header";
+import InfoHint from "@/components/ui/info-hint";
+import { MoneyTicker, SecondsTicker } from "@/components/ui/ticker";
+import { INITIAL_LANES, type FeedItem, type LaneState } from "./run-types";
+import StageFlow from "./stage-flow";
+import LaneBoard from "./lane-board";
+import EvidenceFeed from "./evidence-feed";
+import SummaryBanner from "./summary-banner";
 
-// Map run view (hero, build spec §7.2) — the 10 lanes lighting up live.
-// Dark "terminal" variant: violet-on-ink, the brand inverted (file 14 §10).
-
-type LaneState = {
-  key: string;
-  label: string;
-  mode: "live" | "local" | "dark";
-  status: "idle" | "running" | "done" | "error";
-  found: number;
-  cost: number;
-  latency: number | null;
-  note?: string;
-};
-
-const INITIAL_LANES: LaneState[] = [
-  { key: "sitemap", label: "01 sitemap harvest", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "customer_pages", label: "02 customer pages", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "wayback", label: "03 wayback churn diff", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "logo_diff", label: "03b logo-wall diff", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "ats", label: "04 ats job-post sweep", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "peerspot", label: "05 peerspot reviews", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "serp", label: "06 serp long-tail", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-  { key: "community", label: "07 community (discourse)", mode: "local", status: "idle", found: 0, cost: 0, latency: null, note: "pre-seeded nightly — local lane" },
-  { key: "procurement", label: "08 procurement (eu ted)", mode: "local", status: "idle", found: 0, cost: 0, latency: null, note: "pre-seeded nightly — local lane" },
-  { key: "github", label: "09 github (verify-only)", mode: "local", status: "idle", found: 0, cost: 0, latency: null, note: "pre-seeded nightly — local lane" },
-  { key: "classify", label: "10 classify · exclude · write", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
-];
-
-type FeedItem = {
-  lane: string;
-  org: string;
-  status?: string;
-  title?: string;
-  masked?: boolean;
-  kind: "evidence" | "exclusion" | "info";
-  text?: string;
-};
+// Map run view (hero, build spec §7.2) — the lanes lighting up live.
+// Paper skin like every other surface (Rober's call, 7-30): one light
+// system across the product. State + SSE wiring live here; the render
+// lives in the sub-components.
 
 export default function RunPage() {
   const [domain, setDomain] = useState("cledara.com");
@@ -51,8 +26,12 @@ export default function RunPage() {
   const [summary, setSummary] = useState<{ orgs: number; candidates: number; excluded: number; cost: number; ms: number } | null>(null);
   const [resolvedDomain, setResolvedDomain] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [mode, setMode] = useState<"live" | "replay" | null>(null); // which button fired
+  const [dimming, setDimming] = useState(false); // brief blank so a re-run visibly resets
   const esRef = useRef<EventSource | null>(null);
+  const dimTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const t0 = useRef(0);
+  const seq = useRef(0); // stable feed keys — auto-animate needs identity across prepends
 
   useEffect(() => {
     if (!running) return;
@@ -66,11 +45,20 @@ export default function RunPage() {
 
   const start = useCallback((replay = false) => {
     if (running || !domain) return;
+    // A re-run (live OR replay) must LOOK like a reset before anything streams:
+    // close any open stream, blank the lanes / feed / banner, rewind the rail,
+    // and hold the board dim for a beat so the lanes visibly re-light.
+    esRef.current?.close();
     setLanes(INITIAL_LANES.map((l) => ({ ...l })));
     setFeed([]);
     setSummary(null);
+    setElapsed(0);
+    setMode(replay ? "replay" : "live");
     setRunning(true);
     setStage("starting");
+    setDimming(true);
+    if (dimTimer.current) clearTimeout(dimTimer.current);
+    dimTimer.current = setTimeout(() => setDimming(false), 320);
     t0.current = Date.now();
 
     // accept anything the user pastes — full URLs normalize to a bare domain
@@ -105,19 +93,22 @@ export default function RunPage() {
             cost: e.cost_usd,
             latency: e.latency_ms,
             note: e.note ?? e.error,
-            mode: e.error?.includes("lane dark") ? "dark" : undefined,
+            // only override mode when the lane went dark — a plain spread of
+            // `mode: undefined` would wipe the "local" tag on lane_done
+            ...(e.error?.includes("lane dark") ? { mode: "dark" as const } : {}),
           } as Partial<LaneState>);
           break;
         case "evidence": {
           const p = e.row.person;
           setFeed((f) => [
             {
+              id: ++seq.current,
               lane: e.lane,
               org: e.row.org_name,
               status: e.row.status,
               title: p?.title,
               masked: Boolean(p?.full_name),
-              kind: "evidence",
+              kind: "evidence" as const,
             },
             ...f.slice(0, 80),
           ]);
@@ -125,7 +116,7 @@ export default function RunPage() {
         }
         case "exclusion":
           setFeed((f) => [
-            { lane: "exclude", org: e.org_name, kind: "exclusion", text: e.reason },
+            { id: ++seq.current, lane: "exclude", org: e.org_name, kind: "exclusion" as const, text: e.reason },
             ...f.slice(0, 80),
           ]);
           break;
@@ -149,175 +140,169 @@ export default function RunPage() {
     };
   }, [domain, name, running, patchLane]);
 
-  useEffect(() => () => esRef.current?.close(), []);
+  useEffect(
+    () => () => {
+      esRef.current?.close();
+      if (dimTimer.current) clearTimeout(dimTimer.current);
+    },
+    []
+  );
 
-  const totalCost = lanes.reduce((a, l) => a + l.cost, 0);
+  // ONE cost number on screen at a time. While the run streams we add the lanes
+  // up live; the moment run_done lands, its cost_usd (which also carries the
+  // composer stage — a stage with no lane row) becomes the single source for
+  // BOTH the header chip and the banner. They can never disagree.
+  const totalCost = summary ? summary.cost : lanes.reduce((a, l) => a + l.cost, 0);
+  const bookHref = `/book/${resolvedDomain ?? domain}`;
+
+  // hues on paper: running = violet (motion) · done = green · idle = dim
+  const stageTone = stage.startsWith("error")
+    ? "text-error"
+    : stage === "done"
+    ? "text-success-text"
+    : stage === "idle"
+    ? "text-subtle-disabled"
+    : "text-violet-link";
+
+  const hud = (
+    <>
+      <span className="flex items-baseline gap-1.5 rounded-full border border-line bg-card px-3 py-1 shadow-[var(--shadow-card)]">
+        <span className="font-mono text-micro uppercase tracking-[0.08em] text-subtle">stage</span>
+        <span className={`metric max-w-[9rem] truncate text-caption ${stageTone}`}>{stage}</span>
+      </span>
+      <span className="hidden items-baseline gap-1.5 rounded-full border border-line bg-card px-3 py-1 shadow-[var(--shadow-card)] sm:flex">
+        <span className="font-mono text-micro uppercase tracking-[0.08em] text-subtle">cost</span>
+        <MoneyTicker value={totalCost} className="text-caption text-ink" />
+      </span>
+      <span className="hidden items-baseline gap-1.5 rounded-full border border-line bg-card px-3 py-1 shadow-[var(--shadow-card)] md:flex">
+        <span className="font-mono text-micro uppercase tracking-[0.08em] text-subtle">time</span>
+        <SecondsTicker ms={elapsed} className="text-caption text-ink" />
+      </span>
+    </>
+  );
 
   return (
-    <div className="dark min-h-screen bg-term-ground text-term-text">
-      <header className="glass sticky top-0 z-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="font-semibold !text-term-text no-underline">
-              Coverage Index
-            </Link>
-            <span className="pill border border-city-barcelona/25 bg-city-barcelona/10 !text-city-barcelona">
-              map run
-            </span>
-          </div>
-          <div className="metric flex items-center gap-5 text-xs text-term-muted">
-            <span>stage <span className="text-term-accent">{stage}</span></span>
-            <span>cost <span className="text-term-accent">${totalCost.toFixed(4)}</span></span>
-            <span>t <span className="text-term-accent">{(elapsed / 1000).toFixed(1)}s</span></span>
-          </div>
-        </div>
-      </header>
+    <div className="page-grain min-h-screen">
+      <AppHeader variant="paper" right={hud} />
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        {/* name-any-company input */}
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-xs text-term-muted">
-            vendor domain
+      <main className="relative z-[1] mx-auto max-w-6xl px-6 py-8">
+        {/* page title — same anatomy as Board / Burst / Loop */}
+        <section className="reveal mb-6">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-page">Map run</h1>
+            <span className="pill bg-city-london">live</span>
+            <InfoHint>
+              A map run reads public pages about a vendor — its own site, the
+              customer stories on it, older versions of those pages, review
+              sites and job posts — and writes what it finds into the book.
+            </InfoHint>
+          </div>
+          <p className="mt-1 text-body text-subtle">
+            Name a company. Watch the evidence come in, with its cost and time.
+          </p>
+        </section>
+
+        {/* command row — wraps at 390, never pans sideways */}
+        <section className="reveal reveal-d1 flex flex-wrap items-end gap-3">
+          <label className="well flex w-full flex-col gap-0.5 px-3.5 py-2 sm:w-60">
+            <span className="font-mono text-micro uppercase tracking-[0.08em] text-subtle">
+              vendor domain
+            </span>
             <input
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               placeholder="vendor.com"
-              className="metric w-56 rounded-md border border-term-line bg-term-surface px-3 py-2 text-sm text-term-text outline-none focus:border-term-accent"
+              className="metric w-full bg-transparent text-control text-ink outline-none placeholder:text-subtle-disabled"
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-term-muted">
-            vendor name
+          <label className="well flex w-full flex-col gap-0.5 px-3.5 py-2 sm:w-44">
+            <span className="font-mono text-micro uppercase tracking-[0.08em] text-subtle">
+              vendor name
+            </span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Vendor"
-              className="w-44 rounded-md border border-term-line bg-term-surface px-3 py-2 text-sm text-term-text outline-none focus:border-term-accent"
+              className="w-full bg-transparent text-control text-ink outline-none placeholder:text-subtle-disabled"
             />
           </label>
           <button
             onClick={() => start()}
             disabled={running || !domain}
-            className="rounded-md bg-term-accent px-5 py-2 text-sm font-medium text-ink transition-opacity disabled:opacity-40"
+            aria-pressed={running && mode === "live"}
+            className={`shrink-0 whitespace-nowrap rounded-md bg-ink px-5 py-2.5 text-control font-semibold text-white transition-all duration-150 hover:bg-ink-hover active:translate-y-px active:bg-ink-active ${
+              running && mode === "live"
+                ? "translate-y-px !bg-city-barcelona !text-ink !opacity-100"
+                : "disabled:opacity-40"
+            }`}
           >
-            {running ? "running…" : "map this vendor"}
+            {running && mode === "live" ? "mapping…" : "map this vendor"}
           </button>
           <button
             onClick={() => start(true)}
             disabled={running || !domain}
-            title="re-stream the last run from the journal — no upstream requests, no cost"
-            className="rounded-md border border-term-line px-4 py-2 text-sm text-term-soft transition-colors hover:border-term-accent hover:text-term-accent disabled:opacity-40"
+            aria-pressed={running && mode === "replay"}
+            className={`shrink-0 whitespace-nowrap rounded-md border px-4 py-2.5 text-control transition-colors duration-150 active:translate-y-px ${
+              running && mode === "replay"
+                ? "translate-y-px border-city-barcelona bg-city-barcelona/20 text-ink !opacity-100"
+                : "border-line-strong bg-card text-subtle hover:border-violet-link hover:text-violet-link disabled:opacity-40"
+            }`}
           >
-            replay last run
+            {running && mode === "replay" ? "replaying…" : "replay last run"}
           </button>
           {summary && (
             <Link
-              href={`/book/${resolvedDomain ?? domain}`}
-              className="rounded-md border border-term-accent/40 px-5 py-2 text-sm !text-term-accent no-underline hover:border-term-accent"
+              href={bookHref}
+              className="reveal shrink-0 whitespace-nowrap rounded-md border border-violet-200 bg-violet-50 px-5 py-2.5 text-control font-medium !text-violet-link no-underline transition-all duration-150 hover:border-violet-400 active:translate-y-px"
             >
               open the book →
             </Link>
           )}
+          <span className="ml-auto pb-3">
+            <InfoHint align="right">
+              A map run reads public pages about a vendor — its own site, the
+              customer stories on it, older versions of those pages, review sites
+              and job posts — and writes what it finds into the book. Each lane
+              shows what it found, what it cost and how long it took. Replay
+              re-streams the last run from its journal: no new requests, no cost.
+            </InfoHint>
+          </span>
+        </section>
+
+        {/* stage rail */}
+        <div className="reveal reveal-d1 mt-5">
+          <StageFlow stage={stage} />
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.25fr_1fr]">
           {/* lane board */}
-          <section className="min-w-0">
-            <h2 className="provenance mb-2 uppercase tracking-wider !text-term-muted">lanes</h2>
-            <div className="flex flex-col gap-1.5">
-              {lanes.map((l) => (
-                <div
-                  key={l.key}
-                  className={`flex items-center gap-3 rounded-md border px-3 py-2 ${
-                    l.status === "running"
-                      ? "lane-active border-term-accent/40 bg-term-surface"
-                      : "border-term-line bg-term-surface"
-                  }`}
-                >
-                  <span
-                    className={`h-2 w-2 shrink-0 rounded-full ${
-                      l.status === "done"
-                        ? "bg-city-london"
-                        : l.status === "running"
-                        ? "bg-city-barcelona"
-                        : l.status === "error"
-                        ? l.mode === "dark"
-                          ? "bg-city-sanjose"
-                          : "bg-error"
-                        : l.mode === "local"
-                        ? "bg-term-dim"
-                        : "bg-term-line-bright"
-                    }`}
-                  />
-                  <span className="metric w-52 shrink-0 text-[13px] text-term-text">{l.label}</span>
-                  <span className="metric w-14 text-right text-[13px] text-term-accent">
-                    {l.found > 0 ? l.found : "·"}
-                  </span>
-                  <span className="metric w-20 text-right text-xs text-term-soft">
-                    {l.cost > 0 ? `$${l.cost.toFixed(4)}` : "$0"}
-                  </span>
-                  <span className="metric w-16 text-right text-xs text-term-mid">
-                    {l.latency != null ? `${(l.latency / 1000).toFixed(1)}s` : "—"}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-xs text-term-muted">
-                    {(l.note ?? "").slice(0, 140)}
-                  </span>
-                </div>
-              ))}
+          <section className="reveal reveal-d2 min-w-0">
+            <div className="mb-2.5 flex items-center gap-2">
+              <span className="eyebrow">Lanes</span>
+              <InfoHint>
+                A lane is one place we look: the vendor&apos;s own pages, older
+                versions of them, review sites, job posts. They run side by side,
+                and each one reports what it found, what it cost and how long it
+                took.
+              </InfoHint>
             </div>
+            {/* `dimming` blanks the board for a beat so a replay visibly rewinds */}
+            <LaneBoard lanes={lanes} idle={stage === "idle" || dimming} />
             {summary && (
-              <div className="metric mt-4 rounded-md border border-term-accent/30 bg-term-surface px-4 py-3 text-sm">
-                <span className="text-term-accent">{summary.candidates}</span> candidates ·{" "}
-                <span className="text-term-accent">{summary.orgs}</span> org keys ·{" "}
-                <span className="text-term-accent">{summary.excluded}</span> excluded (reasons stored) ·{" "}
-                <span className="text-term-accent">${summary.cost.toFixed(4)}</span> ·{" "}
-                <span className="text-term-accent">{(summary.ms / 1000).toFixed(0)}s</span>
-              </div>
+              <SummaryBanner
+                candidates={summary.candidates}
+                orgs={summary.orgs}
+                excluded={summary.excluded}
+                cost={summary.cost}
+                ms={summary.ms}
+                bookHref={bookHref}
+              />
             )}
           </section>
 
           {/* evidence feed */}
-          <section className="min-w-0">
-            <h2 className="provenance mb-2 uppercase tracking-wider !text-term-muted">
-              evidence stream <span className="normal-case">(identities masked — unmask lives in the book)</span>
-            </h2>
-            <div className="flex max-h-[520px] flex-col gap-1 overflow-y-auto pr-1">
-              {feed.length === 0 && (
-                <p className="text-sm text-term-muted">
-                  waiting for a run — evidence rows appear here as lanes find them
-                </p>
-              )}
-              {feed.map((f, i) => (
-                <div
-                  key={i}
-                  className={`rounded-md border px-3 py-1.5 text-xs ${
-                    f.kind === "exclusion"
-                      ? "border-city-newdelhi/25 bg-city-newdelhi/10"
-                      : "border-term-line bg-term-surface"
-                  }`}
-                >
-                  {f.kind === "exclusion" ? (
-                    <span className="text-city-newdelhi">
-                      excluded @ {f.org} — <span className="metric">{f.text}</span>
-                    </span>
-                  ) : (
-                    <span>
-                      <span className="metric text-term-soft">[{f.lane}]</span>{" "}
-                      <span className="text-term-text">{f.org}</span>
-                      {f.title && <span className="text-term-muted"> · [NAME], {f.title}</span>}
-                      {f.status && (
-                        <span
-                          className={`ml-2 ${
-                            f.status === "churned" ? "text-city-newdelhi" : "text-city-london"
-                          }`}
-                        >
-                          {f.status}
-                        </span>
-                      )}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+          <section className="reveal reveal-d3 min-w-0">
+            <EvidenceFeed feed={feed} idle={stage === "idle"} />
           </section>
         </div>
       </main>
