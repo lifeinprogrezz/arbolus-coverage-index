@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import WalkSliders from "./walk-sliders";
 
 export const dynamic = "force-dynamic";
 
@@ -156,6 +157,12 @@ export default async function BurstPage({
               branch closes to 20. 20 is <em>arithmetically reachable</em>, not guaranteed — and the
               funnel metrics name which stage missed.
             </p>
+            <div className="mt-4">
+              <WalkSliders
+                defaultSeeds={b.seeds ?? 20}
+                defaultReservoir={b.reservoir_hits ?? 3}
+              />
+            </div>
           </section>
         </div>
 

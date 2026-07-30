@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { laneYields } from "@/lib/engine/learning";
+import { mapQueue } from "@/lib/engine/demand";
 
 export const dynamic = "force-dynamic";
 
@@ -43,14 +44,16 @@ function bookPill(seeds: number, reservoir: number): { label: string; cls: strin
 }
 
 export default async function CoveragePage() {
-  const [{ data }, yields] = await Promise.all([
+  const [{ data }, yields, queue] = await Promise.all([
     db()
       .from("vendors")
       .select("*")
       .order("last_mapped_at", { ascending: false, nullsFirst: false }),
     laneYields(),
+    mapQueue(),
   ]);
   const vendors = (data ?? []) as VendorRow[];
+  const queueTop = queue.filter((q) => q.demand_score > 0).slice(0, 6);
 
   return (
     <div className="page-grain min-h-screen">
@@ -146,6 +149,59 @@ export default async function CoveragePage() {
             </table>
           </div>
         )}
+
+        {/* map queue — what gets indexed next */}
+        <section className="mt-8">
+          <h2 className="mb-2 text-base font-semibold text-ink">
+            Map queue{" "}
+            <span className="metric text-xs font-normal text-subtle">
+              what gets indexed next — demand-ranked (signals simulated, weights documented)
+            </span>
+          </h2>
+          <div className="flex flex-col gap-1.5">
+            {queueTop.map((q, i) => (
+              <div
+                key={q.id}
+                className="flex items-center gap-3 rounded-md border border-line bg-card px-4 py-2.5 shadow-[var(--shadow-card)]"
+              >
+                <span className="metric w-6 text-right text-sm text-subtle">{i + 1}</span>
+                <div className="w-40">
+                  <div className="text-sm font-medium text-ink">{q.name}</div>
+                  <div className="provenance">{q.domain}</div>
+                </div>
+                <span className="metric w-14 text-right text-violet-link">
+                  {q.demand_score.toFixed(1)}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {q.signals.map((s) => (
+                    <span
+                      key={s}
+                      className={`pill ${
+                        s === "searched-empty"
+                          ? "bg-city-newyork"
+                          : s === "funding"
+                          ? "bg-city-newdelhi"
+                          : s === "client-view"
+                          ? "bg-city-barcelona"
+                          : "bg-city-sanjose"
+                      }`}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+                <span className={`pill ml-auto ${q.mapped ? "bg-city-london" : "bg-city-sanjose"}`}>
+                  {q.mapped ? "indexed — re-map queued" : "unmapped"}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="provenance mt-2">
+            weights: searched-and-empty ×3 · funding ×2 · client-view ×2 · watchlist ×1 ·
+            competitor-of-indexed ×1 — the searched-and-empty log both orders this queue AND
+            authorises the burst budget
+          </p>
+        </section>
 
         {/* learning loop — real per-lane economics */}
         <section className="mt-8">
