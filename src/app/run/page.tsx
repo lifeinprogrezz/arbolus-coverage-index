@@ -21,6 +21,7 @@ const INITIAL_LANES: LaneState[] = [
   { key: "sitemap", label: "01 sitemap harvest", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
   { key: "customer_pages", label: "02 customer pages", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
   { key: "wayback", label: "03 wayback churn diff", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
+  { key: "logo_diff", label: "03b logo-wall diff", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
   { key: "ats", label: "04 ats job-post sweep", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
   { key: "peerspot", label: "05 peerspot reviews", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
   { key: "serp", label: "06 serp long-tail", mode: "live", status: "idle", found: 0, cost: 0, latency: null },
@@ -48,6 +49,7 @@ export default function RunPage() {
   const [running, setRunning] = useState(false);
   const [stage, setStage] = useState<string>("idle");
   const [summary, setSummary] = useState<{ orgs: number; candidates: number; excluded: number; cost: number; ms: number } | null>(null);
+  const [resolvedDomain, setResolvedDomain] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const esRef = useRef<EventSource | null>(null);
   const t0 = useRef(0);
@@ -71,14 +73,24 @@ export default function RunPage() {
     setStage("starting");
     t0.current = Date.now();
 
+    // accept anything the user pastes — full URLs normalize to a bare domain
+    const clean = domain
+      .trim()
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .replace(/\/.*$/, "");
+    setDomain(clean);
     const es = new EventSource(
-      `/api/run?domain=${encodeURIComponent(domain)}&name=${encodeURIComponent(name || domain)}${replay ? "&replay=1" : ""}`
+      `/api/run?domain=${encodeURIComponent(clean)}&name=${encodeURIComponent(name || clean)}${replay ? "&replay=1" : ""}`
     );
     esRef.current = es;
 
     es.onmessage = (ev) => {
       const e = JSON.parse(ev.data);
       switch (e.type) {
+        case "run_start":
+          if (e.vendor?.domain) setResolvedDomain(e.vendor.domain);
+          break;
         case "stage":
           setStage(e.name);
           if (e.name === "write") patchLane("classify", { status: "running" });
@@ -199,7 +211,7 @@ export default function RunPage() {
           </button>
           {summary && (
             <Link
-              href={`/book/${domain}`}
+              href={`/book/${resolvedDomain ?? domain}`}
               className="rounded-md border border-term-accent/40 px-5 py-2 text-sm !text-term-accent no-underline hover:border-term-accent"
             >
               open the book →

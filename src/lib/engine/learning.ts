@@ -14,7 +14,7 @@ export interface LaneYield {
   share_next: number; // normalized request-budget share for the next run
 }
 
-const LEARN_LANES = ["sitemap", "customer_pages", "wayback", "ats", "peerspot", "serp"];
+const LEARN_LANES = ["sitemap", "customer_pages", "wayback", "logo_diff", "ats", "peerspot", "serp"];
 
 export async function laneYields(): Promise<LaneYield[]> {
   const supa = db();

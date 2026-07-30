@@ -20,12 +20,15 @@ export function customerPagesLane(harvest: SitemapHarvest): Lane {
 
     ctx.emit({ type: "lane_start", lane });
 
+    // the landing page itself always leads — its logo wall is customer
+    // evidence vendors publish deliberately (and the churn diff's baseline)
     const targets = [
+      `https://${vendor.domain}/`,
       ...harvest.customerPages,
       ...harvest.alternativePages,
-    ].slice(0, PAGE_CAP);
+    ].slice(0, PAGE_CAP + 1);
 
-    if (targets.length === 0) {
+    if (targets.length === 1) {
       // no sitemap harvest — fall back to conventional paths
       targets.push(
         `https://${vendor.domain}/customers`,

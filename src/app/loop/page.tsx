@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { redactQuote } from "@/lib/mask";
 
 export const dynamic = "force-dynamic";
 
@@ -26,11 +27,21 @@ const METRICS = [
 ];
 
 export default async function LoopPage() {
-  const { data: drafts } = await db()
+  // drafts render NAME-REDACTED — same masking contract as the book
+  const { data: rawDrafts } = await db()
     .from("outreach_drafts")
-    .select("channel, subject, body, drafted_at, sent")
+    .select("channel, subject, body, drafted_at, sent, candidates(full_name)")
     .order("drafted_at", { ascending: false })
     .limit(6);
+  const drafts = (rawDrafts ?? []).map((d) => {
+    const name = (d.candidates as { full_name?: string } | null)?.full_name ?? null;
+    return {
+      channel: d.channel,
+      sent: d.sent,
+      subject: redactQuote(d.subject, name),
+      body: redactQuote(d.body, name),
+    };
+  });
 
   return (
     <div className="page-grain min-h-screen">

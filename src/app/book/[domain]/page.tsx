@@ -2,26 +2,60 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { channelMask, CHANNEL_STATE_PILL } from "@/lib/channel-mask";
-import BookTable, { type CandidateItem } from "./book-table";
+import { candidateLabel, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
+import BookTable, { type DisplayCandidate } from "./book-table";
 
 export const dynamic = "force-dynamic";
 
-// Book view (build spec §7.3) — candidates under the masking contract,
-// exclusions with reasons, the reservoir panel (synthetic base, real join),
-// and the per-vendor channel-legality mask.
+// Book view (build spec §7.3). Masking is applied HERE, server-side: the
+// default render's payload contains no names, no raw quotes, no evidence
+// URLs. ?unmask=1 is the one explicit switch that renders identities.
+
+interface DbEvidence {
+  url?: string | null;
+  date?: string | null;
+  type?: string | null;
+  quote?: string | null;
+  source_domain?: string | null;
+}
+
+interface DbCandidate {
+  id: string;
+  full_name: string | null;
+  title: string | null;
+  employer: string | null;
+  employer_domain: string | null;
+  persona_class: number | null;
+  role_signal: string | null;
+  evidence: DbEvidence[];
+  confidence: number | null;
+  confidence_parts: Record<string, number> | null;
+  contact_state: string;
+  eligible: boolean;
+  exclusion_reason: string | null;
+  reservoir_match: boolean;
+}
 
 export default async function BookPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ domain: string }>;
+  searchParams: Promise<{ unmask?: string }>;
 }) {
-  const { domain } = await params;
+  const [{ domain: rawDomain }, { unmask }] = await Promise.all([params, searchParams]);
+  const unmasked = unmask === "1";
+  // tolerate pasted URLs in the route segment
+  const domain = decodeURIComponent(rawDomain)
+    .replace(/^https?:?\/*/, "")
+    .replace(/^www\./, "")
+    .replace(/\/.*$/, "");
   const supa = db();
 
   const { data: vendor } = await supa
     .from("vendors")
     .select("*")
-    .eq("domain", decodeURIComponent(domain))
+    .eq("domain", domain)
     .maybeSingle();
   if (!vendor) notFound();
 
@@ -37,13 +71,48 @@ export default async function BookPage({
       .eq("vendor_id", vendor.id),
   ]);
 
-  // reservoir join — org-level: index says org X uses the vendor ×
-  // experts employed at org X. Synthetic base, REAL join logic.
+  // server-side masking: what leaves this function is already safe
+  let eligibleIdx = 0;
+  let excludedIdx = 0;
+  const display: DisplayCandidate[] = ((candidates ?? []) as DbCandidate[]).map((c) => {
+    const identity = unmasked
+      ? c.full_name ?? "—"
+      : c.eligible
+      ? candidateLabel(eligibleIdx++)
+      : `Excluded #${++excludedIdx}`;
+    return {
+      id: c.id,
+      identity,
+      title: c.title,
+      employer: c.employer,
+      persona_class: c.persona_class,
+      role_signal: c.role_signal,
+      evidence: (c.evidence ?? []).map((e) => ({
+        type: e.type ?? null,
+        source_domain: e.source_domain ?? sourceDomain(e.url),
+        date: e.date ?? null,
+        quote: unmasked ? e.quote ?? "" : redactQuote(e.quote, c.full_name),
+        url: unmasked ? e.url ?? null : null,
+      })),
+      confidence: c.confidence,
+      confidence_parts: c.confidence_parts,
+      contact_state: c.contact_state,
+      contact_guess:
+        c.full_name && (c.employer_domain ?? undefined)
+          ? patternGuess(c.full_name, c.employer_domain as string, unmasked)
+          : null,
+      eligible: c.eligible,
+      exclusion_reason: c.exclusion_reason,
+      reservoir_match: c.reservoir_match,
+    };
+  });
+
+  // reservoir join — org-level; synthetic base, REAL join logic
   const domains = [...new Set((orgs ?? []).map((o) => o.org_domain).filter(Boolean))];
   const { data: reservoirHits } = domains.length
     ? await supa
         .from("reservoir_experts")
-        .select("title, employer, employer_domain, declared_stack, dormant, synthetic")
+        .select("title, employer, dormant")
         .in("employer_domain", domains as string[])
     : { data: [] };
 
@@ -77,7 +146,11 @@ export default async function BookPage({
       </header>
 
       <main className="relative z-[1] mx-auto max-w-6xl px-6 py-8">
-        <BookTable candidates={(candidates ?? []) as CandidateItem[]} />
+        <BookTable
+          candidates={display}
+          unmasked={unmasked}
+          toggleHref={unmasked ? `/book/${vendor.domain}` : `/book/${vendor.domain}?unmask=1`}
+        />
 
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           {/* reservoir panel */}
@@ -137,9 +210,9 @@ export default async function BookPage({
               <span className="metric text-sm text-subtle">({churned.length})</span>
             </h2>
             <p className="mt-1 text-sm text-subtle">
-              Customer pages that existed historically and vanished from the live site
-              (Wayback diff) — flagged as candidates, not facts; premium interview
-              targets (renewal intent, switching factors).
+              Customer evidence that existed historically and vanished from the live site
+              (Wayback page diff + archived logo-wall diff) — flagged as candidates, not
+              facts; premium interview targets (renewal intent, switching factors).
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {churned.map((o) => (

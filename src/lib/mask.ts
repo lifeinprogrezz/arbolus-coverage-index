@@ -27,6 +27,15 @@ export function sourceDomain(url: string | null | undefined): string {
   }
 }
 
+// first-initial + last-name @ employer domain — the cheapest resolution rung
+export function patternGuess(fullName: string, domain: string, unmasked: boolean): string {
+  const parts = fullName.trim().toLowerCase().split(/\s+/);
+  const guess = `${parts[0]?.[0] ?? ""}${parts[parts.length - 1] ?? ""}`;
+  if (!unmasked)
+    return `${guess[0] ?? "•"}${"•".repeat(Math.max(guess.length - 1, 2))}@${domain}`;
+  return `${guess}@${domain}`;
+}
+
 export const PERSONA_LABEL: Record<number, string> = {
   1: "current customer",
   2: "churned",

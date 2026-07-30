@@ -1,46 +1,46 @@
 "use client";
 
-import { Fragment, useState } from "react";
-import { candidateLabel, redactQuote, sourceDomain, PERSONA_LABEL, PERSONA_PILL } from "@/lib/mask";
+import { useState } from "react";
+import Link from "next/link";
+import { PERSONA_LABEL, PERSONA_PILL } from "@/lib/mask";
 
-// Client half of the book view: the candidate table under the §1.3 masking
-// contract. Identities masked by default; ONE unmask toggle reveals names +
-// full URLs (real people from public evidence — we say so in the room).
+// Presentational half of the book view. Masking happens SERVER-SIDE
+// (page.tsx): the default render's payload carries no names, quotes are
+// pre-redacted, and evidence URLs are withheld. The unmask toggle is an
+// explicit server round-trip (?unmask=1) — a deliberate, visible switch.
 
-export interface EvidenceItem {
-  url?: string | null;
-  date?: string | null;
-  type?: string | null;
-  quote?: string | null;
-  source_domain?: string | null;
+export interface DisplayEvidence {
+  type: string | null;
+  source_domain: string;
+  date: string | null;
+  quote: string;
+  url: string | null; // only present when unmasked
 }
 
-export interface CandidateItem {
+export interface DisplayCandidate {
   id: string;
-  full_name: string | null;
+  identity: string; // "Candidate #N" or the real name (server-decided)
   title: string | null;
   employer: string | null;
-  employer_domain: string | null;
   persona_class: number | null;
   role_signal: string | null;
-  evidence: EvidenceItem[];
+  evidence: DisplayEvidence[];
   confidence: number | null;
   confidence_parts: Record<string, number> | null;
   contact_state: string;
+  contact_guess: string | null;
   eligible: boolean;
   exclusion_reason: string | null;
   reservoir_match: boolean;
 }
 
-// first-initial + last-name @ employer domain — the cheapest resolution rung
-function patternGuess(fullName: string, domain: string, unmasked: boolean): string {
-  const parts = fullName.trim().toLowerCase().split(/\s+/);
-  const guess = `${parts[0]?.[0] ?? ""}${parts[parts.length - 1] ?? ""}`;
-  if (!unmasked) return `${guess[0] ?? "•"}${"•".repeat(Math.max(guess.length - 1, 2))}@${domain}`;
-  return `${guess}@${domain}`;
-}
-
-function ConfidenceBar({ value, parts }: { value: number | null; parts: Record<string, number> | null }) {
+function ConfidenceBar({
+  value,
+  parts,
+}: {
+  value: number | null;
+  parts: Record<string, number> | null;
+}) {
   if (value == null) return <span className="text-subtle">—</span>;
   return (
     <div className="group relative">
@@ -64,8 +64,15 @@ function ConfidenceBar({ value, parts }: { value: number | null; parts: Record<s
   );
 }
 
-export default function BookTable({ candidates }: { candidates: CandidateItem[] }) {
-  const [unmasked, setUnmasked] = useState(false);
+export default function BookTable({
+  candidates,
+  unmasked,
+  toggleHref,
+}: {
+  candidates: DisplayCandidate[];
+  unmasked: boolean;
+  toggleHref: string;
+}) {
   const [open, setOpen] = useState<string | null>(null);
 
   const eligible = candidates.filter((c) => c.eligible);
@@ -77,16 +84,16 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
         <h2 className="text-base font-semibold">
           The book <span className="metric text-sm text-subtle">({eligible.length} eligible)</span>
         </h2>
-        <button
-          onClick={() => setUnmasked((u) => !u)}
-          className={`rounded-md border px-3 py-1.5 text-xs ${
+        <Link
+          href={toggleHref}
+          className={`rounded-md border px-3 py-1.5 text-xs no-underline ${
             unmasked
-              ? "border-warn-border bg-warn-bg text-warn-text"
-              : "border-line bg-card text-ink hover:bg-ground-tint"
+              ? "border-warn-border bg-warn-bg !text-warn-text"
+              : "border-line bg-card !text-ink hover:bg-ground-tint"
           }`}
         >
           {unmasked ? "masking OFF — identities visible" : "unmask identities"}
-        </button>
+        </Link>
       </div>
 
       {eligible.length === 0 && (
@@ -122,74 +129,69 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
             </tr>
           </thead>
           <tbody>
-            {eligible.map((c, i) => (
-              <Fragment key={c.id}>
-                <tr
-                  className="cursor-pointer border-b border-line last:border-0 hover:bg-ink/[.04]"
-                  onClick={() => setOpen(open === c.id ? null : c.id)}
-                >
-                  <td className="px-4 py-3 font-medium text-ink">
-                    {unmasked ? c.full_name : candidateLabel(i)}
-                  </td>
-                  <td className="px-4 py-3">{c.title ?? "—"}</td>
-                  <td className="px-4 py-3">{c.employer ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    {c.persona_class ? (
-                      <span className={`pill ${PERSONA_PILL[c.persona_class]}`}>
-                        {c.persona_class} · {PERSONA_LABEL[c.persona_class]}
-                      </span>
-                    ) : (
-                      <span className="text-subtle">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-subtle">{c.role_signal ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <ConfidenceBar value={c.confidence} parts={c.confidence_parts} />
-                  </td>
-                  <td className="metric px-4 py-3 text-xs">{c.evidence.length} item{c.evidence.length === 1 ? "" : "s"}</td>
-                  <td className="px-4 py-3">
-                    {c.reservoir_match ? <span className="pill bg-city-newyork">match</span> : <span className="text-subtle">—</span>}
-                  </td>
-                </tr>
-                {open === c.id && (
-                  <tr className="border-b border-line bg-ground-tint">
-                    <td colSpan={8} className="px-6 py-4">
-                      <div className="flex flex-col gap-2">
-                        {c.evidence.map((e, j) => (
-                          <div key={j} className="provenance">
-                            {e.type} · {e.source_domain ?? sourceDomain(e.url)} · {e.date ?? "undated"} —{" "}
-                            <span className="text-ink-60">
-                              &ldquo;{unmasked ? e.quote : redactQuote(e.quote, c.full_name)}&rdquo;
-                            </span>
-                            {unmasked && e.url && (
-                              <>
-                                {" "}
-                                <a href={e.url} target="_blank" rel="noreferrer">
-                                  source ↗
-                                </a>
-                              </>
-                            )}
-                          </div>
-                        ))}
-                        <div className="provenance">
-                          contact_state: <span className="metric">{c.contact_state}</span>
-                          {c.employer_domain && c.full_name && (
+            {eligible.map((c) => (
+              <tr
+                key={c.id}
+                className="cursor-pointer border-b border-line last:border-0 hover:bg-ink/[.04]"
+                onClick={() => setOpen(open === c.id ? null : c.id)}
+              >
+                <td className="px-4 py-3 font-medium text-ink">
+                  {c.identity}
+                  {open === c.id && (
+                    <div className="mt-2 flex flex-col gap-1.5 font-normal">
+                      {c.evidence.map((e, j) => (
+                        <div key={j} className="provenance max-w-md whitespace-normal">
+                          {e.type} · {e.source_domain} · {e.date ?? "undated"} — &ldquo;
+                          {e.quote}&rdquo;
+                          {e.url && (
                             <>
-                              {" "}· pattern-guess:{" "}
-                              <span className="metric">
-                                {patternGuess(c.full_name, c.employer_domain, unmasked)}
-                              </span>
+                              {" "}
+                              <a href={e.url} target="_blank" rel="noreferrer" onClick={(ev) => ev.stopPropagation()}>
+                                source ↗
+                              </a>
                             </>
-                          )}{" "}
-                          · verification = production step (NeverBounce-class API) — the{" "}
-                          <span className="metric">unresolved → resolved → verified → bounced</span>{" "}
-                          state machine is the argument, not the SMTP handshake
+                          )}
                         </div>
+                      ))}
+                      <div className="provenance max-w-md whitespace-normal">
+                        contact_state: <span className="metric">{c.contact_state}</span>
+                        {c.contact_guess && (
+                          <>
+                            {" "}· pattern-guess: <span className="metric">{c.contact_guess}</span>
+                          </>
+                        )}{" "}
+                        · verification = production step (NeverBounce-class API) — the state machine
+                        is the argument, not the SMTP handshake
                       </div>
-                    </td>
-                  </tr>
-                )}
-              </Fragment>
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-3 align-top">{c.title ?? "—"}</td>
+                <td className="px-4 py-3 align-top">{c.employer ?? "—"}</td>
+                <td className="px-4 py-3 align-top">
+                  {c.persona_class ? (
+                    <span className={`pill ${PERSONA_PILL[c.persona_class]}`}>
+                      {c.persona_class} · {PERSONA_LABEL[c.persona_class]}
+                    </span>
+                  ) : (
+                    <span className="text-subtle">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 align-top text-xs text-subtle">{c.role_signal ?? "—"}</td>
+                <td className="px-4 py-3 align-top">
+                  <ConfidenceBar value={c.confidence} parts={c.confidence_parts} />
+                </td>
+                <td className="metric px-4 py-3 align-top text-xs">
+                  {c.evidence.length} item{c.evidence.length === 1 ? "" : "s"}
+                </td>
+                <td className="px-4 py-3 align-top">
+                  {c.reservoir_match ? (
+                    <span className="pill bg-city-newyork">match</span>
+                  ) : (
+                    <span className="text-subtle">—</span>
+                  )}
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
@@ -202,12 +204,12 @@ export default function BookTable({ candidates }: { candidates: CandidateItem[] 
             <span className="metric text-xs text-subtle">({excluded.length})</span>
           </h3>
           <div className="flex flex-col gap-1.5">
-            {excluded.map((c, i) => (
+            {excluded.map((c) => (
               <div
                 key={c.id}
                 className="flex items-center gap-3 rounded-md border border-warn-border bg-warn-bg px-3 py-2 text-sm"
               >
-                <span className="font-medium">{unmasked ? c.full_name : `Excluded #${i + 1}`}</span>
+                <span className="font-medium">{c.identity}</span>
                 <span className="text-subtle-deep">{c.title}</span>
                 <span className="metric ml-auto text-xs text-warn-text">{c.exclusion_reason}</span>
               </div>

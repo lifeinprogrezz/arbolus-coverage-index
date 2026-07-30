@@ -9,6 +9,7 @@ import { waybackLane } from "./lanes/wayback";
 import { atsLane } from "./lanes/ats";
 import { peerspotLane } from "./lanes/peerspot";
 import { serpLane } from "./lanes/serp";
+import { logoDiffLane } from "./lanes/logo-diff";
 import type { EvidenceRow, LaneCtx, LaneEvent, LaneResult, Vendor } from "./types";
 
 // The 10-step map run (build spec §2), prototype build: 6 live lanes +
@@ -170,13 +171,13 @@ export async function mapRun(
   const t0 = Date.now();
   emit({ type: "run_start", run_id, vendor });
 
-  const journal = async (r: LaneResult) => {
+  const journal = async (r: LaneResult, found?: number) => {
     await supa.from("run_journal").insert({
       run_id,
       vendor_id: vendor.id,
       lane: r.lane,
       status: r.error ? "error" : "done",
-      items_found: r.rows.length,
+      items_found: found ?? r.rows.length,
       cost_usd: r.cost_usd,
       latency_ms: r.latency_ms,
       detail: { requests: r.requests, note: r.note?.slice(0, 200), error: r.error },
@@ -186,7 +187,6 @@ export async function mapRun(
   // ---- stage 1: sitemap (feeds everything) ----
   emit({ type: "stage", name: "sitemap" });
   const smRes = await sitemapLane(vendor, makeCtx(emit));
-  await journal(smRes);
   const harvest: SitemapHarvest = (smRes.data as SitemapHarvest) ?? {
     customerPages: [],
     alternativePages: [],
@@ -194,6 +194,8 @@ export async function mapRun(
     competitorsDetected: [],
     allUrls: [],
   };
+  // the sitemap's yield is its harvest, not evidence rows — journal the real count
+  await journal(smRes, harvest.customerPages.length + harvest.alternativePages.length);
 
   // competitor self-declarations extend the vendor row
   if (harvest.competitorsDetected.length > 0) {
@@ -209,6 +211,7 @@ export async function mapRun(
   const stage2 = await Promise.all([
     customerPagesLane(harvest)(vendor, makeCtx(emit)),
     waybackLane(harvest)(vendor, makeCtx(emit)),
+    logoDiffLane(vendor, makeCtx(emit)),
     peerspotLane(vendor, makeCtx(emit)),
     serpLane(vendor, makeCtx(emit, 16)),
   ]);
@@ -234,6 +237,33 @@ export async function mapRun(
   // a map run REFRESHES the vendor's book — no cross-run duplicate rows
   await supa.from("candidates").delete().eq("vendor_id", vendor.id);
   await supa.from("customer_orgs").delete().eq("vendor_id", vendor.id);
+
+  // placeholder guard: the classifier sometimes names non-entities
+  // ("Unnamed Fintech Company") from anonymous testimonials — an
+  // investor-grade book carries attributable orgs only
+  const PLACEHOLDER_RE =
+    /unnamed|unclear|unknown|anonymous|undisclosed|^n\/?a$|^various\b|^multiple\b/i;
+  {
+    const kept = allRows.filter(
+      (r) => r.org_name && !PLACEHOLDER_RE.test(r.org_name.trim())
+    );
+    allRows.length = 0;
+    allRows.push(...kept);
+  }
+
+  // churn-candidate clearing: an org flagged churned (archived logo wall /
+  // wayback page diff) that ALSO appears on a current surface is still a
+  // customer — drop the tentative churn row, keep the current one
+  const currentOrgs = new Set(
+    allRows
+      .filter((r) => (r.status ?? "current") === "current")
+      .map((r) => r.org_name.toLowerCase())
+  );
+  const cleared = allRows.filter(
+    (r) => !(r.status === "churned" && currentOrgs.has(r.org_name.toLowerCase()))
+  );
+  allRows.length = 0;
+  allRows.push(...cleared);
 
   let orgCount = 0;
   let candCount = 0;
