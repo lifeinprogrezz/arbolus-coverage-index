@@ -123,7 +123,7 @@ const COSTS = [
     note: null,
   },
   {
-    line: "Community placements",
+    line: "Through their communities",
     amount: "≤€300 cap",
     basis: "one-off per community, spread across every burst we run in that niche",
     assumption: "The cap is an assumption, not a quoted price.",
