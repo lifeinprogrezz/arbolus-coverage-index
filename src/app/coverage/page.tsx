@@ -219,29 +219,31 @@ export default async function CoveragePage() {
                   })}
                 </tbody>
               </table>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line px-4 py-2.5">
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
+                <span className="text-dense uppercase tracking-wide text-subtle">
+                  Request coverage
+                </span>
+                <span className="text-dense text-subtle-deep">
+                  records a client who searched and found nothing. The queue
+                  reorders and the <Link href="/burst">burst budget</Link> is
+                  released.
+                </span>
+                <span className="ml-auto">
+                  <InfoHint align="right">
+                    The front door no Arbolus page has today: a client says
+                    &ldquo;I need coverage on this company&rdquo; and leaves a
+                    trace. Every euro of burst spend then traces back to a
+                    client who asked and left empty-handed. The events fired
+                    here are simulated.
+                  </InfoHint>
+                </span>
+              </div>
             </div>
           </section>
         )}
 
         {/* map queue — what gets indexed next */}
-        {/* the missing front door — caption for the request-coverage buttons */}
-        <section className="reveal reveal-d2 mt-6">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-violet-100 bg-violet-50 px-4 py-3">
-            <span className="text-control font-medium text-ink">Request coverage</span>
-            <span className="text-dense text-subtle-deep">
-              each row&rsquo;s button records a client who searched and found
-              nothing. The queue reorders and the{" "}
-              <Link href="/burst">burst budget</Link> is released.
-            </span>
-            <InfoHint align="right">
-              The front door no Arbolus page has today: a client says &ldquo;I need
-              coverage on this company&rdquo; and leaves a trace. Every euro of
-              burst spend then traces back to a client who asked and left
-              empty-handed. The events fired here are simulated.
-            </InfoHint>
-          </div>
-        </section>
-
         {queueTop.length > 0 && (
           <section className="reveal reveal-d2 mt-10">
             <div className="mb-3 flex items-center gap-2">
