@@ -49,7 +49,7 @@ const METRICS = [
   { name: "Extra reviews per recruit", value: "~4×", threshold: "reviews beyond the one we asked for", detail: "one signup left six reviews" },
 ];
 
-const TODAY_FACTS = ["you cannot know what you will earn", "$100 minimum before anything pays out"];
+const TODAY_FACTS = ["you cannot know what you will earn", "$100 minimum before any payout"];
 const BOUNTY_FACTS = ["paid when you finish, by a stated date", "no minimum on this first payout"];
 
 export default async function LoopPage() {
