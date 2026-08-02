@@ -43,14 +43,14 @@ const UNLOCK_STEPS = [
 
 // [SIMULATED] loop metrics — thresholds rendered next to every value
 const METRICS = [
-  { name: "Invites per contributor", value: "1.18", threshold: "above 1 = it compounds", detail: "new contributors each contributor brings in, invites only" },
-  { name: "Answered from our own experts", value: "31%", threshold: "should rise every run", detail: "share of a gap we can fill internally before any cold outreach" },
-  { name: "Quiet experts brought back", value: "9%", threshold: "anything above 0 is free", detail: "dormant experts re-prompted when the index first maps their company" },
-  { name: "Extra reviews per recruit", value: "~4×", threshold: "reviews beyond the one we asked for", detail: "first-hand, one person: a single signup left six reviews" },
+  { name: "Invites per contributor", value: "1.18", threshold: "above 1 = it compounds", detail: "new contributors each one brings in" },
+  { name: "Answered from our own experts", value: "31%", threshold: "should rise every run", detail: "gap covered from our own network first" },
+  { name: "Quiet experts brought back", value: "9%", threshold: "anything above 0 is free", detail: "sleepers returning when we map their company" },
+  { name: "Extra reviews per recruit", value: "~4×", threshold: "reviews beyond the one we asked for", detail: "one signup left six reviews" },
 ];
 
-const TODAY_FACTS = ["you cannot know what you will earn", "$100 before anything pays out", "only pays if clients read you"];
-const BOUNTY_FACTS = ["amount named up front", "paid when you finish, by a stated date", "no minimum on this first payout"];
+const TODAY_FACTS = ["you cannot know what you will earn", "$100 minimum before anything pays out"];
+const BOUNTY_FACTS = ["paid when you finish, by a stated date", "no minimum on this first payout"];
 
 export default async function LoopPage() {
   const supa = db();
@@ -139,9 +139,9 @@ export default async function LoopPage() {
               </div>
             </div>
             <p className="mt-4 border-t border-violet-200/60 pt-3 text-dense text-subtle-deep">
-              The change, whole: the first review on an uncovered company pays
-              flat instead of per-view. Nothing else moves — their current terms
-              allow it, and a two-week A/B decides it.
+              The whole change: the first review on an uncovered company pays
+              flat instead of per-view — their terms allow it, a two-week A/B
+              decides it.
             </p>
           </section>
 
