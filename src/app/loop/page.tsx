@@ -160,46 +160,7 @@ export default async function LoopPage() {
           </section>
         </div>
 
-        {/* the invite lifecycle, one line: written → sent (never) → where they
-            land → where to read them */}
-        <section className="reveal reveal-d3 mt-8">
-          <div className="pane flex flex-wrap items-center gap-x-3 gap-y-2 p-4">
-            <span className="eyebrow">the invites</span>
-            <span className="metric text-dense text-ink">
-              {draftCount ?? 0} written
-            </span>
-            <span className="metric text-dense text-success-text">
-              {sentCount ?? 0} sent
-            </span>
-            <InfoHint>
-              One draft per eligible candidate at the end of every map run —
-              anchored to their evidence, opt-out included, never sent by this
-              prototype. Each link resolves to that vendor&rsquo;s own sign-up
-              page: a destination, not a magnet — people arrive from invites,
-              never from ads or search.
-            </InfoHint>
-            <span className="text-dense text-subtle">land on</span>
-            {(mappedVendors ?? []).map((v) => (
-              <Link
-                key={v.domain}
-                href={`/join/${v.domain}`}
-                className="pill bg-violet-50 !text-violet-link no-underline transition-colors hover:bg-violet-100 active:translate-y-px"
-              >
-                /join/{v.domain}
-              </Link>
-            ))}
-            {latestVendor && (
-              <Link
-                href={`/book/${latestVendor.domain}`}
-                className="ml-auto whitespace-nowrap text-dense"
-              >
-                read them in the {vendorName(latestVendor.name)} book →
-              </Link>
-            )}
-          </div>
-        </section>
-
-        <div className="reveal reveal-d4 mt-10 max-w-2xl">
+        <div className="reveal reveal-d4 mt-10 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
           {/* 5-step unlock flow */}
           <section>
             <h2 className="mb-4 text-title text-ink">The activation flow</h2>
@@ -225,6 +186,56 @@ export default async function LoopPage() {
             </div>
           </section>
 
+          {/* the invites — vertical card beside the flow */}
+          <section className="self-start">
+            <h2 className="mb-4 text-title text-ink">The invites</h2>
+            <div className="pane p-5">
+              <div className="flex items-start gap-x-8">
+                <div>
+                  <span className="eyebrow">written</span>
+                  <span className="metric mt-1 block text-display text-ink">
+                    {draftCount ?? 0}
+                  </span>
+                </div>
+                <div>
+                  <span className="eyebrow">sent</span>
+                  <span className="metric mt-1 block text-display text-success-text">
+                    {sentCount ?? 0}
+                  </span>
+                </div>
+                <span className="ml-auto">
+                  <InfoHint align="right">
+                    One draft per eligible candidate at the end of every map run —
+                    anchored to their evidence, opt-out included, never sent by
+                    this prototype. Each link resolves to that vendor&rsquo;s own
+                    sign-up page: a destination, not a magnet — people arrive
+                    from invites, never from ads or search.
+                  </InfoHint>
+                </span>
+              </div>
+              <div className="mt-4 border-t border-line pt-3">
+                <span className="eyebrow">land on</span>
+                <div className="mt-2 flex flex-col items-start gap-1.5">
+                  {(mappedVendors ?? []).map((v) => (
+                    <Link
+                      key={v.domain}
+                      href={`/join/${v.domain}`}
+                      className="pill bg-violet-50 !text-violet-link no-underline transition-colors hover:bg-violet-100 active:translate-y-px"
+                    >
+                      /join/{v.domain}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              {latestVendor && (
+                <p className="mt-4 border-t border-line pt-3 text-dense">
+                  <Link href={`/book/${latestVendor.domain}`}>
+                    read them in the {vendorName(latestVendor.name)} book →
+                  </Link>
+                </p>
+              )}
+            </div>
+          </section>
         </div>
 
         {/* the closing verdict — same table device as burst's by-hand-vs-engine */}
