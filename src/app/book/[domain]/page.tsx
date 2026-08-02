@@ -292,24 +292,34 @@ export default async function BookPage({
               </span>
             </div>
             <div className="mt-2 flex flex-col">
-              {mask
-                .filter((r) => r.group === "contact")
-                .map((r) => (
-                  <div
-                    key={r.channel}
-                    className="flex items-center gap-2.5 border-b border-line/70 py-2 last:border-0"
-                  >
-                    <span
-                      className={`pill shrink-0 whitespace-nowrap ${CHANNEL_STATE_PILL[r.state]}`}
-                    >
-                      {CHANNEL_STATE_LABEL[r.state] ?? r.state.replace(/_/g, " ")}
-                    </span>
-                    <span className="text-control font-medium text-ink">{r.channel}</span>
-                    <span className="ml-auto">
-                      <InfoHint align="right">{r.why}</InfoHint>
-                    </span>
-                  </div>
-                ))}
+              {(
+                [
+                  ["internal", "internal — through our own network"],
+                  ["external", "external — cold outreach"],
+                ] as const
+              ).map(([o, label]) => (
+                <Fragment key={o}>
+                  <span className="provenance mt-3 first:mt-1">{label}</span>
+                  {mask
+                    .filter((r) => r.group === "contact" && r.origin === o)
+                    .map((r) => (
+                      <div
+                        key={r.channel}
+                        className="flex items-center gap-2.5 border-b border-line/70 py-2 last:border-0"
+                      >
+                        <span
+                          className={`pill shrink-0 whitespace-nowrap ${CHANNEL_STATE_PILL[r.state]}`}
+                        >
+                          {CHANNEL_STATE_LABEL[r.state] ?? r.state.replace(/_/g, " ")}
+                        </span>
+                        <span className="text-control font-medium text-ink">{r.channel}</span>
+                        <span className="ml-auto">
+                          <InfoHint align="right">{r.why}</InfoHint>
+                        </span>
+                      </div>
+                    ))}
+                </Fragment>
+              ))}
             </div>
           </section>
         </div>
