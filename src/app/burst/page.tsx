@@ -64,7 +64,7 @@ const WALK = [
     math: "companies in the book × our experts there × how many say yes",
     yield_: "~3",
     assumption:
-      "2–6 matches per vendor in their sweet spot. The base is simulated, and the ratio is on screen.",
+      "2–6 matches per vendor in their sweet spot. The base is simulated, and the ratio is on screen. This line is the direct ask to our own experts — the introductions they might make to colleagues are left out of the math on purpose: upside, not counted.",
   },
   {
     stage: "Email the people we can name",
@@ -338,9 +338,11 @@ export default async function BurstPage({
                   <tr className="align-top">
                     <td className="px-3.5 py-2.5 font-medium text-ink">If we fall short</td>
                     <td className="px-3.5 py-2.5 text-dense text-subtle">
-                      (1) run the clock longer and re-map · (2) raise the bounty, the
-                      one lever we know works · (3) ask the vendor to introduce us, a
-                      last resort that gets labelled as such
+                      (1) give it more time and map again · (2) raise the bounty —
+                      paying more for the first review is the one lever with proven
+                      effect · (3) ask the vendor itself to introduce us to its
+                      customers — last resort, and those reviews are labelled as
+                      vendor-sourced
                     </td>
                     <td className="metric py-2.5 pl-3.5 pr-5 text-right text-success-text">
                       → 20
