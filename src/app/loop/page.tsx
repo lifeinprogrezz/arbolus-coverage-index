@@ -4,6 +4,7 @@ import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
+import Distribution from "./distribution";
 import MetricTiles from "./metric-tiles";
 
 export const dynamic = "force-dynamic";
@@ -90,7 +91,25 @@ export default async function LoopPage() {
           </InfoHint>
         </div>
 
-        <div className="mt-5 grid gap-6 lg:grid-cols-2">
+        {/* the head-vs-tail curve — the whole case in one shape */}
+        <section className="reveal reveal-d1 mt-5">
+          <div className="pane p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="eyebrow">where the reviews are today</h2>
+              <span className="pill bg-city-sanjose">illustrative</span>
+              <InfoHint>
+                The shape every review marketplace shows, drawn schematically —
+                this is not Arbolus&rsquo;s data. The two anchors are real: head
+                tools carry 2,000+ reviews each, and covered means 20. Per-view
+                royalties concentrate all earnings on the head, so the tail stays
+                empty — which is the whole case in one curve.
+              </InfoHint>
+            </div>
+            <Distribution />
+          </div>
+        </section>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
           {/* R0 offer */}
           <section className="reveal reveal-d1 self-start rounded-xl border border-violet-100 bg-violet-50 p-5">
             <div className="flex flex-wrap items-center gap-2">
