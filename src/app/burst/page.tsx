@@ -356,7 +356,7 @@ export default async function BurstPage({
           <div className="mt-8">
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
               <span className="flex items-center gap-2">
-                <h2 className="text-title text-ink">The same walk, with your numbers</h2>
+                <h2 className="text-title text-ink">Move the assumptions</h2>
                 <AssumeTag />
               </span>
               <span className="provenance">
@@ -396,10 +396,6 @@ export default async function BurstPage({
                 </div>
               ))}
             </div>
-            <p className="provenance mt-4">
-              results write back to the index · the budget moves between channels each
-              run
-            </p>
           </section>
 
           {/* cost per burst — sits beside the playbook: when things happen | what they cost */}
