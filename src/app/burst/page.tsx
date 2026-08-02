@@ -560,11 +560,9 @@ export default async function BurstPage({
                 aria-hidden
                 className="inline-block h-1.5 w-1.5 shrink-0 -translate-y-[1px] rounded-full bg-violet-400"
               />
-              The engine does not replace the pod — it adds the tail coverage the
-              pod can&rsquo;t reach economically, and the pod becomes the
-              escalation tier. 20,000 companies does not mean 20,000 bursts:
-              well-covered vendors cost €0 and the free activation loops carry the
-              rest of the catalogue.
+              The engine adds the tail the pod can&rsquo;t reach; the pod becomes
+              its escalation tier. And 20,000 companies does not mean 20,000
+              bursts — covered vendors cost €0, the free loops carry the rest.
             </p>
           </div>
         </section>
