@@ -404,6 +404,21 @@ export default function ReferencePage() {
                   A guessed address from name + employer domain, the cheapest way
                   to reach someone. Verifying it is a production step.
                 </Term>
+                <Term k="reach">
+                  The channels the data proves for this specific person, shown
+                  warmest first — the try-order: <em>warm intro</em> (network
+                  match: zero cost, best reply rate) → <em>community</em> (forum
+                  evidence exists) → <em>direct email</em> (address guess exists,
+                  colored by the vendor&rsquo;s legal rules). Nothing appears that
+                  isn&rsquo;t derived from real data, and which channel actually
+                  converts is one of the numbers the two-week experiment measures.
+                </Term>
+                <Term k="invite draft">
+                  The email the composer wrote for this person at the end of the
+                  map run, anchored to their own evidence, bounty priced by book
+                  depth. Drafted, never sent — sending is the production switch,
+                  after the per-person legal check.
+                </Term>
               </div>
 
               <div className="pane mt-4 p-4">
