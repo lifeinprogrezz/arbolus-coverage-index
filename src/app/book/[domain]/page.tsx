@@ -245,9 +245,9 @@ export default async function BookPage({
 
           {/* channel-legality mask */}
           <section className="pane p-5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <h2 className="eyebrow">How we&rsquo;re allowed to contact them</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="eyebrow">How we&rsquo;re allowed to contact them</h2>
+              <span className="flex translate-y-px items-center">
                 <InfoHint>
                   <p>
                     Each row is one way of reaching the people above, with its
@@ -264,17 +264,8 @@ export default async function BookPage({
                     vendor, from its head office, as the stated simplification.
                   </p>
                 </InfoHint>
-              </div>
-              <span className="provenance">
-                {vendor.hq_country
-                  ? `rules for: ${vendor.hq_country}`
-                  : "country unknown · showing general rules"}
               </span>
             </div>
-            <p className="mt-1.5 text-dense text-subtle-deep">
-              The list above is who we want to reach. This is how we&rsquo;re
-              allowed to reach them.
-            </p>
             <div className="mt-2 flex flex-col">
               {mask.map((r) => (
                 <div
