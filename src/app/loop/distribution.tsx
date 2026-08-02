@@ -6,16 +6,16 @@
 // to the burst's trigger.
 
 const W = 800;
-const H = 210;
 const LEFT = 8;
 const RIGHT = 8;
-const BASE = 172; // baseline y
+const BASE = 196; // baseline y
 const TOP = 30; // curve peak y
 const SPAN = BASE - TOP;
 
-// long-tail shape: h(0)=1 at the head, ~0 across the tail
+// long-tail shape: h(0)=1 at the head, low across the tail — decay kept
+// gentle enough to read as a curve, not a cliff
 function h(t: number): number {
-  return Math.pow(0.004 / (t + 0.004), 1.1);
+  return 0.008 / (t + 0.008);
 }
 
 function build() {
@@ -32,7 +32,7 @@ function build() {
   // covered = 20 reviews vs a 2,000+ head → the threshold sits at ~1% of peak
   const hThresh = 0.045;
   const thresholdY = BASE - hThresh * SPAN;
-  const tCross = 0.004 / Math.pow(hThresh, 1 / 1.1) - 0.004;
+  const tCross = 0.008 / hThresh - 0.008;
   const crossX = LEFT + tCross * plotW;
   // the demand event: a client opens a company deep in the tail
   const tEvent = 0.62;
@@ -45,7 +45,7 @@ export default function Distribution() {
   const { area, line, thresholdY, crossX, eventX, eventY } = build();
   return (
     <svg
-      viewBox={`0 0 ${W} ${H + 20}`}
+      viewBox={`0 0 ${W} ${BASE + 10}`}
       className="mt-3 h-auto w-full"
       role="img"
       aria-label="Illustrative distribution of reviews across companies: a small head of tools with thousands of reviews each, and a long tail of companies with none. The covered threshold of twenty reviews sits just above the tail, and a marker shows a client opening an uncovered company deep in the tail."
@@ -146,17 +146,6 @@ export default function Distribution() {
         A CLIENT OPENS A COMPANY HERE → THE BURST FIRES
       </text>
 
-      {/* x axis label */}
-      <text
-        x={W / 2}
-        y={H + 12}
-        textAnchor="middle"
-        className="fill-subtle font-mono"
-        fontSize="10"
-        letterSpacing="0.06em"
-      >
-        COMPANIES · MOST REVIEWED → NEVER REVIEWED
-      </text>
     </svg>
   );
 }
