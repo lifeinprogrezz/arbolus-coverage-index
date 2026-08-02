@@ -132,9 +132,8 @@ export default function WalkSliders({ defaultSeeds, defaultReservoir }: Props) {
             </>
           ) : (
             <>
-              <span className="metric text-warn-text">{gap.toFixed(1)} short</span>. Three
-              ways to close it: run the clock longer and re-map, raise the bounty (the one
-              lever we know works), or ask the vendor to introduce us as a last resort.
+              <span className="metric text-warn-text">{gap.toFixed(1)} short</span> — the
+              three fall-short levers above close the gap.
             </>
           )}
         </p>
