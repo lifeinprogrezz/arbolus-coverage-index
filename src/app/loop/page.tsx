@@ -123,7 +123,7 @@ export default async function LoopPage() {
                 </ul>
               </div>
               <div className="pane border-violet-200 p-4 shadow-[var(--shadow-glow-violet)]">
-                <div className="eyebrow">first review · companies with no coverage</div>
+                <div className="eyebrow">first review · uncovered companies</div>
                 <div className="metric mt-1.5 text-page text-violet-link">
                   $25–50
                   <span className="text-control font-normal text-subtle"> flat</span>
