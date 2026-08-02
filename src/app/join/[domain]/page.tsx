@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../../vendor-name";
 
@@ -73,7 +74,14 @@ export default async function JoinPage({
       <main className="relative z-[1] mx-auto w-full max-w-2xl flex-1 px-6 py-12">
         {/* hero */}
         <div className="reveal">
-          <h1 className="text-balance text-page leading-snug text-ink md:text-display">
+          <div className="flex items-center gap-2.5">
+            <CoLogo name={vendor.name} domain={vendor.domain} size={40} />
+            <div>
+              <span className="block text-title text-ink">{name}</span>
+              <span className="provenance">{vendor.domain}</span>
+            </div>
+          </div>
+          <h1 className="mt-5 text-balance text-page leading-snug text-ink md:text-display">
             You&rsquo;ve used <span className="text-violet-link">{name}</span> at
             work. That experience is worth money.
           </h1>
@@ -83,19 +91,30 @@ export default async function JoinPage({
           </p>
         </div>
 
-        {/* offer */}
-        <div className="reveal reveal-d1 mt-7 rounded-xl border border-violet-200 bg-violet-50 p-5 shadow-[var(--shadow-glow-violet-lg)]">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-title text-ink">First {name} review</span>
-            <span className="metric text-[28px] leading-none text-violet-link">
-              ${bounty}
-            </span>
+        {/* offer — a voucher, not a pricing card */}
+        <div className="pane reveal reveal-d1 mt-7 overflow-hidden">
+          <div className="flex items-stretch">
+            <div className="flex-1 px-5 py-4">
+              <span className="eyebrow">your first {name} review</span>
+              <p className="mt-1.5 text-body font-medium text-ink">
+                15 minutes, guided questions.
+              </p>
+              <p className="mt-0.5 text-dense text-subtle-deep">
+                No minimum payout on this one.
+              </p>
+            </div>
+            <div className="flex flex-col items-center justify-center border-l border-dashed border-ink-25/40 bg-violet-50/50 px-7 py-4">
+              <span className="metric text-[32px] leading-none text-violet-link">
+                ${bounty}
+              </span>
+              <span className="provenance mt-1.5 whitespace-nowrap">
+                known before you start
+              </span>
+            </div>
           </div>
-          <ul className="mt-3 flex flex-col gap-1.5 text-dense text-subtle-deep">
-            <li>15 minutes, guided questions</li>
-            <li>No minimum payout on this one</li>
-            <li>Verified by work email. Your employer is never contacted.</li>
-          </ul>
+          <p className="border-t border-line px-5 py-2.5 text-dense text-subtle-deep">
+            Verified by work email — your employer is never contacted.
+          </p>
         </div>
 
         {/* three steps — 24px violet-50 dots on a connecting hairline */}
@@ -109,9 +128,32 @@ export default async function JoinPage({
               <span className="relative z-[1] flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-50 font-mono text-caption text-violet-link ring-1 ring-violet-200">
                 {i + 1}
               </span>
-              <div className="pt-0.5">
+              <div className="min-w-0 flex-1 pt-0.5">
                 <p className="text-body font-medium text-ink">{s.lead}</p>
                 <p className="mt-0.5 text-dense text-subtle-deep">{s.sub}</p>
+                {i === 2 && (
+                  <div className="mt-3 max-w-sm">
+                    <div className="flex gap-2">
+                      <div className="well flex-1">
+                        <input
+                          disabled
+                          placeholder="colleague@their-work-email.com"
+                          aria-label="Colleague's work email"
+                          className="metric w-full bg-transparent px-3 py-1.5 text-dense text-ink outline-none placeholder:text-subtle-disabled"
+                        />
+                      </div>
+                      <button
+                        disabled
+                        className="shrink-0 cursor-not-allowed rounded-[10px] bg-ink px-3.5 py-1.5 text-dense font-medium text-white opacity-50"
+                      >
+                        Invite
+                      </button>
+                    </div>
+                    <p className="provenance mt-1.5">
+                      appears in your rewards dashboard after your first review
+                    </p>
+                  </div>
+                )}
               </div>
             </li>
           ))}

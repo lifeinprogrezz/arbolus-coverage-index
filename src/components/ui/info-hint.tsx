@@ -24,7 +24,11 @@ export default function InfoHint({
   align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const [pos, setPos] = useState<{
+    top?: number;
+    bottom?: number;
+    left: number;
+  } | null>(null);
   const ref = useRef<HTMLSpanElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -35,7 +39,14 @@ export default function InfoHint({
       if (!r) return;
       let left = align === "right" ? r.right - PANEL_W : r.left;
       left = Math.min(Math.max(left, MARGIN), window.innerWidth - PANEL_W - MARGIN);
-      setPos({ top: r.bottom + GAP, left });
+      // open downward when there's room; otherwise anchor to the trigger's
+      // top and grow upward, so a hint near the page floor never overflows
+      const spaceBelow = window.innerHeight - r.bottom;
+      if (spaceBelow >= 260) {
+        setPos({ top: r.bottom + GAP, left });
+      } else {
+        setPos({ bottom: window.innerHeight - r.top + GAP, left });
+      }
     };
     place();
     const onDown = (e: MouseEvent) => {
@@ -80,7 +91,13 @@ export default function InfoHint({
         createPortal(
           <div
             ref={panelRef}
-            style={{ position: "fixed", top: pos.top, left: pos.left, width: PANEL_W }}
+            style={{
+              position: "fixed",
+              top: pos.top,
+              bottom: pos.bottom,
+              left: pos.left,
+              width: PANEL_W,
+            }}
             className="pane z-[80] p-3.5 text-dense leading-relaxed text-ink-60 dark:text-term-muted"
           >
             {children}
