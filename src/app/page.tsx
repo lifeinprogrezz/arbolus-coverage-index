@@ -98,7 +98,7 @@ export default function Home() {
                     l.state === "live"
                       ? "bg-success"
                       : l.state === "nightly"
-                        ? "bg-ink-60"
+                        ? "bg-violet-400"
                         : "border border-ink-35"
                   }`}
                 />
