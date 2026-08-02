@@ -173,12 +173,22 @@ export default async function BookPage({
             title="Back to the board"
             className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-card !text-subtle no-underline transition-colors hover:border-ink-35 hover:bg-ground-tint hover:!text-ink"
           >
-            <span
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
               aria-hidden
               className="transition-transform duration-150 group-hover:-translate-x-0.5"
             >
-              ←
-            </span>
+              <path
+                d="M12.5 7H2M2 7l4.2-4.2M2 7l4.2 4.2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </Link>
           <CoLogo name={vendor.name} domain={vendor.domain} size={36} />
           <div>
