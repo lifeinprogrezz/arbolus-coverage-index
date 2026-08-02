@@ -237,114 +237,145 @@ export default function BookTable({
 
                 {open === c.id && (
                   <tr className="border-b border-line bg-ground-tint/50 last:border-0">
-                    <td colSpan={8} className="px-5 py-4">
-                      <div className="dg max-w-3xl">
-                        <span className="dg-k">Evidence</span>
-                        <div className="dg-v flex flex-col gap-2.5">
-                          {c.evidence.map((e, j) => (
-                            <div key={j}>
-                              <p className="text-dense italic text-ink-70">
-                                &ldquo;{e.quote}&rdquo;
-                              </p>
-                              <p className="provenance mt-0.5">
-                                {humanize(e.type, EVIDENCE_LABEL, "Evidence")} ·{" "}
-                                {e.source_domain} · {e.date ?? "undated"}
-                                {e.url && (
-                                  <>
-                                    {" "}
-                                    ·{" "}
-                                    <a
-                                      href={e.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      onClick={(ev) => ev.stopPropagation()}
-                                    >
-                                      source ↗
-                                    </a>
-                                  </>
-                                )}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-
-                        <span className="dg-k">Contact</span>
-                        <div className="dg-v flex items-center gap-1.5">
-                          {c.contact_guess ? (
-                            <span className="metric text-dense">{c.contact_guess}</span>
-                          ) : (
-                            <span className="text-subtle">—</span>
-                          )}
-                          <InfoHint>
-                            Guessed from the name plus the employer&rsquo;s domain, the
-                            cheapest way to reach someone. Checking the address is real
-                            is a production step; this prototype only records what stage
-                            each contact has reached.
-                          </InfoHint>
-                        </div>
-
-                        <span className="dg-k">Stage</span>
-                        <div className="dg-v">
-                          <span className="pill bg-city-sanjose">
-                            {humanize(c.contact_state, {}, "—")}
+                    <td colSpan={8} className="px-5 py-5">
+                      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+                        {/* the dossier: why we believe them */}
+                        <div>
+                          <span className="mb-2.5 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                            Evidence
                           </span>
-                        </div>
-
-                        <span className="dg-k">Reach</span>
-                        <div className="dg-v flex flex-wrap items-center gap-1.5">
-                          {c.contact_guess && (
-                            <span className={`pill ${CHANNEL_STATE_PILL[emailState]}`}>
-                              {emailState === "open"
-                                ? "direct email"
-                                : emailState === "consent_first"
-                                  ? "direct email · consent first"
-                                  : "direct email · legal check"}
-                            </span>
-                          )}
-                          {c.evidence.some((e) => e.type === "forum") && (
-                            <span className="pill bg-city-london">community</span>
-                          )}
-                          {c.reservoir_match && (
-                            <span className="pill bg-city-newyork">
-                              warm intro · in network
-                            </span>
-                          )}
-                          {!c.contact_guess &&
-                            !c.evidence.some((e) => e.type === "forum") &&
-                            !c.reservoir_match && (
-                              <span className="text-subtle">
-                                — resolved at the contact stage
-                              </span>
-                            )}
-                          <InfoHint>
-                            The ways we can reach this specific person, shown only
-                            when derived from real data: an address guess opens
-                            direct email, forum evidence opens community contact,
-                            a network match opens a warm introduction. The legal
-                            rules per channel live in the panel below the table.
-                          </InfoHint>
-                        </div>
-
-                        {c.draft && (
-                          <>
-                            <span className="dg-k">Invite draft</span>
-                            <div className="dg-v">
-                              <div className="rounded-lg border border-line bg-card px-3.5 py-3">
-                                <p className="text-control font-medium text-ink">
-                                  {c.draft.subject}
+                          <div className="flex flex-col gap-3">
+                            {c.evidence.map((e, j) => (
+                              <div key={j} className="border-l-2 border-line pl-3">
+                                <p className="text-dense italic text-ink-70">
+                                  &ldquo;{e.quote}&rdquo;
                                 </p>
-                                <p className="mt-1.5 whitespace-pre-wrap text-dense leading-relaxed text-ink-60">
-                                  {c.draft.body}
+                                <p className="provenance mt-0.5">
+                                  {humanize(e.type, EVIDENCE_LABEL, "Evidence")} ·{" "}
+                                  {e.source_domain} · {e.date ?? "undated"}
+                                  {e.url && (
+                                    <>
+                                      {" "}
+                                      ·{" "}
+                                      <a
+                                        href={e.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={(ev) => ev.stopPropagation()}
+                                      >
+                                        source ↗
+                                      </a>
+                                    </>
+                                  )}
                                 </p>
                               </div>
-                              <p className="provenance mt-1.5">
-                                drafted, never sent — sending is the production
-                                switch, after the per-person legal check
-                              </p>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* the action card: how we reach them */}
+                        <div className="rounded-lg border border-line bg-card p-4">
+                          <span className="block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                            Reaching them
+                          </span>
+                          <div className="mt-3 flex flex-col gap-3.5">
+                            <div>
+                              <span className="provenance flex items-center gap-1.5">
+                                address guess
+                                <InfoHint align="right">
+                                  Guessed from the name plus the employer&rsquo;s
+                                  domain, the cheapest way to reach someone.
+                                  Checking the address is real is a production
+                                  step; this prototype only records what stage
+                                  each contact has reached.
+                                </InfoHint>
+                              </span>
+                              {c.contact_guess ? (
+                                <span className="metric mt-1 block text-dense text-ink">
+                                  {c.contact_guess}
+                                </span>
+                              ) : (
+                                <span className="mt-1 block text-dense text-subtle">—</span>
+                              )}
                             </div>
-                          </>
-                        )}
+                            <div>
+                              <span className="provenance block">stage</span>
+                              <span className="pill mt-1.5 bg-city-sanjose">
+                                {humanize(c.contact_state, {}, "—")}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="provenance flex items-center gap-1.5">
+                                open channels · warmest first
+                                <InfoHint align="right">
+                                  Only channels the data proves for this person:
+                                  a network match opens a warm introduction,
+                                  forum evidence opens community contact, an
+                                  address guess opens direct email. The order is
+                                  the try-order — warm paths reply best and cost
+                                  nothing, cold email goes last. Which channel
+                                  actually converts is one of the numbers the
+                                  two-week experiment measures. Legal rules per
+                                  channel: the panel below the table.
+                                </InfoHint>
+                              </span>
+                              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                {c.reservoir_match && (
+                                  <span className="pill bg-city-newyork">
+                                    warm intro · in network
+                                  </span>
+                                )}
+                                {c.evidence.some((e) => e.type === "forum") && (
+                                  <span className="pill bg-city-london">community</span>
+                                )}
+                                {c.contact_guess && (
+                                  <span className={`pill ${CHANNEL_STATE_PILL[emailState]}`}>
+                                    {emailState === "open"
+                                      ? "direct email"
+                                      : emailState === "consent_first"
+                                        ? "direct email · consent first"
+                                        : "direct email · legal check"}
+                                  </span>
+                                )}
+                                {!c.contact_guess &&
+                                  !c.evidence.some((e) => e.type === "forum") &&
+                                  !c.reservoir_match && (
+                                    <span className="text-dense text-subtle">
+                                      — resolved at the contact stage
+                                    </span>
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+
+                      {/* the letter: work already done */}
+                      {c.draft && (
+                        <div className="mt-6 max-w-2xl">
+                          <span className="mb-2.5 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                            Invite draft
+                          </span>
+                          <div className="overflow-hidden rounded-lg border border-line bg-card shadow-[var(--shadow-page)]">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-2.5">
+                              <p className="text-control font-medium text-ink">
+                                {c.draft.subject}
+                              </p>
+                              <span className="pill shrink-0 bg-city-sanjose">
+                                never sent
+                              </span>
+                            </div>
+                            <p className="whitespace-pre-wrap px-4 py-3.5 text-dense leading-relaxed text-ink-60">
+                              {c.draft.body}
+                            </p>
+                          </div>
+                          <p className="provenance mt-1.5">
+                            written by the composer from this person&rsquo;s own
+                            evidence — sending is the production switch, after the
+                            per-person legal check
+                          </p>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )}
