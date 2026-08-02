@@ -103,10 +103,10 @@ export default function Distribution() {
       />
 
       {/* head annotation */}
-      <text x={crossX - 30} y={TOP + 14} className="fill-ink" fontSize="12" fontWeight="500">
+      <text x={LEFT + 40} y={TOP + 14} className="fill-ink" fontSize="12" fontWeight="500">
         the head — a few tools, 2,000+ reviews each
       </text>
-      <text x={crossX - 30} y={TOP + 31} className="fill-subtle" fontSize="11">
+      <text x={LEFT + 40} y={TOP + 31} className="fill-subtle" fontSize="11">
         today&rsquo;s loops feed here: views live here, so the royalty pays here
       </text>
 
