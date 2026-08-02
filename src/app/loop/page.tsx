@@ -108,7 +108,7 @@ export default async function LoopPage() {
                 className="pane p-4"
                 style={{ background: "var(--color-ground-tint)" }}
               >
-                <div className="eyebrow">today · every review</div>
+                <div className="eyebrow">today · every review, every company</div>
                 <div className="metric mt-1.5 text-page text-ink-60">
                   $1–5
                   <span className="text-control font-normal text-subtle"> / view</span>
