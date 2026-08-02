@@ -35,7 +35,7 @@ function build() {
   const tCross = 0.008 / hThresh - 0.008;
   const crossX = LEFT + tCross * plotW;
   // the demand event: a client opens a company deep in the tail
-  const tEvent = 0.62;
+  const tEvent = 0.55;
   const eventX = LEFT + tEvent * plotW;
   const eventY = BASE - h(tEvent) * SPAN;
   return { area, line, thresholdY, crossX, eventX, eventY };
@@ -111,19 +111,19 @@ export default function Distribution() {
       </text>
 
       {/* tail annotation */}
-      <text x={W * 0.42} y={BASE - 78} className="fill-ink" fontSize="13" fontWeight="500">
+      <text x={eventX} y={BASE - 96} className="fill-ink" fontSize="13" fontWeight="500">
         the tail — most of 20,000 companies at zero
       </text>
-      <text x={W * 0.42} y={BASE - 60} className="fill-subtle" fontSize="12">
+      <text x={eventX} y={BASE - 78} className="fill-subtle" fontSize="12">
         the index aims every loop here
       </text>
 
       {/* the demand event on the tail — the burst's trigger, drawn */}
       <line
         x1={eventX}
-        y1={eventY - 4}
+        y1={eventY - 6}
         x2={eventX}
-        y2={eventY - 26}
+        y2={BASE - 50}
         className="stroke-violet-link"
         strokeWidth="1"
       />
@@ -137,8 +137,7 @@ export default function Distribution() {
       <circle cx={eventX} cy={eventY} r="9" className="stroke-violet-300" strokeWidth="1" fill="none" opacity="0.6" />
       <text
         x={eventX}
-        y={eventY - 34}
-        textAnchor="middle"
+        y={BASE - 56}
         className="fill-violet-link font-mono"
         fontSize="10"
         letterSpacing="0.06em"
