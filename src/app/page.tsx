@@ -1,4 +1,5 @@
 import AppHeader from "@/components/shell/app-header";
+import SiteFooter from "@/components/shell/site-footer";
 import InfoHint from "@/components/ui/info-hint";
 import SurfaceCards from "./surface-cards";
 
@@ -24,14 +25,6 @@ function laneStatus(): LaneChip[] {
     { name: "classify", state: process.env.ANTHROPIC_API_KEY ? "live" : "dark" },
   ];
 }
-
-const CITIES: [string, string][] = [
-  ["London", "bg-city-london"],
-  ["Barcelona", "bg-city-barcelona"],
-  ["New York", "bg-city-newyork"],
-  ["New Delhi", "bg-city-newdelhi"],
-  ["San José", "bg-city-sanjose"],
-];
 
 export default function Home() {
   const lanes = laneStatus();
@@ -119,20 +112,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="reveal reveal-d3 relative z-[1] border-t border-line-warm">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-6 py-10">
-          <div className="flex flex-wrap justify-center gap-2">
-            {CITIES.map(([name, bg]) => (
-              <span key={name} className={`pill ${bg}`}>
-                {name}
-              </span>
-            ))}
-          </div>
-          <p className="provenance text-center">
-            built for the Arbolus growth case · candidate identities masked
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

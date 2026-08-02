@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/shell/app-header";
+import SiteFooter from "@/components/shell/site-footer";
 import InfoHint from "@/components/ui/info-hint";
 import { MoneyTicker, SecondsTicker } from "@/components/ui/ticker";
 import { INITIAL_LANES, type FeedItem, type LaneState } from "./run-types";
@@ -306,6 +307,7 @@ export default function RunPage() {
           </section>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

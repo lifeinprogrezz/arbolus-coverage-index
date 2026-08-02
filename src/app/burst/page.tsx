@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import AppHeader from "@/components/shell/app-header";
+import SiteFooter from "@/components/shell/site-footer";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
@@ -497,6 +498,7 @@ export default async function BurstPage({
               </div>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

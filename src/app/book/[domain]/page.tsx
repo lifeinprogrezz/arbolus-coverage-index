@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { channelMask, CHANNEL_STATE_PILL } from "@/lib/channel-mask";
 import { candidateLabel, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
 import AppHeader from "@/components/shell/app-header";
+import SiteFooter from "@/components/shell/site-footer";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { CountTicker } from "@/components/ui/ticker";
@@ -274,6 +275,7 @@ export default async function BookPage({
           </section>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }
