@@ -305,7 +305,7 @@ export async function mapRun(
 
   // ---- reservoir join first (synthetic base, real join logic), so each
   // candidate row can carry its reservoir_match flag ----
-  emit({ type: "stage", name: "reservoir" });
+  emit({ type: "stage", name: "network" });
   const allDomains = [
     ...new Set(allRows.map((r) => r.org_domain).filter(Boolean)),
   ] as string[];

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 // Shared site footer — the five Arbolus hub cities + provenance line.
 // One footer on every shell page so the app reads as one system.
 // (/join/[domain] deliberately omits it: that page plays the in-fiction
@@ -23,7 +25,10 @@ export default function SiteFooter() {
           ))}
         </div>
         <p className="provenance text-center">
-          built for the Arbolus growth case · candidate identities masked
+          built for the Arbolus growth case · candidate identities masked ·{" "}
+          <Link href="/reference" className="text-inherit underline decoration-line underline-offset-2 hover:text-ink">
+            reference
+          </Link>
         </p>
       </div>
     </footer>

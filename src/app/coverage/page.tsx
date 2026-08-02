@@ -126,7 +126,7 @@ export default async function CoveragePage() {
                   room-level outreach.
                 </li>
                 <li>
-                  <span className="font-medium">Reservoir</span> — experts already
+                  <span className="font-medium">In network</span> — experts already
                   in the Arbolus network who work at one of those companies.
                 </li>
                 <li>
@@ -155,7 +155,7 @@ export default async function CoveragePage() {
                     <th className="px-3 py-3 font-medium">Book</th>
                     <th className="px-3 py-3 text-right font-medium">People</th>
                     <th className="px-3 py-3 text-right font-medium">Companies</th>
-                    <th className="px-3 py-3 text-right font-medium">Reservoir</th>
+                    <th className="whitespace-nowrap px-3 py-3 text-right font-medium">In network</th>
                     <th className="px-3 py-3 text-right font-medium">Excluded</th>
                     <th className="px-3 py-3 text-right font-medium">Cost</th>
                     <th className="px-3 py-3 font-medium">Mapped</th>

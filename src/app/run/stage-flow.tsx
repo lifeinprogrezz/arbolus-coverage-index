@@ -1,10 +1,10 @@
 "use client";
 
-// The run's spine: sitemap → evidence → ats → write → reservoir → compose.
+// The run's spine: sitemap → evidence → ats → write → network → compose.
 // Reads the SSE `stage` events already held in page state.
 // Hues on paper: in progress = violet, finished = green, not yet = dim ink.
 
-const STAGES = ["sitemap", "evidence", "ats", "write", "reservoir", "compose"];
+const STAGES = ["sitemap", "evidence", "ats", "write", "network", "compose"];
 
 export default function StageFlow({ stage }: { stage: string }) {
   const idx = STAGES.indexOf(stage);

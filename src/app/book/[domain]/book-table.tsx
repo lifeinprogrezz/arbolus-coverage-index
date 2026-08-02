@@ -140,7 +140,7 @@ export default function BookTable({
           <InfoHint>
             The 30-day playbook branches here. The first-review bounty rises toward
             the $75 tier because the people are harder to find, asking people to
-            opt in and the reservoir carry more of the work, and the clock honestly
+            opt in and the in-network experts carry more of the work, and the clock honestly
             runs longer. An emergency map can re-run on demand in minutes, for
             pennies.
           </InfoHint>
@@ -161,7 +161,7 @@ export default function BookTable({
               <th className="px-4 py-3 font-medium">Signal</th>
               <th className="px-4 py-3 font-medium">Confidence</th>
               <th className="px-4 py-3 text-right font-medium">Evidence</th>
-              <th className="py-3 pl-4 pr-5 font-medium">Reservoir</th>
+              <th className="whitespace-nowrap py-3 pl-4 pr-5 font-medium">In network</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef}>
