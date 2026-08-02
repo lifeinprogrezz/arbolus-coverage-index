@@ -114,11 +114,11 @@ const COSTS = [
   },
   {
     line: "Bounties",
-    amount: "20 × ~€50 ≈ €1,000",
+    amount: "20 × $50 ≈ €1,000",
     basis:
       "20 contributors at the $50 bounty tier · a company someone had to ask for sits in the thin or near-empty tiers by definition",
     assumption: null,
-    note: "bounty ≈ $50 tier",
+    note: null,
   },
   {
     line: "Review cost, fully loaded",
