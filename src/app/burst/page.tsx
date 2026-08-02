@@ -47,7 +47,7 @@ const PLAYBOOK = [
   {
     when: "Day 15–25",
     what: "Post a letter to named decision makers",
-    detail: "Only where email failed. About €1 a letter.",
+    detail: "Only where email failed. About a dollar a letter.",
   },
   {
     when: "Day 20–30",
@@ -97,7 +97,7 @@ const WALK = [
   {
     stage: "Letters in the post",
     origin: "external",
-    math: "~150 letters ≈ €125",
+    math: "~150 letters ≈ $135",
     yield_: "~1–4",
     assumption:
       "About 0.8 at the usual 1% cold rate. The 4 assumes a lift from naming their own evidence, which we have not tested.",
@@ -107,14 +107,14 @@ const WALK = [
 const COSTS = [
   {
     line: "Map run (11 lanes)",
-    amount: "pennies–€1 / vendor",
+    amount: "pennies–$1 / vendor",
     basis: "free sources plus one paid search API · every lane's cost is recorded and shown",
     assumption: null,
     note: null,
   },
   {
     line: "Bounties",
-    amount: "20 × $50 ≈ €1,000",
+    amount: "20 × $50 = $1,000",
     basis:
       "20 contributors at the $50 bounty tier · a company someone had to ask for sits in the thin or near-empty tiers by definition",
     assumption: null,
@@ -122,7 +122,7 @@ const COSTS = [
   },
   {
     line: "Review cost, fully loaded",
-    amount: "×2–3 the bounty ⇒ €2,000–3,000",
+    amount: "×2–3 the bounty ⇒ $2,000–3,000",
     basis:
       "worst case, and it replaces the bounty line · Arbolus's existing per-review checks and fraud tooling, with no extra person per review",
     assumption: null,
@@ -130,21 +130,21 @@ const COSTS = [
   },
   {
     line: "Through their communities",
-    amount: "≤€300 cap",
+    amount: "≤$300 cap",
     basis: "one-off per community, spread across every burst we run in that niche",
     assumption: "The cap is an assumption, not a quoted price.",
     note: null,
   },
   {
     line: "Letters in the post",
-    amount: "€125",
+    amount: "$135",
     basis: "~150 letters through a print API",
     assumption: null,
     note: null,
   },
   {
     line: "Hosting and models",
-    amount: "~€50",
+    amount: "~$50",
     basis: "serverless hosting plus the model that sorts the evidence",
     assumption: null,
     note: null,
@@ -175,7 +175,7 @@ export default async function BurstPage({
     ? {
         label: "Well covered — nothing to fill, nothing to spend",
         wash: "bg-city-london/50",
-        note: "clients are already served · €0 approved",
+        note: "clients are already served · $0 approved",
         hint: "The request closes with no budget at all. We price a well-covered vendor at zero, so the top of the ladder spends nothing.",
       }
     : depth >= 8
@@ -425,7 +425,7 @@ export default async function BurstPage({
               <h2 className="text-title text-ink">Cost per burst</h2>
               <AssumeTag />
               <span className="provenance">
-                engine costs in EUR · contributor rewards in USD
+                all figures in USD
               </span>
             </div>
             <div className="pane self-start overflow-hidden">
@@ -463,10 +463,10 @@ export default async function BurstPage({
                         Total per burst
                       </td>
                       <td className="metric px-3.5 py-2.5 text-dense font-medium text-ink">
-                        ≈ €1,500 base · €3,000–3,500 fully loaded
+                        ≈ $1,500 base · $3,000–3,500 fully loaded
                       </td>
                       <td className="py-2.5 pl-3.5 pr-5 text-dense text-subtle">
-                        ⇒ €75–170 for each verified contributor
+                        ⇒ $75–170 for each verified contributor
                       </td>
                     </tr>
                   </tbody>
@@ -530,13 +530,13 @@ export default async function BurstPage({
                       ],
                       [
                         "cost per verified",
-                        "€40–100 all in",
-                        "€75–170 on the first burst, falling each run",
+                        "$40–100 all in",
+                        "$75–170 on the first burst, falling each run",
                       ],
                       [
                         "the spend",
                         "fixed salaries · one queue",
-                        "€150–350K a year, switchable · many bursts at once",
+                        "$150–350K a year, switchable · many bursts at once",
                       ],
                     ] as [string, string, string][]
                   ).map(([k, hand, engine]) => (
@@ -562,7 +562,7 @@ export default async function BurstPage({
               />
               The engine adds the tail the pod can&rsquo;t reach; the pod becomes
               its escalation tier. And 20,000 companies does not mean 20,000
-              bursts — covered vendors cost €0, the free loops carry the rest.
+              bursts — covered vendors cost $0, the free loops carry the rest.
             </p>
           </div>
         </section>

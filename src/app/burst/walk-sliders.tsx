@@ -79,11 +79,11 @@ export default function WalkSliders({ defaultSeeds, defaultReservoir }: Props) {
   const hit = total >= 20;
   const markerLeft = (20 / SCALE) * 100;
 
-  // the cost table's lines, priced at these settings: bounties at the ~€50
+  // the cost table's lines, priced at these settings: bounties at the ~$50
   // tier × projected verified, the community cap, letters when used, hosting
   // and the map run
   const spend =
-    total * 50 + (community > 0 ? 300 : 0) + (mail > 0 ? 125 : 0) + 50 + 1;
+    total * 50 + (community > 0 ? 300 : 0) + (mail > 0 ? 135 : 0) + 50 + 1;
   const perVerified = total > 0.5 ? spend / total : null;
 
   return (
@@ -136,16 +136,16 @@ export default function WalkSliders({ defaultSeeds, defaultReservoir }: Props) {
             <span className="eyebrow">spend on these settings</span>
             <Assume>
               The same lines as the cost table, priced live: bounties at the
-              ~€50 tier × projected verified, the community cap when used,
+              ~$50 tier × projected verified, the community cap when used,
               letters when used, hosting and the map run. Fully loaded
               verification cost sits ×2–3 on top, exactly as the table says.
             </Assume>
           </div>
           <div className="metric text-display text-ink">
-            €{Math.round(spend).toLocaleString("en-IE")}
+            ${Math.round(spend).toLocaleString("en-US")}
           </div>
           <div className="provenance mt-1">
-            {perVerified ? `≈ €${Math.round(perVerified)} per verified` : "—"}
+            {perVerified ? `≈ $${Math.round(perVerified)} per verified` : "—"}
           </div>
         </div>
         <p className="max-w-sm self-center text-pretty text-dense text-subtle">
