@@ -246,11 +246,34 @@ export default async function BookPage({
           {/* channel-legality mask */}
           <section className="pane p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="eyebrow">What we can send, and where</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="eyebrow">How we&rsquo;re allowed to contact them</h2>
+                <InfoHint>
+                  <p>
+                    Each row is one way of reaching the people above, with its
+                    legal status: <em>open</em> — go ahead · <em>consent
+                    first</em> — only after they opt in · <em>legal check</em> —
+                    that country&rsquo;s law is unresearched, counsel before use ·{" "}
+                    <em>closed</em> — never.
+                  </p>
+                  <p className="mt-2">
+                    Contact law follows the recipient, so in production these
+                    rules are checked per person at the moment an address is
+                    resolved — a candidate in Japan gets Japan&rsquo;s rules even
+                    when the vendor is German. This panel shows one ruleset per
+                    vendor, from its head office, as the stated simplification.
+                  </p>
+                </InfoHint>
+              </div>
               <span className="provenance">
-                head office: {vendor.hq_country ?? "unknown · defaults shown"}
+                {vendor.hq_country
+                  ? `rules for head office: ${vendor.hq_country}`
+                  : "head office unresolved · default rules"}
               </span>
             </div>
+            <p className="mt-1.5 text-dense text-subtle-deep">
+              The book says who. This is which channels the law permits.
+            </p>
             <div className="mt-2 flex flex-col">
               {mask.map((r) => (
                 <div
