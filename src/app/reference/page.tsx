@@ -4,332 +4,538 @@ import SiteFooter from "@/components/shell/site-footer";
 
 // Reference — the data dictionary. Every surface, every column: what it
 // means, where the number comes from, and the formula when there is one.
-// Linked from the site footer. Same paper system as everything else.
+// The page defines the UI with the UI: real pills, real lane dots, the
+// contact ladder drawn like the run rail. Linked from the site footer.
 
 export const metadata = {
   title: "Reference — Coverage Index",
 };
 
-function Row({ k, children }: { k: string; children: React.ReactNode }) {
-  return (
-    <>
-      <span className="dg-k">{k}</span>
-      <span className="dg-v">{children}</span>
-    </>
-  );
-}
+const SECTIONS = [
+  { id: "board", n: "01", title: "The coverage board" },
+  { id: "queue", n: "02", title: "The map queue" },
+  { id: "lanes", n: "03", title: "The engine lanes" },
+  { id: "learning", n: "04", title: "The learning loop" },
+  { id: "book", n: "05", title: "A vendor's book" },
+  { id: "burst", n: "06", title: "The burst clock" },
+  { id: "loop", n: "07", title: "The activation loop" },
+  { id: "honesty", n: "08", title: "The honesty rules" },
+];
 
 function Section({
+  id,
+  n,
   title,
   lead,
   children,
 }: {
+  id: string;
+  n: string;
   title: string;
-  lead?: string;
+  lead: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-10">
-      <h2 className="eyebrow mb-1">{title}</h2>
-      {lead && <p className="mb-3 max-w-3xl text-dense text-subtle-deep">{lead}</p>}
-      <div className="pane p-5">{children}</div>
+    <section id={id} className="scroll-mt-24 pt-12 first:pt-0">
+      <div className="flex items-baseline gap-3">
+        <span className="metric text-dense text-violet-link">{n}</span>
+        <h2 className="eyebrow">{title}</h2>
+      </div>
+      <p className="mt-2 max-w-2xl text-control text-subtle-deep">{lead}</p>
+      <div className="mt-4">{children}</div>
     </section>
+  );
+}
+
+function Term({ k, children }: { k: string; children: React.ReactNode }) {
+  return (
+    <div className="border-b border-line py-3 last:border-0 sm:grid sm:grid-cols-[190px_1fr] sm:gap-5">
+      <span className="font-mono text-caption uppercase tracking-[0.06em] text-subtle">
+        {k}
+      </span>
+      <span className="mt-1 block text-control leading-relaxed text-ink-60 sm:mt-0">
+        {children}
+      </span>
+    </div>
   );
 }
 
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <code className="metric block whitespace-pre-wrap rounded-md bg-ink/[.04] px-3 py-2 text-dense">
-      {children}
-    </code>
+    <div className="rounded-lg border border-violet-100 bg-white px-4 py-3 shadow-[var(--shadow-glow-violet)]">
+      <span className="mb-1 block font-mono text-caption uppercase tracking-[0.08em] text-violet-link">
+        formula
+      </span>
+      <code className="metric block whitespace-pre-wrap text-dense leading-relaxed text-ink">
+        {children}
+      </code>
+    </div>
   );
 }
+
+function Dot({ tone }: { tone: "live" | "nightly" | "dark" }) {
+  return (
+    <span
+      aria-hidden
+      className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${
+        tone === "live"
+          ? "bg-success"
+          : tone === "nightly"
+            ? "bg-violet-400"
+            : "border border-ink-35 bg-transparent"
+      }`}
+    />
+  );
+}
+
+const LANES: {
+  n: string;
+  name: string;
+  reads: string;
+  tone: "live" | "nightly";
+  tag?: string;
+}[] = [
+  { n: "01", name: "sitemap harvest", reads: "The vendor's own sitemap — which case-study and customer pages to read next. Free.", tone: "live" },
+  { n: "02", name: "customer pages", reads: "Case studies and customer walls, read for named organizations and people.", tone: "live" },
+  { n: "03", name: "wayback churn diff", reads: "Old snapshots of those pages from the Wayback Machine. Free history.", tone: "live" },
+  { n: "03b", name: "logo-wall diff", reads: "Logos that appeared on the customer wall and later vanished — churned-customer candidates, with dates. Candidates, not fact: redesigns cause false churn.", tone: "live" },
+  { n: "04", name: "ats job-post sweep", reads: "Public job posts naming the vendor in a company's stack.", tone: "live" },
+  { n: "05", name: "peerspot reviews", reads: "Public reviews: named reviewers with roles and dates.", tone: "live" },
+  { n: "06", name: "serp long-tail", reads: "Web search for mentions the structured lanes miss. Dark without its API key.", tone: "live" },
+  { n: "07", name: "community", reads: "Public Discourse forums — people describing what they run. Slow, polite crawling.", tone: "nightly", tag: "nightly" },
+  { n: "08", name: "procurement", reads: "TED, the EU's public procurement journal. A contract award is the hardest evidence there is: the organization provably pays.", tone: "nightly", tag: "nightly" },
+  { n: "09", name: "github", reads: "Public code referencing the vendor's SDK corroborates candidates other lanes found. Never used to harvest people.", tone: "nightly", tag: "verify-only" },
+  { n: "10", name: "classify · write", reads: "The only AI step: Claude Haiku reads what the lanes fetched and writes structured rows. Everything before it is deterministic fetching.", tone: "live" },
+];
+
+const CHECKS = [
+  "vendor's own staff",
+  "subsidiaries and parents",
+  "vendor GitHub org members",
+  "forum admins and moderators",
+  "vendor email domains",
+  "speakers at vendor events",
+  "competitor employees",
+  "intermediaries — investors, consultancies, analysts",
+];
 
 export default function ReferencePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader />
 
-      <main className="relative z-[1] mx-auto w-full max-w-4xl flex-1 px-6 py-8">
+      <main className="relative z-[1] mx-auto w-full max-w-6xl flex-1 px-6 py-10">
+        {/* hero */}
         <section className="reveal">
           <p className="eyebrow">Reference</p>
-          <h1 className="mt-3 max-w-2xl text-display text-ink">
-            Every number on every surface, explained.
+          <h1 className="mt-3 max-w-2xl text-display tracking-[-0.01em] text-ink">
+            Every number, explained.
           </h1>
-          <p className="mt-3 max-w-3xl text-control text-subtle-deep">
+          <p className="mt-3 max-w-2xl text-control text-subtle-deep">
             What each column means, where the value comes from, and the formula
-            when there is one. Everything here describes what actually runs in
-            this prototype — anything simulated says so.
+            when there is one. Everything here describes what actually runs —
+            anything simulated says so where you see it.
           </p>
         </section>
 
-        <div className="reveal reveal-d1">
-          <Section
-            title="The coverage board"
-            lead="One row per vendor we index. A vendor is a B2B software company a client might diligence; the row is how warm our book is for it."
+        <div className="reveal reveal-d1 mt-10 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
+          {/* section rail */}
+          <nav
+            aria-label="Sections"
+            className="mb-8 flex flex-wrap gap-x-4 gap-y-2 lg:sticky lg:top-24 lg:mb-0 lg:block lg:self-start"
           >
-            <div className="dg">
-              <Row k="Book">
-                The state pill, from real counts: <em>covered</em> when the vendor
-                already has 20+ reviews · <em>warm book</em> when people + in-network
-                matches reach 8 · <em>thin book</em> at 3–7 · <em>cold</em> below 3.
-              </Row>
-              <Row k="People">
-                Named individuals with first-hand evidence of using the vendor,
-                found by the lanes and passing all eight eligibility checks.
-              </Row>
-              <Row k="Companies">
-                Organizations with evidence they use the vendor. These are the
-                targets for room-level outreach even when no person is named yet.
-              </Row>
-              <Row k="In network">
-                Experts already in the Arbolus network who work at one of those
-                companies (or a colleague does). Verified and paid before, so they
-                cost nothing to acquire. Demo base is synthetic; the matching is real.
-              </Row>
-              <Row k="Excluded">
-                People found and then ruled out, with the reason kept. Counting the
-                rejects is deliberate: ruling out is work the engine shows.
-              </Row>
-              <Row k="Cost">
-                Total spent crawling this vendor: page fetches (Jina Reader,
-                $0.02 per million tokens) plus the AI reading step (Claude Haiku,
-                priced per token). Free lanes contribute $0.000.
-              </Row>
-              <Row k="Mapped">When the engine last crawled this vendor.</Row>
-              <Row k="request coverage">
-                Records one simulated demand event: a client searched and found
-                nothing. Events accumulate — the queue measures how much demand,
-                not whether there is any.
-              </Row>
-              <Row k="book →">Opens the vendor&rsquo;s book. Read-only.</Row>
-            </div>
-          </Section>
+            {SECTIONS.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="group flex items-baseline gap-2 whitespace-nowrap py-1 text-dense !text-subtle no-underline hover:!text-ink lg:py-1.5"
+              >
+                <span className="metric text-caption text-ink-35 transition-colors group-hover:text-violet-link">
+                  {s.n}
+                </span>
+                {s.title}
+              </a>
+            ))}
+          </nav>
 
-          <Section
-            title="The map queue"
-            lead="Which vendor gets indexed next, ranked by what clients actually asked for. Signal weights are a documented heuristic, not learned."
-          >
-            <Formula>
-              score = 3 × searched-and-empty + 2 × funding round + 2 × client view
-              + 1 × watchlist entry (+1 if competitor of an indexed vendor)
-              {"\n"}already mapped with a warm book (8+) → score × 0.5
-            </Formula>
-            <div className="dg mt-4">
-              <Row k="Score">
-                The weighted sum above. Pills are deduplicated signal types, so one
-                pill can stand for several events — fewer pills can outrank more.
-              </Row>
-              <Row k="not indexed yet">
-                Never crawled. Reaching the top of the queue means a first map run.
-              </Row>
-              <Row k="re-map queued">
-                Already has a book, but demand keeps arriving — queued for a refresh
-                crawl.
-              </Row>
-              <Row k="Dispatch">
-                In production the engine works this queue itself: crossing the
-                demand threshold authorises the crawl and its budget. No demand, no
-                spend. Indexed books refresh by heat — hot weekly, warm monthly,
-                cold quarterly. In this prototype, runs are fired by hand from{" "}
-                <Link href="/run">Map run</Link>.
-              </Row>
-            </div>
-          </Section>
+          <div className="min-w-0">
+            <Section
+              id="board"
+              n="01"
+              title="The coverage board"
+              lead="One row per vendor we index — a company a client might diligence. The row answers: how warm is our book for it, and what did knowing that cost."
+            >
+              {/* book states — the real pills */}
+              <div className="pane mb-4 p-4">
+                <span className="mb-3 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                  the four book states
+                </span>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                  <span className="flex items-center gap-2">
+                    <span className="pill bg-city-london">covered</span>
+                    <span className="metric text-dense text-subtle-deep">20+ reviews</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="pill bg-city-london">warm book</span>
+                    <span className="metric text-dense text-subtle-deep">depth ≥ 8</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="pill bg-city-newdelhi">thin book</span>
+                    <span className="metric text-dense text-subtle-deep">depth 3–7</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="pill bg-city-sanjose">cold</span>
+                    <span className="metric text-dense text-subtle-deep">depth &lt; 3</span>
+                  </span>
+                </div>
+                <p className="mt-3 text-dense text-subtle-deep">
+                  depth = people we can name + experts already in network.
+                </p>
+              </div>
 
-          <Section
-            title="The engine lanes"
-            lead="Eleven sources of public evidence. Live lanes fire inside every map run; nightly lanes do their rounds once a night from a local worker and journal into the same books."
-          >
-            <div className="dg">
-              <Row k="01 sitemap harvest">
-                The vendor&rsquo;s own sitemap — case-study and customer pages to
-                read next. Free.
-              </Row>
-              <Row k="02 customer pages">
-                The vendor&rsquo;s case studies and customer walls, read for named
-                organizations and people.
-              </Row>
-              <Row k="03 wayback churn diff">
-                Old snapshots of those pages from the Wayback Machine. Free history.
-              </Row>
-              <Row k="03b logo-wall diff">
-                Logos that appeared on the customer wall and later vanished —
-                churned-customer candidates, with dates. Flagged as candidates, not
-                fact: redesigns and acquisitions cause false churn.
-              </Row>
-              <Row k="04 ats job-post sweep">
-                Public job posts naming the vendor in a company&rsquo;s stack —
-                the org uses it, and the hiring team touches it.
-              </Row>
-              <Row k="05 peerspot reviews">
-                Public reviews: named reviewers with roles and dates.
-              </Row>
-              <Row k="06 serp long-tail">
-                Web search for mentions the structured lanes miss. Needs an API
-                key; shows as dark when the key is absent.
-              </Row>
-              <Row k="07 community (nightly)">
-                Public Discourse forums — people describing what they run. Needs
-                slow, polite crawling, so it runs on the night shift.
-              </Row>
-              <Row k="08 procurement (nightly)">
-                TED, the EU&rsquo;s public procurement journal. A contract award
-                naming the vendor is the hardest evidence in the engine: an
-                organization provably pays for the tool.
-              </Row>
-              <Row k="09 github (nightly, verify-only)">
-                Public code referencing the vendor&rsquo;s SDK proves it is really
-                in an organization&rsquo;s stack. Used only to corroborate
-                candidates other lanes found — never to harvest people from code.
-              </Row>
-              <Row k="10 classify · write">
-                The only AI step: Claude Haiku reads what the lanes fetched and
-                writes structured rows — people, companies, evidence, exclusions.
-                Everything before it is deterministic fetching.
-              </Row>
-            </div>
-          </Section>
+              <div className="pane px-5 py-2">
+                <Term k="people">
+                  Named individuals with first-hand evidence of using the vendor,
+                  surviving all eight eligibility checks (<a href="#book">§05</a>).
+                </Term>
+                <Term k="companies">
+                  Organizations with evidence they use the vendor — outreach
+                  targets even before a person is named.
+                </Term>
+                <Term k="in network">
+                  Experts already in the Arbolus network at one of those companies.
+                  Verified and paid before: they cost nothing to acquire. Demo base
+                  is synthetic; the matching is real.
+                </Term>
+                <Term k="excluded">
+                  People found and ruled out, with the reason kept. Counting the
+                  rejects is deliberate — ruling out is work the engine shows.
+                </Term>
+                <Term k="cost">
+                  Everything spent crawling this vendor: page fetches (Jina Reader,
+                  $0.02 per million tokens) plus the AI reading step (Claude
+                  Haiku). Free lanes contribute $0.000.
+                </Term>
+                <Term k="mapped">When the engine last crawled this vendor.</Term>
+                <Term k="request coverage">
+                  Records one simulated demand event — a client searched and found
+                  nothing. Events accumulate: the queue measures how much demand,
+                  not whether there is any.
+                </Term>
+                <Term k="book →">Opens the vendor&rsquo;s book. Read-only.</Term>
+              </div>
+            </Section>
 
-          <Section
-            title="The learning loop"
-            lead="The engine grades its own lanes on real results and reallocates the next run's budget. Real signals from real runs — no invented curves."
-          >
-            <Formula>
-              lane score = (evidence rows per run) ÷ (1 + 10 × cost per run) + 0.1
-              {"\n"}next-run share = lane score ÷ sum of all lane scores
-            </Formula>
-            <div className="dg mt-4">
-              <Row k="Rows / $">
-                Evidence rows per dollar across all real runs. FREE marks
-                zero-cost lanes — they rank on rows alone.
-              </Row>
-              <Row k="Next run">
-                The share of the next run&rsquo;s request budget the lane has
-                earned. Lanes that return nothing get defunded to the small
-                exploration share (the +0.1 keeps every lane occasionally retried).
-              </Row>
-            </div>
-          </Section>
+            <Section
+              id="queue"
+              n="02"
+              title="The map queue"
+              lead="Which vendor gets indexed next, ranked by what clients actually asked for. The weights are written down, not learned."
+            >
+              <div className="mb-4 flex flex-wrap gap-2">
+                <span className="pill bg-city-barcelona">
+                  searched &amp; empty&ensp;<span className="metric">×3</span>
+                </span>
+                <span className="pill bg-city-newyork">
+                  funding round&ensp;<span className="metric">×2</span>
+                </span>
+                <span className="pill bg-city-newyork">
+                  client opened it&ensp;<span className="metric">×2</span>
+                </span>
+                <span className="pill bg-city-sanjose">
+                  watchlist&ensp;<span className="metric">×1</span>
+                </span>
+                <span className="pill bg-city-sanjose">
+                  competitor of indexed&ensp;<span className="metric">+1</span>
+                </span>
+              </div>
+              <Formula>
+                score = Σ event weights&ensp;·&ensp;already mapped with a warm book
+                → score × 0.5
+              </Formula>
+              <div className="pane mt-4 px-5 py-2">
+                <Term k="score">
+                  The weighted sum. Pills on a queue row are deduplicated signal
+                  types — one pill can stand for several events, so fewer pills can
+                  outrank more.
+                </Term>
+                <Term k="not indexed yet">
+                  Never crawled: reaching the top means a first map run.
+                </Term>
+                <Term k="re-map queued">
+                  Has a book already, but demand keeps arriving — queued for a
+                  refresh crawl.
+                </Term>
+                <Term k="dispatch">
+                  In production the engine works this queue itself: crossing the
+                  demand threshold is what authorises the crawl and its budget — no
+                  demand, no spend. Indexed books refresh by heat: hot weekly, warm
+                  monthly, cold quarterly. In this prototype runs are fired by hand
+                  from <Link href="/run">Map run</Link>.
+                </Term>
+              </div>
+            </Section>
 
-          <Section
-            title="A vendor's book"
-            lead="The output: who we can name, why we believe it, and how warm the path is. Evidence gets you in, confidence ranks you, in-network decides which door we knock on first."
-          >
-            <div className="dg">
-              <Row k="Identity">
-                Real names, masked at the server before anything is sent to the
-                browser. One unmask toggle exists for a private walkthrough.
-              </Row>
-              <Row k="Signal">
-                What the evidence says this person did: ran it, chose it, admin,
-                wrote about it. Set by the classify step from the quote.
-              </Row>
-              <Row k="Confidence">
-                The strength of the person&rsquo;s best receipt. Evidence type sets
-                the base; age decays it — evidence older than about two years
-                demotes the read from current user toward past user.
-              </Row>
-              <Row k="Evidence">
-                The receipts: source, date, type, and a name-redacted quote per
-                entry. Nobody enters the book without at least one. Full URL and
-                name live behind the unmask toggle only.
-              </Row>
-              <Row k="In network">
-                This person, or a colleague at the same company, is already an
-                Arbolus expert. The warmest path in the system.
-              </Row>
-              <Row k="Contact">
-                A guessed address from name + employer domain — the cheapest way to
-                reach someone. Verifying it is a production step.
-              </Row>
-              <Row k="Stage">
-                The contact ladder: <em>unresolved</em> (we know who, not how to
-                reach them) → <em>resolved</em> (address found) → <em>verified</em>{" "}
-                (address confirmed) → <em>bounced</em> (tried and failed). Fresh
-                map runs produce people at unresolved by definition.
-              </Row>
-              <Row k="Excluded">
-                Ruled out, reason kept. Eight checks: vendor&rsquo;s own staff ·
-                subsidiaries and parents · vendor GitHub org members · forum
-                moderators · vendor email domains · speakers at vendor events ·
-                competitor employees · intermediaries (investors, consultancies,
-                analysts). The last one is the core rule: first-hand operators
-                only.
-              </Row>
-            </div>
-          </Section>
+            <Section
+              id="lanes"
+              n="03"
+              title="The engine lanes"
+              lead="Eleven sources of public evidence. Live lanes fire inside every map run; nightly lanes do their rounds once a night from a local worker and journal into the same books."
+            >
+              <div className="pane px-5 py-2">
+                {LANES.map((l) => (
+                  <div
+                    key={l.n}
+                    className="border-b border-line py-3 last:border-0 sm:grid sm:grid-cols-[190px_1fr] sm:gap-5"
+                  >
+                    <span className="flex items-center gap-2 whitespace-nowrap">
+                      <span className="metric text-caption text-ink-35">{l.n}</span>
+                      <Dot tone={l.tone} />
+                      <span className="font-mono text-caption uppercase tracking-[0.06em] text-subtle">
+                        {l.name}
+                      </span>
+                      {l.tag && (
+                        <span className="text-caption text-ink-60">· {l.tag}</span>
+                      )}
+                    </span>
+                    <span className="mt-1 block text-control leading-relaxed text-ink-60 sm:mt-0">
+                      {l.reads}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-dense text-subtle-deep">
+                <span className="flex items-center gap-1.5">
+                  <Dot tone="live" /> live in every run
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Dot tone="nightly" /> nightly, on its own schedule
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Dot tone="dark" /> dark — switched off without its key
+                </span>
+              </p>
+            </Section>
 
-          <Section
-            title="The burst clock"
-            lead="Challenge 2: a client opens an empty company — what 30 days looks like from there."
-          >
-            <div className="dg">
-              <Row k="The clock">
-                Day-by-day: warm book first, then invites, conversion, verification.
-                On stated assumptions the base case reaches 8–18 verified
-                contributors in 30 days; a priced escalation path closes to 20.
-              </Row>
-              <Row k="Sliders">
-                Every invented rate is labelled as an assumption and rendered as a
-                slider you can move. The numbers recompute from your positions —
-                nothing is hard-coded to look good.
-              </Row>
-              <Row k="Budget">
-                Released by demand: the searched-and-found-nothing events on the
-                board are what authorise burst spend for that vendor.
-              </Row>
-            </div>
-          </Section>
+            <Section
+              id="learning"
+              n="04"
+              title="The learning loop"
+              lead="The engine grades its own lanes on real results and reallocates the next run's budget. Real signals from real runs — no invented curves."
+            >
+              <Formula>
+                lane score = rows per run ÷ (1 + 10 × cost per run) + 0.1
+                {"\n"}next-run share = lane score ÷ Σ all lane scores
+              </Formula>
+              <div className="pane mt-4 px-5 py-2">
+                <Term k="rows / $">
+                  Evidence rows per dollar across all real runs. FREE marks
+                  zero-cost lanes — they rank on rows alone.
+                </Term>
+                <Term k="next run">
+                  The budget share the lane has earned. Lanes that return nothing
+                  get defunded to the small exploration share — the +0.1 keeps
+                  every lane occasionally retried, so a defunded lane can earn its
+                  way back.
+                </Term>
+              </div>
+            </Section>
 
-          <Section
-            title="The activation loop"
-            lead="Challenge 1's compounding, built not prose: four always-on loops that spend no recruiting money."
-          >
-            <div className="dg">
-              <Row k="Invites per contributor">
-                New contributors each contributor brings in. Above 1, the loop
-                compounds on its own.
-              </Row>
-              <Row k="Answered from our own experts">
-                The share of a coverage gap we can fill from the network before any
-                cold outreach. Should rise every run.
-              </Row>
-              <Row k="Quiet experts brought back">
-                Dormant experts re-prompted when the index first maps their
-                company. Anything above zero is free supply.
-              </Row>
-              <Row k="Extra reviews per recruit">
-                First-hand: one signup left six reviews. The ask is one; the yield
-                is usually more.
-              </Row>
-            </div>
-          </Section>
+            <Section
+              id="book"
+              n="05"
+              title="A vendor's book"
+              lead="The output: who we can name, why we believe it, and how warm the path is. Evidence gets you in, confidence ranks you, in-network decides which door we knock on first."
+            >
+              {/* contact ladder — drawn like the run rail */}
+              <div className="pane mb-4 p-4">
+                <span className="mb-3 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                  the contact ladder
+                </span>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                  <span className="font-mono text-caption uppercase tracking-[0.08em] text-ink">
+                    unresolved
+                  </span>
+                  <span aria-hidden className="h-px w-6 bg-line" />
+                  <span className="font-mono text-caption uppercase tracking-[0.08em] text-violet-link">
+                    resolved
+                  </span>
+                  <span aria-hidden className="h-px w-6 bg-line" />
+                  <span className="font-mono text-caption uppercase tracking-[0.08em] text-success-text">
+                    verified
+                  </span>
+                  <span aria-hidden className="h-px w-6 bg-line" />
+                  <span className="font-mono text-caption uppercase tracking-[0.08em] text-ink-35">
+                    bounced
+                  </span>
+                </div>
+                <p className="mt-3 text-dense text-subtle-deep">
+                  we know who → address found → address confirmed → tried and
+                  failed. Fresh map runs produce people at{" "}
+                  <span className="metric">unresolved</span> by definition: the
+                  crawl proves identity and evidence, not reachability.
+                </p>
+              </div>
 
-          <Section
-            title="The honesty rules"
-            lead="The register the whole prototype runs on."
-          >
-            <div className="dg">
-              <Row k="Live vs simulated">
-                Everything that runs, runs on real public data. Everything
-                simulated — demand events, review counts, the expert base — is
-                labelled where you see it.
-              </Row>
-              <Row k="Zeros are zeros">
-                A lane that found nothing journals a zero. No invented evidence,
-                ever.
-              </Row>
-              <Row k="Masking">
-                Candidate identities are masked at the API layer — the browser
-                never receives real names unless the single unmask toggle is used.
-              </Row>
-              <Row k="Costs on the ticker">
-                Every run shows its own price, so no cost claim has to be taken on
-                faith.
-              </Row>
-            </div>
-          </Section>
+              <div className="pane px-5 py-2">
+                <Term k="identity">
+                  Real names, masked at the server before anything reaches the
+                  browser. One unmask toggle exists for a private walkthrough.
+                </Term>
+                <Term k="signal">
+                  What the evidence says this person did: ran it, chose it, admin,
+                  wrote about it.
+                </Term>
+                <Term k="confidence">
+                  The strength of the person&rsquo;s best receipt. Evidence type
+                  sets the base; age decays it — evidence older than about two
+                  years demotes the read from current user toward past user.
+                </Term>
+                <Term k="evidence">
+                  The receipts: source, date, type, and a name-redacted quote per
+                  entry. Nobody enters the book without at least one. Full URL and
+                  name live behind the unmask toggle only.
+                </Term>
+                <Term k="in network">
+                  This person — or a colleague at the same company — is already an
+                  Arbolus expert. The warmest path in the system.
+                </Term>
+                <Term k="contact">
+                  A guessed address from name + employer domain, the cheapest way
+                  to reach someone. Verifying it is a production step.
+                </Term>
+              </div>
+
+              <div className="pane mt-4 p-4">
+                <span className="mb-3 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                  the eight eligibility checks — ruled out, reason kept
+                </span>
+                <div className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+                  {CHECKS.map((c) => (
+                    <span key={c} className="flex items-baseline gap-2 text-control text-ink-60">
+                      <span aria-hidden className="metric text-caption text-ink-35">
+                        ✕
+                      </span>
+                      {c}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-3 text-dense text-subtle-deep">
+                  The last one is the core rule: first-hand operators only — the
+                  people who ran it, chose it, or lived with it.
+                </p>
+              </div>
+            </Section>
+
+            <Section
+              id="burst"
+              n="06"
+              title="The burst clock"
+              lead="Challenge 2: a client opens an empty company — what 30 days looks like from there."
+            >
+              <div className="pane px-5 py-2">
+                <Term k="the clock">
+                  Day by day: warm book first, then invites, conversion,
+                  verification. On stated assumptions the base case reaches 8–18
+                  verified contributors in 30 days; a priced escalation closes to
+                  20.
+                </Term>
+                <Term k="sliders">
+                  Every invented rate is labelled as an assumption and rendered as
+                  a slider. The numbers recompute from your positions — nothing is
+                  hard-coded to look good.
+                </Term>
+                <Term k="bounty tiers">
+                  Scarcity pricing, set by book depth at compose time:{" "}
+                  <span className="metric">$25</span> when 8+ people are named ·{" "}
+                  <span className="metric">$50</span> at 3–7 ·{" "}
+                  <span className="metric">$75</span> below 3. The thinner the
+                  book, the harder the find, the higher the first-review bounty.
+                </Term>
+                <Term k="budget">
+                  Released by demand: the searched-and-found-nothing events on the
+                  board are what authorise burst spend for that vendor.
+                </Term>
+              </div>
+            </Section>
+
+            <Section
+              id="loop"
+              n="07"
+              title="The activation loop"
+              lead="Challenge 1's compounding, built not prose: four always-on loops that spend no recruiting money."
+            >
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    k: "invites per contributor",
+                    t: "above 1 = it compounds",
+                    d: "New contributors each contributor brings in. Above one, the loop grows on its own.",
+                  },
+                  {
+                    k: "answered from our own experts",
+                    t: "should rise every run",
+                    d: "The share of a coverage gap filled from the network before any cold outreach.",
+                  },
+                  {
+                    k: "quiet experts brought back",
+                    t: "anything above 0 is free",
+                    d: "Dormant experts re-prompted when the index first maps their company.",
+                  },
+                  {
+                    k: "extra reviews per recruit",
+                    t: "ask one, get more",
+                    d: "First-hand: one signup left six reviews.",
+                  },
+                ].map((m) => (
+                  <div key={m.k} className="pane p-4">
+                    <span className="block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                      {m.k}
+                    </span>
+                    <span className="metric mt-1 block text-dense text-success-text">
+                      {m.t}
+                    </span>
+                    <p className="mt-1.5 text-dense leading-relaxed text-ink-60">{m.d}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section
+              id="honesty"
+              n="08"
+              title="The honesty rules"
+              lead="The register the whole prototype runs on."
+            >
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    k: "live vs simulated",
+                    d: "Everything that runs, runs on real public data. Everything simulated — demand events, review counts, the expert base — is labelled where you see it.",
+                  },
+                  {
+                    k: "zeros are zeros",
+                    d: "A lane that found nothing journals a zero. No invented evidence, ever.",
+                  },
+                  {
+                    k: "masking",
+                    d: "Candidate identities are masked at the API layer — the browser never receives real names unless the single unmask toggle is used.",
+                  },
+                  {
+                    k: "costs on the ticker",
+                    d: "Every run shows its own price, so no cost claim has to be taken on faith.",
+                  },
+                ].map((m) => (
+                  <div key={m.k} className="pane p-4">
+                    <span className="block font-mono text-caption uppercase tracking-[0.08em] text-violet-link">
+                      {m.k}
+                    </span>
+                    <p className="mt-1.5 text-dense leading-relaxed text-ink-60">{m.d}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
         </div>
       </main>
 

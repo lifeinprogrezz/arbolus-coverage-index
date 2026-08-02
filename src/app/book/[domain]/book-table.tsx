@@ -161,7 +161,7 @@ export default function BookTable({
               <th className="px-4 py-3 font-medium">Signal</th>
               <th className="px-4 py-3 font-medium">Confidence</th>
               <th className="px-4 py-3 text-right font-medium">Evidence</th>
-              <th className="whitespace-nowrap py-3 pl-4 pr-5 font-medium">In network</th>
+              <th className="whitespace-nowrap py-3 pl-4 pr-5 text-center font-medium">In network</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef}>
@@ -222,7 +222,7 @@ export default function BookTable({
                     <ConfidenceBar value={c.confidence} parts={c.confidence_parts} />
                   </td>
                   <td className="metric px-4 py-3 text-right">{c.evidence.length}</td>
-                  <td className="py-3 pl-4 pr-5">
+                  <td className="py-3 pl-4 pr-5 text-center">
                     {c.reservoir_match ? (
                       <span className="pill bg-city-newyork">match</span>
                     ) : (

@@ -25,7 +25,7 @@ export default function SiteFooter() {
           ))}
         </div>
         <p className="provenance text-center">
-          built for the Arbolus growth case · candidate identities masked ·{" "}
+          built for the Arbolus growth case ·{" "}
           <Link href="/reference" className="text-inherit underline decoration-line underline-offset-2 hover:text-ink">
             reference
           </Link>
