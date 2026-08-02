@@ -90,76 +90,6 @@ export default async function LoopPage() {
           </InfoHint>
         </div>
 
-        {/* the C1 thesis — same table device as burst's by-hand-vs-engine */}
-        <div className="reveal mt-5">
-          <div className="pane overflow-hidden">
-            <div className="tracker-scroll overflow-x-auto">
-              <table className="w-full border-collapse text-control">
-                <thead>
-                  <tr className="border-b border-line text-left">
-                    <th className="w-[170px] px-3.5 py-3" />
-                    <th className="border-r border-line/70 px-3.5 py-3">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-ink">These loops today</span>
-                        <span className="pill bg-city-sanjose">live in Arbolus</span>
-                      </span>
-                    </th>
-                    <th className="bg-violet-50/60 px-3.5 py-3">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-ink">With the index</span>
-                        <span className="pill bg-city-newyork">the proposal</span>
-                      </span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(
-                    [
-                      [
-                        "where reviews land",
-                        "the head — tools with thousands of reviews",
-                        "companies clients open and find empty",
-                      ],
-                      [
-                        "first review, empty company",
-                        "earns $0 — nobody rational writes it",
-                        "$25–50 flat, known before you start",
-                      ],
-                      [
-                        "colleague invites",
-                        "chase whoever is easiest",
-                        "fire when the index maps their company",
-                      ],
-                      [
-                        "quiet experts",
-                        "stay quiet",
-                        "re-prompted the day their company is mapped",
-                      ],
-                      [
-                        "new machinery",
-                        "—",
-                        "none — one price parameter their own terms allow",
-                      ],
-                    ] as [string, string, string][]
-                  ).map(([k, today, indexed]) => (
-                    <tr key={k} className="border-b border-line last:border-0">
-                      <td className="w-[170px] whitespace-nowrap px-3.5 py-3 font-mono text-caption uppercase tracking-[0.06em] text-subtle">
-                        {k}
-                      </td>
-                      <td className="metric border-r border-line/70 px-3.5 py-3 text-dense text-ink-60">
-                        {today}
-                      </td>
-                      <td className="metric bg-violet-50/60 px-3.5 py-3 text-dense text-ink">
-                        {indexed}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* R0 offer */}
           <section className="reveal reveal-d1 self-start rounded-xl border border-violet-100 bg-violet-50 p-5">
@@ -306,6 +236,77 @@ export default async function LoopPage() {
             </div>
           </section>
         </div>
+
+        {/* the closing verdict — same table device as burst's by-hand-vs-engine */}
+        <section className="reveal reveal-d4 mt-10">
+          <h2 className="mb-4 text-title text-ink">Same loops, new aim</h2>
+          <div className="pane overflow-hidden">
+            <div className="tracker-scroll overflow-x-auto">
+              <table className="w-full border-collapse text-control">
+                <thead>
+                  <tr className="border-b border-line text-left">
+                    <th className="w-[190px] px-3.5 py-3" />
+                    <th className="border-r border-line/70 px-3.5 py-3">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-ink">Today</span>
+                        <span className="pill bg-city-sanjose">live in Arbolus</span>
+                      </span>
+                    </th>
+                    <th className="bg-violet-50/60 px-3.5 py-3">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-ink">With the index</span>
+                        <span className="pill bg-city-newyork">the proposal</span>
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      [
+                        "where reviews land",
+                        "the head — tools 2,000+ reviews deep",
+                        "companies at 0 that a client just opened",
+                      ],
+                      [
+                        "first review, empty company",
+                        "$0 — no views, no pay",
+                        "$25–50 flat, known up front",
+                      ],
+                      [
+                        "the $10 colleague invite",
+                        "fires at anyone",
+                        "fires where the index maps a gap",
+                      ],
+                      [
+                        "spillover reviews",
+                        "one signup left 6 — all on the head",
+                        "the same spillover, seeded at the gaps",
+                      ],
+                      [
+                        "new machinery",
+                        "—",
+                        "0 systems · 1 price parameter",
+                      ],
+                    ] as [string, string, string][]
+                  ).map(([k, today, indexed]) => (
+                    <tr key={k} className="border-b border-line last:border-0">
+                      <td className="w-[190px] whitespace-nowrap px-3.5 py-3 font-mono text-caption uppercase tracking-[0.06em] text-subtle">
+                        {k}
+                      </td>
+                      <td className="metric border-r border-line/70 px-3.5 py-3 text-dense text-ink-60">
+                        {today}
+                      </td>
+                      <td className="metric bg-violet-50/60 px-3.5 py-3 text-dense text-ink">
+                        {indexed}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>
