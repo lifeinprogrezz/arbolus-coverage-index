@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 // The product's ONE progressive-disclosure idiom: a quiet ⓘ that opens a
 // small pane with the rationale. Surfaces stay terse; the why lives here.
 // Click to toggle, Esc/outside to close. Works on paper and terminal.
+// The panel renders in a body portal with fixed positioning so it can never
+// be layered under sibling panes (transform stacking contexts) or clipped
+// by overflow-x-auto table wrappers.
+
+const PANEL_W = 288; // w-72
+const GAP = 6;
+const MARGIN = 8;
 
 export default function InfoHint({
   label,
@@ -16,23 +24,38 @@ export default function InfoHint({
   align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const ref = useRef<HTMLSpanElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    const place = () => {
+      const r = ref.current?.getBoundingClientRect();
+      if (!r) return;
+      let left = align === "right" ? r.right - PANEL_W : r.left;
+      left = Math.min(Math.max(left, MARGIN), window.innerWidth - PANEL_W - MARGIN);
+      setPos({ top: r.bottom + GAP, left });
+    };
+    place();
     const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (!ref.current?.contains(t) && !panelRef.current?.contains(t)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
     };
-  }, [open]);
+  }, [open, align]);
 
   return (
     <span ref={ref} className="relative inline-flex items-center">
@@ -52,15 +75,18 @@ export default function InfoHint({
           <circle cx="8" cy="4.8" r="0.9" fill="currentColor" />
         </svg>
       </button>
-      {open && (
-        <div
-          className={`pane absolute top-6 z-30 w-72 p-3.5 text-dense leading-relaxed text-ink-60 dark:text-term-muted ${
-            align === "right" ? "right-0" : "left-0"
-          }`}
-        >
-          {children}
-        </div>
-      )}
+      {open &&
+        pos &&
+        createPortal(
+          <div
+            ref={panelRef}
+            style={{ position: "fixed", top: pos.top, left: pos.left, width: PANEL_W }}
+            className="pane z-[80] p-3.5 text-dense leading-relaxed text-ink-60 dark:text-term-muted"
+          >
+            {children}
+          </div>,
+          document.body
+        )}
     </span>
   );
 }
