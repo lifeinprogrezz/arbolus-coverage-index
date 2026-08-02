@@ -4,7 +4,7 @@ import SiteFooter from "@/components/shell/site-footer";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
-import Assume from "./assume";
+import Assume, { AssumeTag } from "./assume";
 import VendorPicker from "./vendor-picker";
 import WalkSliders from "./walk-sliders";
 
@@ -287,8 +287,9 @@ export default async function BurstPage({
 
         {/* the core argument — full width */}
         <section className="reveal reveal-d2 mt-8">
-          <div className="mb-4 flex items-center gap-1.5">
+          <div className="mb-4 flex items-center gap-2">
             <h2 className="text-title text-ink">The walk to 20</h2>
+            <AssumeTag />
             <InfoHint>
               The base case, with every made-up rate labelled as an assumption. We
               keep 80% of each line after verification, on every line except the
@@ -354,7 +355,10 @@ export default async function BurstPage({
           </div>
           <div className="mt-8">
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="text-title text-ink">Move the assumptions</h2>
+              <span className="flex items-center gap-2">
+                <h2 className="text-title text-ink">Move the assumptions</h2>
+                <AssumeTag />
+              </span>
               <span className="provenance">
                 defaults are the base case · people and experts come from the real book
               </span>
@@ -399,8 +403,9 @@ export default async function BurstPage({
 
           {/* cost per burst — sits beside the playbook: when things happen | what they cost */}
           <section className="reveal reveal-d3">
-            <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
               <h2 className="text-title text-ink">Cost per burst</h2>
+              <AssumeTag />
               <span className="provenance">
                 engine costs in EUR · contributor rewards in USD
               </span>
