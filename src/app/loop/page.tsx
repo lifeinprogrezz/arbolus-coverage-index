@@ -90,6 +90,19 @@ export default async function LoopPage() {
           </InfoHint>
         </div>
 
+        {/* the C1 thesis — same machines, new aim */}
+        <p className="reveal mt-4 max-w-3xl text-pretty text-body text-subtle-deep">
+          Every loop on this page is <span className="font-medium text-ink">live
+          in Arbolus today</span> — the royalty, the colleague invite, the extra
+          reviews people leave. But it all fires at the head: a review of a
+          popular tool earns views forever, a review of an empty company earns
+          $0, so nobody rational writes one. The proposal changes one thing —{" "}
+          <span className="font-medium text-ink">where the existing machine
+          points</span>. The index aims every loop at the companies clients open
+          and find empty, and one scoped price change makes the first review
+          there worth writing.
+        </p>
+
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* R0 offer */}
           <section className="reveal reveal-d1 self-start rounded-xl border border-violet-100 bg-violet-50 p-5">
