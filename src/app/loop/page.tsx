@@ -90,24 +90,73 @@ export default async function LoopPage() {
           </InfoHint>
         </div>
 
-        {/* the C1 thesis as a contrast pair — same machines, new aim */}
-        <div className="reveal mt-5 grid max-w-3xl gap-3 sm:grid-cols-2">
-          <div
-            className="pane p-4"
-            style={{ background: "var(--color-ground-tint)" }}
-          >
-            <span className="eyebrow">today · already live in Arbolus</span>
-            <p className="mt-1.5 text-dense leading-relaxed text-subtle-deep">
-              The same loops fire at the head: a popular tool earns views
-              forever, an empty company earns $0 — nobody rational reviews it.
-            </p>
-          </div>
-          <div className="pane border-violet-200 p-4 shadow-[var(--shadow-glow-violet)]">
-            <span className="eyebrow text-violet-link">with the index</span>
-            <p className="mt-1.5 text-dense leading-relaxed text-subtle-deep">
-              Every loop re-aimed at the companies clients open and find empty —
-              and one price change makes the first review there worth writing.
-            </p>
+        {/* the C1 thesis — same table device as burst's by-hand-vs-engine */}
+        <div className="reveal mt-5">
+          <div className="pane overflow-hidden">
+            <div className="tracker-scroll overflow-x-auto">
+              <table className="w-full border-collapse text-control">
+                <thead>
+                  <tr className="border-b border-line text-left">
+                    <th className="w-[170px] px-3.5 py-3" />
+                    <th className="border-r border-line/70 px-3.5 py-3">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-ink">These loops today</span>
+                        <span className="pill bg-city-sanjose">live in Arbolus</span>
+                      </span>
+                    </th>
+                    <th className="bg-violet-50/60 px-3.5 py-3">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-ink">With the index</span>
+                        <span className="pill bg-city-newyork">the proposal</span>
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      [
+                        "where reviews land",
+                        "the head — tools with thousands of reviews",
+                        "companies clients open and find empty",
+                      ],
+                      [
+                        "first review, empty company",
+                        "earns $0 — nobody rational writes it",
+                        "$25–50 flat, known before you start",
+                      ],
+                      [
+                        "colleague invites",
+                        "chase whoever is easiest",
+                        "fire when the index maps their company",
+                      ],
+                      [
+                        "quiet experts",
+                        "stay quiet",
+                        "re-prompted the day their company is mapped",
+                      ],
+                      [
+                        "new machinery",
+                        "—",
+                        "none — one price parameter their own terms allow",
+                      ],
+                    ] as [string, string, string][]
+                  ).map(([k, today, indexed]) => (
+                    <tr key={k} className="border-b border-line last:border-0">
+                      <td className="w-[170px] whitespace-nowrap px-3.5 py-3 font-mono text-caption uppercase tracking-[0.06em] text-subtle">
+                        {k}
+                      </td>
+                      <td className="metric border-r border-line/70 px-3.5 py-3 text-dense text-ink-60">
+                        {today}
+                      </td>
+                      <td className="metric bg-violet-50/60 px-3.5 py-3 text-dense text-ink">
+                        {indexed}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
