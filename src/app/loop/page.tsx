@@ -90,7 +90,7 @@ export default async function LoopPage() {
           </InfoHint>
         </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="mt-5 grid gap-6 lg:grid-cols-2">
           {/* R0 offer */}
           <section className="reveal reveal-d1 self-start rounded-xl border border-violet-100 bg-violet-50 p-5">
             <div className="flex flex-wrap items-center gap-2">
@@ -160,10 +160,10 @@ export default async function LoopPage() {
           </section>
         </div>
 
-        <div className="reveal reveal-d4 mt-10 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
+        <div className="reveal reveal-d4 mt-8 grid gap-8 lg:grid-cols-[1.3fr_1fr]">
           {/* 5-step unlock flow */}
           <section>
-            <h2 className="mb-4 text-title text-ink">The activation flow</h2>
+            <h2 className="mb-3 text-title text-ink">The activation flow</h2>
             <div className="flex flex-col">
               {UNLOCK_STEPS.map((s, i) => (
                 <div key={s.n} className="flex gap-3">
@@ -173,7 +173,7 @@ export default async function LoopPage() {
                     </span>
                     {i < UNLOCK_STEPS.length - 1 && <span className="w-px flex-1 bg-line" />}
                   </div>
-                  <div className={`pt-0.5 ${i < UNLOCK_STEPS.length - 1 ? "pb-4" : ""}`}>
+                  <div className={`pt-0.5 ${i < UNLOCK_STEPS.length - 1 ? "pb-6" : ""}`}>
                     <span className="text-control text-ink">{s.label}</span>
                     {s.note && (
                       <span className="ml-1.5 inline-flex align-middle">
@@ -188,7 +188,7 @@ export default async function LoopPage() {
 
           {/* the invites — vertical card beside the flow */}
           <section className="self-start">
-            <h2 className="mb-4 text-title text-ink">The invites</h2>
+            <h2 className="mb-3 text-title text-ink">The invites</h2>
             <div className="pane p-5">
               <div className="flex items-start gap-x-8">
                 <div>
@@ -215,7 +215,7 @@ export default async function LoopPage() {
               </div>
               <div className="mt-4 border-t border-line pt-3">
                 <span className="eyebrow">land on</span>
-                <div className="mt-2 flex flex-col items-start gap-1.5">
+                <div className="mt-2 flex flex-wrap gap-1.5">
                   {(mappedVendors ?? []).map((v) => (
                     <Link
                       key={v.domain}
@@ -239,8 +239,8 @@ export default async function LoopPage() {
         </div>
 
         {/* the closing verdict — same table device as burst's by-hand-vs-engine */}
-        <section className="reveal reveal-d4 mt-10">
-          <h2 className="mb-4 text-title text-ink">Same loops, new aim</h2>
+        <section className="reveal reveal-d4 mt-8">
+          <h2 className="mb-3 text-title text-ink">Same loops, new aim</h2>
           <div className="pane overflow-hidden">
             <div className="tracker-scroll overflow-x-auto">
               <table className="w-full border-collapse text-control">
