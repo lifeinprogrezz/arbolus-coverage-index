@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
@@ -6,6 +5,7 @@ import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
 import Assume from "./assume";
+import VendorPicker from "./vendor-picker";
 import WalkSliders from "./walk-sliders";
 
 export const dynamic = "force-dynamic";
@@ -220,21 +220,10 @@ export default async function BurstPage({
               {vendor ? vendorName(vendor.name) : "—"}
             </span>
             <span className="provenance">{vendor?.domain}</span>
-            <div className="ml-auto flex flex-wrap gap-1.5">
-              {(vendors ?? []).map((v) => (
-                <Link
-                  key={v.domain}
-                  href={`/burst?vendor=${v.domain}`}
-                  className={`pill no-underline transition-colors active:translate-y-px ${
-                    v.domain === vendor?.domain
-                      ? "bg-city-barcelona"
-                      : "bg-ground-tint hover:bg-ground-tint-hover"
-                  }`}
-                >
-                  {vendorName(v.name)}
-                </Link>
-              ))}
-            </div>
+            <VendorPicker
+              vendors={(vendors ?? []).map((v) => ({ name: v.name, domain: v.domain }))}
+              current={vendor?.domain}
+            />
           </div>
 
           {/* branch banner — full-width strip, washed by branch */}
