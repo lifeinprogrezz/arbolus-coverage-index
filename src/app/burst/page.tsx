@@ -339,11 +339,11 @@ export default async function BurstPage({
                   <tr className="align-top">
                     <td className="px-3.5 py-2.5 font-medium text-ink">If we fall short</td>
                     <td className="px-3.5 py-2.5 text-dense text-subtle">
-                      (1) give it more time and map again · (2) raise the bounty —
-                      paying more for the first review is the one lever with proven
-                      effect · (3) ask the vendor itself to introduce us to its
-                      customers — last resort, and those reviews are labelled as
-                      vendor-sourced
+                      <span className="block">1 · give it more time and map again</span>
+                      <span className="block">2 · raise the bounty — the one lever with proven effect</span>
+                      <span className="block">
+                        3 · the vendor introduces us — last resort, labelled vendor-sourced
+                      </span>
                     </td>
                     <td className="metric py-2.5 pl-3.5 pr-5 text-right text-success-text">
                       → 20
