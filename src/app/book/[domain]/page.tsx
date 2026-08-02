@@ -247,7 +247,7 @@ export default async function BookPage({
           <section className="pane p-5">
             <div className="flex items-center gap-2">
               <h2 className="eyebrow">How we&rsquo;re allowed to contact them</h2>
-              <span className="flex translate-y-px items-center">
+              <span className="flex -translate-y-[0.75px] items-center">
                 <InfoHint>
                   <p>
                     Each row is one way of reaching the people above, with its
