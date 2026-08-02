@@ -388,9 +388,23 @@ export default async function BurstPage({
                     {p.when}
                   </span>
                   <div className="flex flex-col items-center">
-                    <span className="metric flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-50 text-micro text-violet-link">
-                      {i + 1}
-                    </span>
+                    {i === PLAYBOOK.length - 1 ? (
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-400 shadow-[var(--shadow-glow-violet)]">
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
+                          <path
+                            d="M2.5 6.5 5 9l4.5-6"
+                            stroke="white"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                    ) : (
+                      <span className="metric flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-50 text-micro text-violet-link">
+                        {i + 1}
+                      </span>
+                    )}
                     {i < PLAYBOOK.length - 1 && <span className="w-px flex-1 bg-line" />}
                   </div>
                   <div className={`pt-0.5 ${i < PLAYBOOK.length - 1 ? "pb-5" : ""}`}>
