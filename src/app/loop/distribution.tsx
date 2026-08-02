@@ -30,7 +30,7 @@ function build() {
     .join(" ");
   const area = `${line} L${(W - RIGHT).toFixed(1)} ${BASE} L${LEFT} ${BASE} Z`;
   // covered = 20 reviews vs a 2,000+ head → the threshold sits at ~1% of peak
-  const hThresh = 0.045;
+  const hThresh = 0.062;
   const thresholdY = BASE - hThresh * SPAN;
   const tCross = 0.008 / hThresh - 0.008;
   const crossX = LEFT + tCross * plotW;
