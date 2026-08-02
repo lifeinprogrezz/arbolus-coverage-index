@@ -45,7 +45,7 @@ const UNLOCK_STEPS = [
 const METRICS = [
   { name: "Invites per contributor", value: "1.18", threshold: "above 1 = it compounds", detail: "new contributors each one brings in" },
   { name: "Answered from our own experts", value: "31%", threshold: "should rise every run", detail: "gap covered from our own network first" },
-  { name: "Quiet experts brought back", value: "9%", threshold: "anything above 0 is free", detail: "sleepers returning when we map their company" },
+  { name: "Quiet experts brought back", value: "9%", threshold: "anything above 0 is free", detail: "woken when their company gets mapped" },
   { name: "Extra reviews per recruit", value: "~4×", threshold: "reviews beyond the one we asked for", detail: "one signup left six reviews" },
 ];
 
