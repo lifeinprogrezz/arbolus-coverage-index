@@ -279,12 +279,12 @@ export default async function LoopPage() {
                         "fires where the index maps a gap",
                       ],
                       [
-                        "spillover reviews",
+                        "the extra reviews people leave",
                         "one signup left 6 — all on the head",
                         "the same spillover, seeded at the gaps",
                       ],
                       [
-                        "new machinery",
+                        "what Arbolus must build",
                         "—",
                         "0 systems · 1 price parameter",
                       ],
