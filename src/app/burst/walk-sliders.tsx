@@ -148,7 +148,7 @@ export default function WalkSliders({ defaultSeeds, defaultReservoir }: Props) {
             {perVerified ? `≈ €${Math.round(perVerified)} per verified` : "—"}
           </div>
         </div>
-        <p className="max-w-sm text-pretty pt-1 text-dense text-subtle">
+        <p className="max-w-sm self-center text-pretty text-dense text-subtle">
           {hit ? (
             <>
               Clears 20 on these settings. We keep 80% of every line after
