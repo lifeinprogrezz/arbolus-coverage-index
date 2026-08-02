@@ -315,6 +315,15 @@ export default async function LoopPage() {
                 </tbody>
               </table>
             </div>
+            <p className="flex items-baseline gap-2 border-t border-line px-4 py-2.5 text-dense text-subtle-deep">
+              <span
+                aria-hidden
+                className="inline-block h-1.5 w-1.5 shrink-0 -translate-y-[1px] rounded-full bg-violet-400"
+              />
+              The whole discipline in one line: index everything for pennies ·
+              pay only where a client asked · run the free loops everywhere,
+              because free needs no gate.
+            </p>
           </div>
         </section>
       </main>
