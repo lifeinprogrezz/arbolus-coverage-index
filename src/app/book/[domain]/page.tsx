@@ -267,12 +267,13 @@ export default async function BookPage({
               </div>
               <span className="provenance">
                 {vendor.hq_country
-                  ? `rules for head office: ${vendor.hq_country}`
-                  : "head office unresolved · default rules"}
+                  ? `rules for: ${vendor.hq_country}`
+                  : "country unknown · showing general rules"}
               </span>
             </div>
             <p className="mt-1.5 text-dense text-subtle-deep">
-              The book says who. This is which channels the law permits.
+              The list above is who we want to reach. This is how we&rsquo;re
+              allowed to reach them.
             </p>
             <div className="mt-2 flex flex-col">
               {mask.map((r) => (
