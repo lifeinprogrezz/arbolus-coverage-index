@@ -1,6 +1,6 @@
 import type { Lane, LaneResult, Vendor, LaneCtx, EvidenceRow } from "../types";
 
-// Lane 4 — ATS sweep (build spec §2.4, ports career-ops scan.mjs patterns):
+// Lane 4 — ATS sweep:
 // Greenhouse/Lever/Ashby public JSON job boards, grep JD bodies for the
 // vendor name. "3 open roles require X" is the strongest company-level
 // usage evidence — theirstack-class technographics for free.

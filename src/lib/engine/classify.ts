@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { EvidenceRow } from "./types";
 
-// The engine's ONE LLM surface (build spec §2 step 9): multilingual evidence
+// The engine's ONE LLM surface: multilingual evidence
 // extraction + persona classification + confidence decomposition.
 // AI runs acquisition/matching/verification; it NEVER authors contributor
 // content — that boundary is Arbolus's own compliance rule, kept on purpose.
@@ -53,7 +53,7 @@ Respond ONLY with JSON: {"rows": [...]} matching the provided schema. No prose.`
 
 // Returns null when the model's output could not be parsed — the caller
 // parks the page as "unclassified evidence" (visible, retryable) instead of
-// silently losing it (audit 42 §5).
+// silently losing it.
 export async function classifyPage(
   input: ExtractionInput
 ): Promise<ClassifiedEvidence[] | null> {

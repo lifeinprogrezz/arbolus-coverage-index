@@ -8,7 +8,7 @@ import MetricTiles from "./metric-tiles";
 
 export const dynamic = "force-dynamic";
 
-// Contributor activation loop (build spec §7.5) — C1's surface, built not
+// Contributor activation loop — Challenge 1's surface, built not
 // prose: the four always-on humanless loops that spend no recruiting money,
 // plus the R0 offer card. Compounding metrics are [SIMULATED] (invites are
 // drafted-never-sent, the reservoir base is synthetic).
@@ -81,7 +81,7 @@ export default async function LoopPage() {
           <h1 className="text-page text-ink">Activation loop</h1>
           <span className="pill bg-city-barcelona">always-on</span>
           <span className="text-dense text-subtle">
-            four loops · no recruiting spend
+            four organic loops · no recruiting spend
           </span>
           <InfoHint>
             The always-on half of Challenge 1. We map every vendor, but we only
@@ -100,7 +100,7 @@ export default async function LoopPage() {
                 Arbolus&rsquo;s own terms already allow variable pricing, so this
                 needs no new clause. It ships as one arm of a two-week A/B test and
                 the data decides it. The bounty is priced by scarcity: a vendor we
-                already cover well pays $0.
+                already cover well pays $0, and a fully empty book rises to $75.
               </InfoHint>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">

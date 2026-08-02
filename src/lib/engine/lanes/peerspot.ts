@@ -2,7 +2,7 @@ import type { Lane, LaneResult, Vendor, LaneCtx } from "../types";
 import { jinaRead, jinaCost } from "../jina";
 import { classifyPage, estimateClassifyCost } from "../classify";
 
-// Lane 5 — PeerSpot (build spec §2.5): the only review site that fetches
+// Lane 5 — PeerSpot: the only review site that fetches
 // clean AND shows full name + title + employer; reviews name evaluated
 // rivals ⇒ classes 1, 2, 4 from one crawl. (G2/TrustRadius 403 — routed
 // around, never proxy-bypassed.)

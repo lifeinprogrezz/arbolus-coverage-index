@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 
-// The map queue (build spec §3): which vendor gets indexed next, ranked by
+// The map queue: which vendor gets indexed next, ranked by
 // demand signals. Signal weights are a transparent heuristic (per the locked
 // cut order) — documented, not learned.
 //

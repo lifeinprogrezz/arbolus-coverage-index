@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// The "request coverage" front door (build spec §7.1 — exists on no Arbolus
-// page today). Fires a SIMULATED demand event: the searched-and-empty signal
+// The "request coverage" front door. Fires a SIMULATED demand event: the searched-and-empty signal
 // that both orders the map queue AND authorises the burst budget.
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);

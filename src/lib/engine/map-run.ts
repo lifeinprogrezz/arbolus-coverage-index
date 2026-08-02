@@ -12,9 +12,9 @@ import { serpLane } from "./lanes/serp";
 import { logoDiffLane } from "./lanes/logo-diff";
 import type { EvidenceRow, LaneCtx, LaneEvent, LaneResult, Vendor } from "./types";
 
-// The 10-step map run (build spec §2), prototype build: 6 live lanes +
+// The 10-step map run, prototype build: 6 live lanes +
 // classify + exclude + write. Lanes 6/7 extras (Discourse, TED, GitHub)
-// render as pre-seeded local lanes per the locked cut order (audit 42 §6).
+// render as pre-seeded local lanes, by design.
 
 export type RunEvent =
   | LaneEvent
@@ -36,7 +36,7 @@ export type RunEvent =
       latency_ms: number;
     };
 
-// Masking at the API layer (audit 42 §5 — case-fatal if leaked): the SSE
+// Masking at the API layer: the SSE
 // stream never carries full names or quotes; those live in the DB and are
 // revealed only through the book view's explicit unmask toggle.
 function maskEvent(e: LaneEvent): LaneEvent {
@@ -87,7 +87,7 @@ export async function ensureVendor(name: string, domain: string): Promise<Vendor
 
 // Replay mode: re-stream the vendor's LAST run from the journal + index —
 // no upstream requests, no LLM calls, honest label. This is the demo's
-// safety net (audit 42 §5: failure modes are built, not improvised).
+// safety net: failure modes are built, not improvised.
 export async function replayRun(
   vendor: Vendor,
   emit: (e: RunEvent) => void

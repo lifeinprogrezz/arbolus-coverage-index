@@ -1,7 +1,7 @@
 import type { Lane, LaneResult, Vendor, LaneCtx, EvidenceRow } from "../types";
 import type { SitemapHarvest } from "./sitemap";
 
-// Lane 3 — Wayback CDX diff (build spec §2.3): customer pages that EXISTED
+// Lane 3 — Wayback CDX diff: customer pages that EXISTED
 // historically but are gone from the live sitemap ⇒ churned-customer
 // CANDIDATES (class 2) with tenure dates. Flagged as candidate, not fact —
 // redesigns and acquisitions cause false churn. The demo's wow moment.

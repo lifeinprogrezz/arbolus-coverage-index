@@ -3,7 +3,7 @@
 import NumberFlow from "@number-flow/react";
 
 // Animated numerals for costs / counts / elapsed — Fragment Mono,
-// tabular-nums, number-flow count-ups (file 11 §7 adopted-library verdict).
+// tabular-nums, number-flow count-ups.
 
 export function MoneyTicker({ value, className }: { value: number; className?: string }) {
   return (

@@ -3,7 +3,7 @@ import type { SitemapHarvest } from "./sitemap";
 import { jinaRead, jinaCost } from "../jina";
 import { classifyPage, estimateClassifyCost } from "../classify";
 
-// Lane 2 — customer-page extraction (build spec §2.2): named individuals
+// Lane 2 — customer-page extraction: named individuals
 // (name + title + employer) and org logos from the vendor's own marketing
 // pages. Classes 1 (and 4 from the /{rival}-alternative pages).
 

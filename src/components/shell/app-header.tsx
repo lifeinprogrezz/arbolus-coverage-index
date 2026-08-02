@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 // The product's one navigation system. Glass chrome, real Arbolus wordmark
 // (standard on paper, violet-white on the terminal), active-nav thumb,
-// shadow lifts only after scroll (file 11 §4 AppShell law).
+// shadow lifts only after scroll.
 
 const NAV = [
   { href: "/coverage", label: "Board" },

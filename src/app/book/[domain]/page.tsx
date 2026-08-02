@@ -22,7 +22,7 @@ const CHANNEL_STATE_LABEL: Record<string, string> = {
   counsel: "legal check",
 };
 
-// Book view (build spec §7.3). Masking is applied HERE, server-side: the
+// Book view. Masking is applied HERE, server-side: the
 // default render's payload contains no names, no raw quotes, no evidence
 // URLs. ?unmask=1 is the one explicit switch that renders identities.
 
@@ -226,6 +226,7 @@ export default async function BookPage({
             candidates={display}
             unmasked={unmasked}
             emailState={mask.find((r) => r.channel === "direct email")?.state ?? "open"}
+            mapped={Boolean(vendor.last_mapped_at)}
           />
         </div>
 

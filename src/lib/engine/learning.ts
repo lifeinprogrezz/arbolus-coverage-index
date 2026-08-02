@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 
-// The learning loop (build spec §6): per-lane yield from the run journal →
+// The learning loop: per-lane yield from the run journal →
 // budget share for the NEXT run. Real signals from real runs — no invented
 // growth curves. Rendered on the coverage board.
 

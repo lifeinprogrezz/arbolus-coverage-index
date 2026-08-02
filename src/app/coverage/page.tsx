@@ -12,9 +12,9 @@ import MapQueue from "./map-queue";
 
 export const dynamic = "force-dynamic";
 
-// Coverage board (build spec §7.1) — the index at a glance, paper skin.
+// Coverage board — the index at a glance, paper skin.
 // Includes the "request coverage" front door that exists on no Arbolus
-// page today (03-design §3.2).
+// page today.
 
 interface VendorRow {
   id: string;
@@ -236,7 +236,7 @@ export default async function CoveragePage() {
                   <InfoHint align="right">
                     The front door no Arbolus page has today: a client says
                     &ldquo;I need coverage on this company&rdquo; and leaves a
-                    trace. Every euro of burst spend then traces back to a
+                    trace. Every dollar of burst spend then traces back to a
                     client who asked and left empty-handed. The events fired
                     here are simulated.
                   </InfoHint>

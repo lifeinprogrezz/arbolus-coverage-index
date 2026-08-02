@@ -12,8 +12,8 @@ import LaneBoard from "./lane-board";
 import EvidenceFeed from "./evidence-feed";
 import SummaryBanner from "./summary-banner";
 
-// Map run view (hero, build spec §7.2) — the lanes lighting up live.
-// Paper skin like every other surface (Rober's call, 7-30): one light
+// Map run view — the lanes lighting up live.
+// Paper skin like every other surface: one light
 // system across the product. State + SSE wiring live here; the render
 // lives in the sub-components.
 

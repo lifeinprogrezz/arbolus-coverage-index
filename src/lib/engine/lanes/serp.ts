@@ -2,7 +2,7 @@ import type { Lane, LaneResult, Vendor, LaneCtx } from "../types";
 import { jinaRead, jinaCost } from "../jina";
 import { classifyPage, estimateClassifyCost } from "../classify";
 
-// Lane 6 — SERP long-tail (build spec §2.8): "migrating off X", "X vs Y",
+// Lane 6 — SERP long-tail: "migrating off X", "X vs Y",
 // "we use X", "why we left X" via Serper ⇒ classes 2, 4.
 // Without a SERPER_API_KEY the lane reports itself dark — the channel-
 // legality/availability mask renders WHY, it never silently skips.

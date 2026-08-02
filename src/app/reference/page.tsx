@@ -136,6 +136,16 @@ export default function ReferencePage() {
             when there is one. Everything here describes what actually runs —
             anything simulated says so where you see it.
           </p>
+          <p className="provenance mt-3">
+            the code, public:{" "}
+            <a
+              href="https://github.com/lifeinprogrezz/arbolus-coverage-index"
+              target="_blank"
+              rel="noreferrer"
+            >
+              github.com/lifeinprogrezz/arbolus-coverage-index ↗
+            </a>
+          </p>
         </section>
 
         <div className="reveal reveal-d1 mt-10 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
@@ -250,7 +260,7 @@ export default function ReferencePage() {
                 </span>
               </div>
               <Formula>
-                score = Σ event weights&ensp;·&ensp;already mapped with a warm book
+                score = Σ event weights&ensp;·&ensp;already mapped with 3+ people named
                 → score × 0.5
               </Formula>
               <div className="pane mt-4 px-5 py-2">
@@ -388,9 +398,10 @@ export default function ReferencePage() {
                   wrote about it.
                 </Term>
                 <Term k="confidence">
-                  The strength of the person&rsquo;s best receipt. Evidence type
-                  sets the base; age decays it — evidence older than about two
-                  years demotes the read from current user toward past user.
+                  Scored by the classify step as a weighted mean of four parts —
+                  how authoritative the source is, how direct the usage evidence
+                  is, how fresh it is, and how specifically the person is
+                  identified. The parts render in the expanded row.
                 </Term>
                 <Term k="evidence">
                   The receipts: source, date, type, and a name-redacted quote per

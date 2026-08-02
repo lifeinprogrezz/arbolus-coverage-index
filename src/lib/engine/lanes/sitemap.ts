@@ -1,6 +1,6 @@
 import type { Lane, LaneResult, Vendor, LaneCtx } from "../types";
 
-// Lane 1 — sitemap fetch. The highest-yield single call (build spec §2.1):
+// Lane 1 — sitemap fetch. The highest-yield single call:
 // harvests customer/case-study page URLs, competitor "alternative" pages,
 // and integration directories. Feeds the customer-pages lane and the
 // Wayback diff. Emits no evidence rows itself — it writes the treasure map.

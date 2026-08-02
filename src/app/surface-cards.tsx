@@ -26,7 +26,7 @@ const SURFACES: {
   {
     href: "/run",
     title: "Map run",
-    line: "Ten lanes pull evidence live, each showing what it found, cost and time.",
+    line: "Eleven lanes, each showing what it found, cost and time.",
     pill: "live",
     pillBg: "bg-city-london",
     span: "lg:col-span-3",

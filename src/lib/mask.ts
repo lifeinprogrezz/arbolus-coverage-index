@@ -1,4 +1,4 @@
-// Masking contract (build spec §1.3): STORE the full {url, quote, name};
+// Masking contract: STORE the full {url, quote, name};
 // RENDER only {evidence_type · source domain · evidence_date · name-redacted
 // quote} with "Candidate #N" identities. Full URL + name live behind the ONE
 // unmask toggle — real people from public evidence, demoed responsibly.
@@ -43,7 +43,7 @@ export const PERSONA_LABEL: Record<number, string> = {
   4: "evaluator → rival",
 };
 
-// city-pastel pill class per persona class (file 14 §3 semantic mapping)
+// city-pastel pill class per persona class
 export const PERSONA_PILL: Record<number, string> = {
   1: "bg-city-london",
   2: "bg-city-newdelhi",

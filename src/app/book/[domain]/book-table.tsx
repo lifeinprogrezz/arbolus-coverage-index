@@ -103,10 +103,12 @@ export default function BookTable({
   candidates,
   unmasked,
   emailState = "open",
+  mapped = true,
 }: {
   candidates: DisplayCandidate[];
   unmasked: boolean;
   emailState?: ChannelRule["state"];
+  mapped?: boolean;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const [tbodyRef] = useAutoAnimate<HTMLTableSectionElement>();
@@ -138,8 +140,9 @@ export default function BookTable({
         <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warn-border bg-warn-bg p-5 shadow-[var(--shadow-card)]">
           <span className="pill bg-city-sanjose">cold book</span>
           <p className="text-control text-ink">
-            No public evidence turned up for this vendor. Reaching that answer cost
-            $0.
+            {mapped
+              ? "No public evidence turned up for this vendor. Reaching that answer cost $0."
+              : "This vendor has never been mapped — no crawl has run yet."}
           </p>
           <InfoHint>
             The 30-day playbook branches here. The first-review bounty rises toward

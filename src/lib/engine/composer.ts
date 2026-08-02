@@ -25,7 +25,7 @@ Rewards Programme, sent by Arbolus (never impersonating anyone).
 Rules, all mandatory:
 - Anchor on the candidate's PUBLIC evidence in one natural sentence (e.g. "your case
   study with {vendor} on {source}") — never creepy, never quote private data.
-- The offer: first review of {vendor} carries a named flat bounty ($25–50 band, exact
+- The offer: first review of {vendor} carries a named flat bounty ($25–75 band, exact
   amount "$"+the amount you are given), paid on completion within 14 days, ~15 minutes
   of effort. State all three numbers.
 - One link placeholder: {{conversion_page}}. No other links.

@@ -10,9 +10,8 @@ import WalkSliders from "./walk-sliders";
 
 export const dynamic = "force-dynamic";
 
-// Burst view (build spec §7.4): the 30-day clock, the trigger branch read
-// from the REAL book, the §5.1 walk-to-20 with every invented rate labelled,
-// and the §9.4b cost table.
+// Burst view: the 30-day clock, the trigger branch read from the REAL
+// book, the walk-to-20 with every invented rate labelled, and the cost table.
 
 const PLAYBOOK = [
   {

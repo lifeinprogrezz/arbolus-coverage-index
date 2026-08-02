@@ -1,4 +1,4 @@
-// Channel-legality mask (build spec §2.8): ONE rules table driven by
+// Channel-legality mask: ONE rules table driven by
 // hq_country, rendered per vendor. The geography hole becomes a stated
 // compliance rule, never a silent skip.
 

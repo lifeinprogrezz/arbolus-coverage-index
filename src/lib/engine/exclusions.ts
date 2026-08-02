@@ -1,6 +1,6 @@
 import type { EvidenceRow, Vendor } from "./types";
 
-// The 8 eligibility checks (build spec §2.6). A visible pipeline stage:
+// The 8 eligibility checks. A visible pipeline stage:
 // rejections are STORED WITH REASONS and rendered in the book view —
 // the cheapest proof the engine understands Arbolus's eligibility rules.
 
