@@ -55,6 +55,12 @@ const PLAYBOOK = [
     detail:
       "The budget is approved up front. Asking the vendor to introduce us is a human-run last resort, and it gets labelled as sourced that way.",
   },
+  {
+    when: "Day 30",
+    what: "The clock closes",
+    detail:
+      "20 verified, or the funnel shows exactly which stage fell short — and the next burst starts from what this one learned.",
+  },
 ];
 
 const WALK = [

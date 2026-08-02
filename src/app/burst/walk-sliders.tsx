@@ -96,7 +96,7 @@ export default function WalkSliders({ defaultSeeds, defaultReservoir }: Props) {
         <Slider label="People we can name" unit="" min={5} max={30} step={1} value={seeds} onChange={setSeeds} assumption="How many people public evidence turns up for a niche vendor. Spot-checked, not counted end to end." />
         <Slider label="Reply rate" unit="%" min={1} max={15} step={1} value={reply} onChange={setReply} assumption="The line that decides the result: 3% cold, 10% optimistic because the money is named up front." />
         <Slider label="Invites per person who joins" unit="" min={0} max={2} step={0.1} value={coeff} onChange={setCoeff} assumption="0.5–1.5 each, paid only when the invited review lands, the way GLG does it." />
-        <Slider label="Community placements" unit="" min={0} max={6} step={1} value={community} onChange={setCommunity} assumption="One-off deal per community, with the spend capped." />
+        <Slider label="Through their communities" unit="" min={0} max={6} step={1} value={community} onChange={setCommunity} assumption="One-off deal per community, with the spend capped." />
         <Slider label="Reviews from letters" unit="" min={0} max={4} step={1} value={mail} onChange={setMail} assumption="About 0.8 at the usual 1% cold rate." />
       </div>
 
