@@ -485,6 +485,11 @@ export default async function BurstPage({
                     Doing it by hand
                   </span>
                   <span className="pill bg-city-sanjose">their baseline</span>
+                  <InfoHint>
+                    Derived from Arbolus&rsquo;s own published numbers on the
+                    manual review operation — offered as their number to
+                    correct, not asserted about their internals.
+                  </InfoHint>
                 </div>
                 <div className="dg mt-3">
                   <span className="dg-k">output</span>
