@@ -11,6 +11,12 @@ export function middleware(req: NextRequest) {
   if (pathname.startsWith("/gate") || pathname.startsWith("/api/gate")) {
     return NextResponse.next();
   }
+  // brand assets and the favicon are public — the gate page itself needs the
+  // logo. Books and data stay gated (their paths carry dots, so no blanket
+  // file-extension exclusion here).
+  if (pathname.startsWith("/brand/") || pathname === "/icon.png") {
+    return NextResponse.next();
+  }
 
   const cookie = req.cookies.get("ci_gate")?.value;
   if (cookie === password) return NextResponse.next();
