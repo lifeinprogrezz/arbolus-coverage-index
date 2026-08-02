@@ -4,7 +4,6 @@ import { laneYields } from "@/lib/engine/learning";
 import { mapQueue } from "@/lib/engine/demand";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
-import NextSurface from "@/components/shell/next-surface";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
@@ -342,12 +341,6 @@ export default async function CoveragePage() {
             </table>
           </div>
         </section>
-
-        <NextSurface
-          href="/run"
-          title="Map run"
-          line="Watch the lanes pull evidence live, with cost and time on the ticker."
-        />
       </main>
       <SiteFooter />
     </div>

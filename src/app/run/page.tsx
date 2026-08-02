@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
-import NextSurface from "@/components/shell/next-surface";
 import InfoHint from "@/components/ui/info-hint";
 import { MoneyTicker, SecondsTicker } from "@/components/ui/ticker";
 import { INITIAL_LANES, type FeedItem, type LaneState } from "./run-types";
@@ -318,12 +317,6 @@ export default function RunPage() {
             <EvidenceFeed feed={feed} idle={stage === "idle"} />
           </section>
         </div>
-
-        <NextSurface
-          href={bookHref}
-          title="The book"
-          line="Who we can name, and the evidence behind each one."
-        />
       </main>
       <SiteFooter />
     </div>

@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { redactQuote } from "@/lib/mask";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
-import NextSurface from "@/components/shell/next-surface";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
 import MetricTiles from "./metric-tiles";
@@ -308,12 +307,6 @@ export default async function LoopPage() {
             )}
           </section>
         </div>
-
-        <NextSurface
-          href="/reference"
-          title="Reference"
-          line="Every number on every surface, explained."
-        />
       </main>
       <SiteFooter />
     </div>

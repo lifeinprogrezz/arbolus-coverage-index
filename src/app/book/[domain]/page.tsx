@@ -6,7 +6,6 @@ import { channelMask, CHANNEL_STATE_PILL } from "@/lib/channel-mask";
 import { candidateLabel, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
-import NextSurface from "@/components/shell/next-surface";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { CountTicker } from "@/components/ui/ticker";
@@ -167,15 +166,20 @@ export default async function BookPage({
       />
 
       <main className="relative z-[1] mx-auto max-w-6xl px-6 py-8">
-        <div className="reveal mb-3">
+        <div className="reveal mb-6 flex flex-wrap items-center gap-3">
           <Link
             href="/coverage"
-            className="text-dense !text-subtle no-underline transition-colors hover:!text-ink"
+            aria-label="Back to the board"
+            title="Back to the board"
+            className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-card !text-subtle no-underline transition-colors hover:border-ink-35 hover:bg-ground-tint hover:!text-ink"
           >
-            ← board
+            <span
+              aria-hidden
+              className="transition-transform duration-150 group-hover:-translate-x-0.5"
+            >
+              ←
+            </span>
           </Link>
-        </div>
-        <div className="reveal mb-6 flex flex-wrap items-center gap-3">
           <CoLogo name={vendor.name} domain={vendor.domain} size={36} />
           <div>
             <h1 className="text-page">{vendorName(vendor.name)}</h1>
@@ -284,11 +288,6 @@ export default async function BookPage({
           </section>
         )}
 
-        <NextSurface
-          href="/burst"
-          title="The burst clock"
-          line="What 30 days looks like when a client opens an empty company."
-        />
       </main>
       <SiteFooter />
     </div>
