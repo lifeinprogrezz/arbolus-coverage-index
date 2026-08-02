@@ -160,15 +160,25 @@ export default async function LoopPage() {
           </section>
         </div>
 
-        {/* per-vendor conversion pages — one line */}
+        {/* the invite lifecycle, one line: written → sent (never) → where they
+            land → where to read them */}
         <section className="reveal reveal-d3 mt-8">
           <div className="pane flex flex-wrap items-center gap-x-3 gap-y-2 p-4">
-            <span className="eyebrow">where invites land</span>
+            <span className="eyebrow">the invites</span>
+            <span className="metric text-dense text-ink">
+              {draftCount ?? 0} written
+            </span>
+            <span className="metric text-dense text-success-text">
+              {sentCount ?? 0} sent
+            </span>
             <InfoHint>
-              Every invite&rsquo;s link resolves to that vendor&rsquo;s own sign-up
-              page. It is a destination, not a magnet: people arrive from the invites
-              we send, and the page itself never runs ads or chases search traffic.
+              One draft per eligible candidate at the end of every map run —
+              anchored to their evidence, opt-out included, never sent by this
+              prototype. Each link resolves to that vendor&rsquo;s own sign-up
+              page: a destination, not a magnet — people arrive from invites,
+              never from ads or search.
             </InfoHint>
+            <span className="text-dense text-subtle">land on</span>
             {(mappedVendors ?? []).map((v) => (
               <Link
                 key={v.domain}
@@ -178,10 +188,18 @@ export default async function LoopPage() {
                 /join/{v.domain}
               </Link>
             ))}
+            {latestVendor && (
+              <Link
+                href={`/book/${latestVendor.domain}`}
+                className="ml-auto whitespace-nowrap text-dense"
+              >
+                read them in the {vendorName(latestVendor.name)} book →
+              </Link>
+            )}
           </div>
         </section>
 
-        <div className="reveal reveal-d4 mt-10 grid gap-10 lg:grid-cols-[1fr_1.3fr]">
+        <div className="reveal reveal-d4 mt-10 max-w-2xl">
           {/* 5-step unlock flow */}
           <section>
             <h2 className="mb-4 text-title text-ink">The activation flow</h2>
@@ -207,39 +225,6 @@ export default async function LoopPage() {
             </div>
           </section>
 
-          {/* the composer's output, as a flow fact — the drafts themselves
-              live on each candidate's row in the vendor's book */}
-          <section className="self-start">
-            <h2 className="mb-4 text-title text-ink">What the composer wrote</h2>
-            <div className="pane p-5">
-              <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-                <div>
-                  <span className="eyebrow">invites written</span>
-                  <span className="metric mt-1 block text-display text-ink">
-                    {draftCount ?? 0}
-                  </span>
-                </div>
-                <div>
-                  <span className="eyebrow">sent</span>
-                  <span className="metric mt-1 block text-display text-success-text">
-                    {sentCount ?? 0}
-                  </span>
-                </div>
-                <p className="max-w-[230px] self-center text-dense text-subtle-deep">
-                  One per eligible candidate at the end of every map run —
-                  anchored to their evidence, opt-out included, never sent.
-                </p>
-              </div>
-              {latestVendor && (
-                <p className="mt-4 border-t border-line pt-3 text-dense text-subtle-deep">
-                  Read them on each candidate&rsquo;s row in{" "}
-                  <Link href={`/book/${latestVendor.domain}`}>
-                    the {vendorName(latestVendor.name)} book →
-                  </Link>
-                </p>
-              )}
-            </div>
-          </section>
         </div>
 
         {/* the closing verdict — same table device as burst's by-hand-vs-engine */}
