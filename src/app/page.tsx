@@ -45,7 +45,7 @@ export default function Home() {
       <main className="relative z-[1] mx-auto w-full max-w-5xl flex-1 px-6 pb-16">
         {/* hero */}
         <section className="reveal pt-14">
-          <p className="eyebrow">Arbolus growth case · working prototype</p>
+          <p className="eyebrow">Arbolus growth case</p>
           <h1 className="mt-4 max-w-3xl text-display tracking-[-0.01em] text-ink md:text-[40px] md:leading-[46px]">
             The index is built ahead of demand, so the clock starts warm.
           </h1>
@@ -129,8 +129,7 @@ export default function Home() {
             ))}
           </div>
           <p className="provenance text-center">
-            coverage-index prototype · built for the Arbolus growth case ·
-            candidate identities masked
+            built for the Arbolus growth case · candidate identities masked
           </p>
         </div>
       </footer>
