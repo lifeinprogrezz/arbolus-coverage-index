@@ -259,12 +259,13 @@ export default function ReferencePage() {
                   types — one pill can stand for several events, so fewer pills can
                   outrank more.
                 </Term>
-                <Term k="not indexed yet">
-                  Never crawled: reaching the top means a first map run.
+                <Term k="map now">
+                  The action button on a never-crawled row — one click lands on
+                  Map run pre-filled with this vendor, for its first map.
                 </Term>
-                <Term k="re-map queued">
-                  Has a book already, but demand keeps arriving — queued for a
-                  refresh crawl.
+                <Term k="re-map">
+                  The button on a row that has a book already but demand keeps
+                  arriving — same pre-filled landing, for a refresh crawl.
                 </Term>
                 <Term k="dispatch">
                   In production the engine works this queue itself: crossing the
@@ -419,6 +420,16 @@ export default function ReferencePage() {
                   depth. Drafted, never sent — sending is the production switch,
                   after the per-person legal check.
                 </Term>
+                <Term k="the contact panel">
+                  Every route to a person, grouped by warmth: <em>internal</em>{" "}
+                  (warm intro via our network · re-engaging our own experts —
+                  existing consented relationships, open everywhere) ·{" "}
+                  <em>peer</em> (colleague invites — the invite comes from a
+                  colleague and the invitee contacts us) · <em>external</em>{" "}
+                  (direct email · through communities · letters in the post ·
+                  cold calls), each row carrying its legal state: open · consent
+                  first · legal check · closed.
+                </Term>
               </div>
 
               <div className="pane mt-4 p-4">
@@ -455,10 +466,21 @@ export default function ReferencePage() {
                   verified contributors in 30 days; a priced escalation closes to
                   20.
                 </Term>
+                <Term k="the walk">
+                  The general base case, any vendor: five recruiting routes, each
+                  tagged with its origin — the same internal / peer / external
+                  taxonomy as the book&rsquo;s contact panel.
+                </Term>
                 <Term k="sliders">
                   Every invented rate is labelled as an assumption and rendered as
-                  a slider. The numbers recompute from your positions — nothing is
+                  a slider, running on the selected vendor&rsquo;s real counts.
+                  The numbers recompute from your positions — nothing is
                   hard-coded to look good.
+                </Term>
+                <Term k="spend on these settings">
+                  The sliders price themselves live: the cost table&rsquo;s own
+                  lines at the current assumptions, with cost per verified
+                  underneath. All figures USD.
                 </Term>
                 <Term k="bounty tiers">
                   Scarcity pricing, set by book depth at compose time:{" "}
