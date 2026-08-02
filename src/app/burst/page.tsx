@@ -478,14 +478,15 @@ export default async function BurstPage({
 
         {/* closing pair: their baseline | where this goes */}
         {/* by hand vs the engine — same rows, honest comparison */}
-        <section className="reveal reveal-d4 mt-8">
+        <section className="reveal reveal-d4 mt-10">
+          <h2 className="mb-4 text-title text-ink">By hand vs the engine</h2>
           <div className="pane overflow-hidden">
             <div className="tracker-scroll overflow-x-auto">
               <table className="w-full border-collapse text-control">
                 <thead>
                   <tr className="border-b border-line text-left">
                     <th className="w-[150px] px-3.5 py-3" />
-                    <th className="px-3.5 py-3">
+                    <th className="border-r border-line/70 px-3.5 py-3">
                       <span className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-ink">Doing it by hand</span>
                         <span className="pill bg-city-sanjose">their baseline</span>
@@ -529,12 +530,14 @@ export default async function BurstPage({
                       ],
                     ] as [string, string, string][]
                   ).map(([k, hand, engine]) => (
-                    <tr key={k} className="border-b border-line last:border-0">
-                      <td className="px-3.5 py-2.5 font-mono text-caption uppercase tracking-[0.06em] text-subtle">
+                    <tr key={k} className="border-b border-line">
+                      <td className="w-[170px] whitespace-nowrap px-3.5 py-3 font-mono text-caption uppercase tracking-[0.06em] text-subtle">
                         {k}
                       </td>
-                      <td className="metric px-3.5 py-2.5 text-dense text-ink-60">{hand}</td>
-                      <td className="metric bg-violet-50/60 px-3.5 py-2.5 text-dense text-ink">
+                      <td className="metric border-r border-line/70 px-3.5 py-3 text-dense text-ink-60">
+                        {hand}
+                      </td>
+                      <td className="metric bg-violet-50/60 px-3.5 py-3 text-dense text-ink">
                         {engine}
                       </td>
                     </tr>
@@ -542,11 +545,15 @@ export default async function BurstPage({
                 </tbody>
               </table>
             </div>
+            <p className="flex items-baseline gap-2 border-t border-line px-4 py-2.5 text-dense text-subtle-deep">
+              <span
+                aria-hidden
+                className="inline-block h-1.5 w-1.5 shrink-0 translate-y-px rounded-full bg-violet-400"
+              />
+              20,000 companies does not mean 20,000 bursts — well-covered vendors
+              cost €0 and the free activation loops carry the rest of the catalogue.
+            </p>
           </div>
-          <p className="provenance mt-2.5">
-            20,000 companies does not mean 20,000 bursts — well-covered vendors cost
-            €0 and the free activation loops carry the rest of the catalogue
-          </p>
         </section>
       </main>
       <SiteFooter />
