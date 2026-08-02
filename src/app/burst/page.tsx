@@ -368,6 +368,10 @@ export default async function BurstPage({
               <span className="flex items-center gap-2">
                 <h2 className="text-title text-ink">Move the assumptions</h2>
                 <AssumeTag />
+                <span className="provenance">
+                  running on {vendor ? vendorName(vendor.name) : "this vendor"}&rsquo;s
+                  real book
+                </span>
               </span>
             </div>
             <WalkSliders
