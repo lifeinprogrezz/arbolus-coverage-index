@@ -417,26 +417,6 @@ export default async function BurstPage({
               ))}
             </div>
 
-            <div className="pane mt-6 p-4">
-              <span className="mb-2.5 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
-                what a burst leaves behind
-              </span>
-              <div className="flex flex-col gap-1.5">
-                {[
-                  "every contact and every piece of evidence stays in the index — the next burst starts warmer",
-                  "the lane and channel results reprice the next run's budget",
-                  "anyone who opted out is excluded, permanently",
-                ].map((line) => (
-                  <span key={line} className="flex items-baseline gap-2 text-dense text-ink-60">
-                    <span
-                      aria-hidden
-                      className="inline-block h-1.5 w-1.5 shrink-0 translate-y-px rounded-full bg-violet-400"
-                    />
-                    {line}
-                  </span>
-                ))}
-              </div>
-            </div>
           </section>
 
           {/* cost per burst — sits beside the playbook: when things happen | what they cost */}
