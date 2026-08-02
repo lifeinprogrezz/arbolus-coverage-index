@@ -6,6 +6,7 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { PERSONA_LABEL, PERSONA_PILL } from "@/lib/mask";
+import { CHANNEL_STATE_PILL, type ChannelRule } from "@/lib/channel-mask";
 
 // Presentational half of the book view. Masking happens SERVER-SIDE
 // (page.tsx): the default render's payload carries no names, quotes are
@@ -36,6 +37,7 @@ export interface DisplayCandidate {
   eligible: boolean;
   exclusion_reason: string | null;
   reservoir_match: boolean;
+  draft: { subject: string; body: string } | null;
 }
 
 // The engine stores raw enums; nothing raw reaches the screen.
@@ -100,9 +102,11 @@ function ConfidenceBar({
 export default function BookTable({
   candidates,
   unmasked,
+  emailState = "open",
 }: {
   candidates: DisplayCandidate[];
   unmasked: boolean;
+  emailState?: ChannelRule["state"];
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const [tbodyRef] = useAutoAnimate<HTMLTableSectionElement>();
@@ -285,6 +289,61 @@ export default function BookTable({
                             {humanize(c.contact_state, {}, "—")}
                           </span>
                         </div>
+
+                        <span className="dg-k">Reach</span>
+                        <div className="dg-v flex flex-wrap items-center gap-1.5">
+                          {c.contact_guess && (
+                            <span className={`pill ${CHANNEL_STATE_PILL[emailState]}`}>
+                              {emailState === "open"
+                                ? "direct email"
+                                : emailState === "consent_first"
+                                  ? "direct email · consent first"
+                                  : "direct email · legal check"}
+                            </span>
+                          )}
+                          {c.evidence.some((e) => e.type === "forum") && (
+                            <span className="pill bg-city-london">community</span>
+                          )}
+                          {c.reservoir_match && (
+                            <span className="pill bg-city-newyork">
+                              warm intro · in network
+                            </span>
+                          )}
+                          {!c.contact_guess &&
+                            !c.evidence.some((e) => e.type === "forum") &&
+                            !c.reservoir_match && (
+                              <span className="text-subtle">
+                                — resolved at the contact stage
+                              </span>
+                            )}
+                          <InfoHint>
+                            The ways we can reach this specific person, shown only
+                            when derived from real data: an address guess opens
+                            direct email, forum evidence opens community contact,
+                            a network match opens a warm introduction. The legal
+                            rules per channel live in the panel below the table.
+                          </InfoHint>
+                        </div>
+
+                        {c.draft && (
+                          <>
+                            <span className="dg-k">Invite draft</span>
+                            <div className="dg-v">
+                              <div className="rounded-lg border border-line bg-card px-3.5 py-3">
+                                <p className="text-control font-medium text-ink">
+                                  {c.draft.subject}
+                                </p>
+                                <p className="mt-1.5 whitespace-pre-wrap text-dense leading-relaxed text-ink-60">
+                                  {c.draft.body}
+                                </p>
+                              </div>
+                              <p className="provenance mt-1.5">
+                                drafted, never sent — sending is the production
+                                switch, after the per-person legal check
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -86,6 +86,19 @@ export default async function BookPage({
       .eq("vendor_id", vendor.id),
   ]);
 
+  // each eligible candidate's composed invite (drafted, never sent) — the
+  // compose stage's output, surfaced per person in the Reach block
+  const candIds = ((candidates ?? []) as DbCandidate[]).map((c) => c.id);
+  const { data: draftRows } = candIds.length
+    ? await supa
+        .from("outreach_drafts")
+        .select("candidate_id, subject, body")
+        .in("candidate_id", candIds)
+    : { data: [] };
+  const draftByCand = new Map(
+    (draftRows ?? []).map((d) => [d.candidate_id as string, d])
+  );
+
   // server-side masking: what leaves this function is already safe
   let eligibleIdx = 0;
   let excludedIdx = 0;
@@ -120,6 +133,14 @@ export default async function BookPage({
       eligible: c.eligible,
       exclusion_reason: c.exclusion_reason,
       reservoir_match: c.reservoir_match,
+      draft: (() => {
+        const d = draftByCand.get(c.id);
+        if (!d) return null;
+        return {
+          subject: unmasked ? d.subject ?? "" : redactQuote(d.subject, c.full_name),
+          body: unmasked ? d.body ?? "" : redactQuote(d.body, c.full_name),
+        };
+      })(),
     };
   });
 
@@ -201,7 +222,11 @@ export default async function BookPage({
         </div>
 
         <div className="reveal reveal-d1">
-          <BookTable candidates={display} unmasked={unmasked} />
+          <BookTable
+            candidates={display}
+            unmasked={unmasked}
+            emailState={mask.find((r) => r.channel === "direct email")?.state ?? "open"}
+          />
         </div>
 
         <div className="reveal reveal-d2 mt-10 grid items-start gap-6 lg:grid-cols-2">
