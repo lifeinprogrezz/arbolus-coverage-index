@@ -71,18 +71,11 @@ export default function MapQueue({ rows }: { rows: QueueRow[] }) {
               </span>
             ))}
           </div>
-          <span
-            className={`pill ml-auto whitespace-nowrap ${
-              q.mapped ? "bg-city-newdelhi" : "bg-city-sanjose"
-            }`}
-          >
-            {q.mapped ? "re-map queued" : "not indexed yet"}
-          </span>
           <Link
             href={`/run?domain=${encodeURIComponent(q.domain)}&name=${encodeURIComponent(q.name)}`}
-            className="whitespace-nowrap text-control"
+            className="ml-auto whitespace-nowrap rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1 text-caption font-medium !text-violet-link no-underline transition-all duration-150 hover:border-violet-400 hover:shadow-[var(--shadow-glow-violet)] active:translate-y-px"
           >
-            {q.mapped ? "re-map →" : "map now →"}
+            {q.mapped ? "re-map" : "map now"}
           </Link>
         </div>
       ))}

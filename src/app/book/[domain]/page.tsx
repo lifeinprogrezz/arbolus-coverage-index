@@ -311,10 +311,6 @@ export default async function BookPage({
                   </div>
                 ))}
             </div>
-            <p className="provenance mt-3 border-t border-line/70 pt-2.5">
-              paying whoever says yes is open everywhere — 196 countries via the
-              payment provider
-            </p>
           </section>
         </div>
 
