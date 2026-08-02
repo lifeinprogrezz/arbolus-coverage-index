@@ -284,6 +284,11 @@ export default async function LoopPage() {
                         "the same spillover, seeded at the gaps",
                       ],
                       [
+                        "which companies",
+                        "wherever reviews happen to land",
+                        "free loops: all 20,000 · paid bounties: only where clients asked",
+                      ],
+                      [
                         "what Arbolus must build",
                         "—",
                         "0 systems · 1 price parameter",
