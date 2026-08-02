@@ -77,7 +77,7 @@ export default function Distribution() {
         y1={thresholdY}
         x2={W - RIGHT}
         y2={thresholdY}
-        className="stroke-ink-35"
+        className="stroke-subtle"
         strokeWidth="1"
         strokeDasharray="4 4"
       />
@@ -97,7 +97,7 @@ export default function Distribution() {
         y1={thresholdY}
         x2={crossX}
         y2={BASE}
-        className="stroke-ink-35"
+        className="stroke-subtle"
         strokeWidth="1"
         strokeDasharray="2 3"
       />
