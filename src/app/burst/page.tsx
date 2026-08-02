@@ -511,7 +511,17 @@ export default async function BurstPage({
                       [
                         "verified reviews",
                         "≈3,100 a year (12.4 a day)",
-                        "~2,000 a year, where clients asked",
+                        "~2,000 a year",
+                      ],
+                      [
+                        "where they land",
+                        "where recruiting is easiest — the well-known head",
+                        "only where a client asked and found nothing — the tail",
+                      ],
+                      [
+                        "one empty company",
+                        "joins the human queue — weeks to months",
+                        "a 30-day clock, many companies in parallel",
                       ],
                       [
                         "people",
@@ -550,8 +560,11 @@ export default async function BurstPage({
                 aria-hidden
                 className="inline-block h-1.5 w-1.5 shrink-0 -translate-y-[1px] rounded-full bg-violet-400"
               />
-              20,000 companies does not mean 20,000 bursts — well-covered vendors
-              cost €0 and the free activation loops carry the rest of the catalogue.
+              The engine does not replace the pod — it adds the tail coverage the
+              pod can&rsquo;t reach economically, and the pod becomes the
+              escalation tier. 20,000 companies does not mean 20,000 bursts:
+              well-covered vendors cost €0 and the free activation loops carry the
+              rest of the catalogue.
             </p>
           </div>
         </section>
