@@ -79,7 +79,7 @@ const WALK = [
     assumption: "0.5–1.5 invites per person who joined, the way GLG pays on results.",
   },
   {
-    stage: "Placements in their communities",
+    stage: "Through their communities",
     math: "one-off deal per community, spend capped",
     yield_: "~3",
     assumption: "2–6 per burst.",
@@ -248,15 +248,20 @@ export default async function BurstPage({
             </div>
           </div>
 
-          <div className="dg mt-4">
-            <span className="dg-k">people we can name</span>
-            <span className="dg-v metric">{b.seeds ?? 0}</span>
-            <span className="dg-k">companies we can reach</span>
-            <span className="dg-v metric">{b.keys ?? 0}</span>
-            <span className="dg-k">experts already ours</span>
-            <span className="dg-v metric">{b.reservoir_hits ?? 0}</span>
-            <span className="dg-k">reviews today</span>
-            <span className="dg-v metric">{vendor?.coverage_now ?? 0}</span>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {(
+              [
+                ["people we can name", b.seeds ?? 0],
+                ["companies we can reach", b.keys ?? 0],
+                ["experts we already have", b.reservoir_hits ?? 0],
+                ["reviews today", vendor?.coverage_now ?? 0],
+              ] as [string, number][]
+            ).map(([k, v]) => (
+              <div key={k}>
+                <span className="provenance block">{k}</span>
+                <span className="metric mt-0.5 block text-page text-ink">{v}</span>
+              </div>
+            ))}
           </div>
         </section>
 

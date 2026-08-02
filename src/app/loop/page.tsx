@@ -121,7 +121,7 @@ export default async function LoopPage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* R0 offer */}
-          <section className="reveal reveal-d1 rounded-xl border border-violet-100 bg-violet-50 p-5">
+          <section className="reveal reveal-d1 self-start rounded-xl border border-violet-100 bg-violet-50 p-5">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-title text-ink">The offer</h2>
               <span className="pill bg-city-newyork">R0</span>
