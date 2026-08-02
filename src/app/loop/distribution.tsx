@@ -85,7 +85,7 @@ export default function Distribution() {
         x={LEFT + 96}
         y={thresholdY - 6}
         className="fill-subtle font-mono"
-        fontSize="10"
+        fontSize="9.5"
         letterSpacing="0.06em"
       >
         COVERED = 20 REVIEWS
@@ -103,18 +103,18 @@ export default function Distribution() {
       />
 
       {/* head annotation */}
-      <text x={crossX + 18} y={TOP + 14} className="fill-ink" fontSize="13" fontWeight="500">
+      <text x={crossX - 30} y={TOP + 14} className="fill-ink" fontSize="12" fontWeight="500">
         the head — a few tools, 2,000+ reviews each
       </text>
-      <text x={crossX + 18} y={TOP + 32} className="fill-subtle" fontSize="12">
+      <text x={crossX - 30} y={TOP + 31} className="fill-subtle" fontSize="11">
         today&rsquo;s loops feed here: views live here, so the royalty pays here
       </text>
 
       {/* tail annotation */}
-      <text x={eventX} y={BASE - 96} className="fill-ink" fontSize="13" fontWeight="500">
+      <text x={eventX} y={BASE - 94} className="fill-ink" fontSize="12" fontWeight="500">
         the tail — most of 20,000 companies at zero
       </text>
-      <text x={eventX} y={BASE - 78} className="fill-subtle" fontSize="12">
+      <text x={eventX} y={BASE - 77} className="fill-subtle" fontSize="11">
         the index aims every loop here
       </text>
 
@@ -139,7 +139,7 @@ export default function Distribution() {
         x={eventX}
         y={BASE - 56}
         className="fill-violet-link font-mono"
-        fontSize="10"
+        fontSize="9.5"
         letterSpacing="0.06em"
       >
         A CLIENT OPENS A COMPANY HERE → THE BURST FIRES
