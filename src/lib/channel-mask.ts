@@ -5,7 +5,7 @@
 export interface ChannelRule {
   channel: string;
   group: "read" | "contact" | "pay";
-  origin?: "internal" | "external"; // contact rows only
+  origin?: "internal" | "peer" | "external"; // contact rows only
   state: "open" | "locked" | "consent_first" | "counsel";
   why: string;
 }
@@ -47,8 +47,15 @@ export function channelMask(hqCountry: string | null): ChannelRule[] {
         ? "legitimate interest + layered Art.14 notice + permanent opt-out"
         : "regime unresearched (LGPD/DPDP) — flagged for local counsel, stated not guessed",
     },
+    {
+      channel: "colleague invites",
+      group: "contact",
+      origin: "peer",
+      state: "open",
+      why: "The invite comes from a colleague who already contributed, not from us — a peer referral, paid only when the invited person's review lands. The invitee contacts us, so no cold-contact law applies",
+    },
     { channel: "through communities", group: "contact", origin: "external", state: "open", why: "A one-off arrangement with each community's moderators, amortized; we identify people in vendor forums, never solicit there" },
-    { channel: "postal mail", group: "contact", origin: "external", state: "open", why: "No consent gate in EU/UK (ePrivacy covers electronic channels; post absent); print-API automated" },
+    { channel: "letters in the post", group: "contact", origin: "external", state: "open", why: "No consent gate in EU/UK (ePrivacy covers electronic channels; post absent); print-API automated" },
     { channel: "cold calls", group: "contact", origin: "external", state: "locked", why: "Rejected everywhere — US TCPA wall, Spain closed; voice ships only as a post-consent A/B lane" },
     { channel: "paying contributors", group: "pay", state: "open", why: "Sending bounty money: Tipalti covers 196 countries — already solved" },
   ];

@@ -295,6 +295,7 @@ export default async function BookPage({
               {(
                 [
                   ["internal", "internal — through our own network"],
+                  ["peer", "peer — contributors inviting colleagues"],
                   ["external", "external — cold outreach"],
                 ] as const
               ).map(([o, label]) => (
