@@ -360,7 +360,8 @@ export default async function BurstPage({
                 <AssumeTag />
               </span>
               <span className="provenance">
-                defaults are the base case · people and experts come from the real book
+                the rates are assumptions · the people and expert counts are this
+                vendor&rsquo;s real book
               </span>
             </div>
             <WalkSliders
