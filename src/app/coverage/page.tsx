@@ -219,9 +219,12 @@ export default async function CoveragePage() {
                   })}
                 </tbody>
               </table>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line px-4 py-2.5">
-                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
-                <span className="text-dense uppercase tracking-wide text-subtle">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-line px-4 py-2.5">
+                <span className="whitespace-nowrap text-dense uppercase tracking-wide text-subtle">
+                  <span
+                    aria-hidden
+                    className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-violet-400 align-[1px]"
+                  />
                   Request coverage
                 </span>
                 <span className="text-dense text-subtle-deep">
