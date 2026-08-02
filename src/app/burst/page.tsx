@@ -296,10 +296,7 @@ export default async function BurstPage({
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <h2 className="text-title text-ink">The walk to 20</h2>
             <AssumeTag />
-            <span className="provenance">
-              the general base case — the sliders below run it on this
-              vendor&rsquo;s real book
-            </span>
+            <span className="provenance">the general base case, any vendor</span>
             <InfoHint>
               The base case, with every made-up rate labelled as an assumption. We
               keep 80% of each line after verification, on every line except the
