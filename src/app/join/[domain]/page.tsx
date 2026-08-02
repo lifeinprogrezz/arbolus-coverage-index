@@ -55,6 +55,29 @@ export default async function JoinPage({
       <header className="glass sticky top-0 z-10">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2.5">
+            <Link
+              href="/loop"
+              aria-label="Back to the activation loop"
+              title="Back to the activation loop"
+              className="group flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-line bg-card !text-subtle no-underline transition-colors hover:border-ink-35 hover:bg-ground-tint hover:!text-ink"
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 14 14"
+                fill="none"
+                aria-hidden
+                className="transition-transform duration-150 group-hover:-translate-x-0.5"
+              >
+                <path
+                  d="M12.5 7H2M2 7l4.2-4.2M2 7l4.2 4.2"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
             <Image
               src="/brand/Arbolus-icon-violet-on-white.png"
               alt="Arbolus"
