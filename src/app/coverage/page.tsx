@@ -239,6 +239,14 @@ export default async function CoveragePage() {
                   release the burst budget. The signals here are simulated; the
                   weights are written down, not learned.
                 </p>
+                <p className="mt-2">
+                  In production the engine works this queue itself: when a
+                  company&apos;s demand score crosses the threshold, that is what
+                  authorises the crawl and its budget. No demand, no spend.
+                  Books already indexed refresh by how hot they are: hot weekly,
+                  warm monthly, cold quarterly. In this prototype runs are fired
+                  by hand from Map run.
+                </p>
               </InfoHint>
             </div>
             <MapQueue rows={queueTop} />
