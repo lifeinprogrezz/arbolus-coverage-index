@@ -138,6 +138,11 @@ export default async function LoopPage() {
                 </ul>
               </div>
             </div>
+            <p className="mt-4 border-t border-violet-200/60 pt-3 text-dense text-subtle-deep">
+              The change, whole: the first review on an uncovered company pays
+              flat instead of per-view. Nothing else moves — their current terms
+              allow it, and a two-week A/B decides it.
+            </p>
           </section>
 
           {/* compounding metrics */}
