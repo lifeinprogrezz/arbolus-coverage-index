@@ -271,6 +271,33 @@ export default function BookTable({
                               </div>
                             ))}
                           </div>
+
+                          {/* the letter: work already done, right under its evidence */}
+                          {c.draft && (
+                            <div className="mt-5 max-w-xl">
+                              <span className="mb-2.5 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
+                                Invite draft
+                              </span>
+                              <div className="overflow-hidden rounded-lg border border-line bg-card shadow-[var(--shadow-page)]">
+                                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-2.5">
+                                  <p className="text-control font-medium text-ink">
+                                    {c.draft.subject}
+                                  </p>
+                                  <span className="pill shrink-0 bg-city-sanjose">
+                                    never sent
+                                  </span>
+                                </div>
+                                <p className="whitespace-pre-wrap px-4 py-3.5 text-dense leading-relaxed text-ink-60">
+                                  {c.draft.body}
+                                </p>
+                              </div>
+                              <p className="provenance mt-1.5">
+                                written by the composer from this person&rsquo;s own
+                                evidence — sending is the production switch, after
+                                the per-person legal check
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         {/* the action card: how we reach them */}
@@ -349,33 +376,6 @@ export default function BookTable({
                           </div>
                         </div>
                       </div>
-
-                      {/* the letter: work already done */}
-                      {c.draft && (
-                        <div className="mt-6 max-w-2xl">
-                          <span className="mb-2.5 block font-mono text-caption uppercase tracking-[0.08em] text-subtle">
-                            Invite draft
-                          </span>
-                          <div className="overflow-hidden rounded-lg border border-line bg-card shadow-[var(--shadow-page)]">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-2.5">
-                              <p className="text-control font-medium text-ink">
-                                {c.draft.subject}
-                              </p>
-                              <span className="pill shrink-0 bg-city-sanjose">
-                                never sent
-                              </span>
-                            </div>
-                            <p className="whitespace-pre-wrap px-4 py-3.5 text-dense leading-relaxed text-ink-60">
-                              {c.draft.body}
-                            </p>
-                          </div>
-                          <p className="provenance mt-1.5">
-                            written by the composer from this person&rsquo;s own
-                            evidence — sending is the production switch, after the
-                            per-person legal check
-                          </p>
-                        </div>
-                      )}
                     </td>
                   </tr>
                 )}
