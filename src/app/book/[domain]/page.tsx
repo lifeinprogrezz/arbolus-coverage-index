@@ -6,6 +6,7 @@ import { channelMask, CHANNEL_STATE_PILL } from "@/lib/channel-mask";
 import { candidateLabel, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
+import NextSurface from "@/components/shell/next-surface";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { CountTicker } from "@/components/ui/ticker";
@@ -156,7 +157,7 @@ export default async function BookPage({
               {unmasked ? "re-mask" : "unmask identities"}
             </Link>
             <Link
-              href="/run"
+              href={`/run?domain=${encodeURIComponent(vendor.domain)}&name=${encodeURIComponent(vendor.name)}`}
               className="rounded-md bg-ink px-4 py-1.5 text-control font-medium !text-white no-underline transition-colors hover:bg-ink-hover active:bg-ink-active"
             >
               re-map
@@ -166,6 +167,14 @@ export default async function BookPage({
       />
 
       <main className="relative z-[1] mx-auto max-w-6xl px-6 py-8">
+        <div className="reveal mb-3">
+          <Link
+            href="/coverage"
+            className="text-dense !text-subtle no-underline transition-colors hover:!text-ink"
+          >
+            ← board
+          </Link>
+        </div>
         <div className="reveal mb-6 flex flex-wrap items-center gap-3">
           <CoLogo name={vendor.name} domain={vendor.domain} size={36} />
           <div>
@@ -274,6 +283,12 @@ export default async function BookPage({
             </div>
           </section>
         )}
+
+        <NextSurface
+          href="/burst"
+          title="The burst clock"
+          line="What 30 days looks like when a client opens an empty company."
+        />
       </main>
       <SiteFooter />
     </div>

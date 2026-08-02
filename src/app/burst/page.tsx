@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
+import NextSurface from "@/components/shell/next-surface";
 import CoLogo from "@/components/ui/co-logo";
 import InfoHint from "@/components/ui/info-hint";
 import { vendorName } from "../vendor-name";
@@ -497,6 +498,12 @@ export default async function BurstPage({
                 </p>
               </div>
         </div>
+
+        <NextSurface
+          href="/loop"
+          title="The activation loop"
+          line="The sign-up, the five-review unlock, and colleague invites."
+        />
       </main>
       <SiteFooter />
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import CoLogo from "@/components/ui/co-logo";
 import type { QueueRow } from "@/lib/engine/demand";
 import { vendorName } from "../vendor-name";
@@ -77,6 +78,12 @@ export default function MapQueue({ rows }: { rows: QueueRow[] }) {
           >
             {q.mapped ? "re-map queued" : "not indexed yet"}
           </span>
+          <Link
+            href={`/run?domain=${encodeURIComponent(q.domain)}&name=${encodeURIComponent(q.name)}`}
+            className="whitespace-nowrap text-control"
+          >
+            {q.mapped ? "re-map →" : "map now →"}
+          </Link>
         </div>
       ))}
     </div>
