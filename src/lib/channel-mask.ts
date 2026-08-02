@@ -4,6 +4,7 @@
 
 export interface ChannelRule {
   channel: string;
+  group: "read" | "contact" | "pay";
   state: "open" | "locked" | "consent_first" | "counsel";
   why: string;
 }
@@ -17,11 +18,12 @@ export function channelMask(hqCountry: string | null): ChannelRule[] {
   const liOk = c === "" || LI_EMAIL.has(c);
 
   return [
-    { channel: "sitemap / wayback / serp", state: "open", why: "geography-neutral lanes; multilingual extraction, localized query templates" },
-    { channel: "ats sweep", state: liOk || optIn ? "open" : "locked", why: "Anglo-locked boards today — JP=HERP, BR=Gupy, IN=Naukri as production extensions" },
-    { channel: "eu ted procurement", state: ["", "EU", "ES", "DE", "FR", "NL", "SE", "IT", "PT", "IE", "DK", "FI", "PL", "AT", "BE"].includes(c) ? "open" : "locked", why: "EU-only register; national procurement registers elsewhere" },
+    { channel: "public pages + web search", group: "read", state: "open", why: "The sitemap, Wayback and search lanes read openly published pages — geography-neutral; multilingual extraction, localized query templates" },
+    { channel: "job posts", group: "read", state: liOk || optIn ? "open" : "locked", why: "Public job boards naming the vendor in a stack. Anglo-locked boards today — JP=HERP, BR=Gupy, IN=Naukri as production extensions" },
+    { channel: "procurement records", group: "read", state: ["", "EU", "ES", "DE", "FR", "NL", "SE", "IT", "PT", "IE", "DK", "FI", "PL", "AT", "BE"].includes(c) ? "open" : "locked", why: "TED, the EU's public register of government software purchases — EU-only; national registers elsewhere" },
     {
       channel: "direct email",
+      group: "contact",
       state: optIn ? "consent_first" : liOk ? "open" : "counsel",
       why: optIn
         ? "opt-in regime (CASL / JP specified-email act) — consent-first capture is PRIMARY here"
@@ -29,10 +31,10 @@ export function channelMask(hqCountry: string | null): ChannelRule[] {
         ? "legitimate interest + layered Art.14 notice + permanent opt-out"
         : "regime unresearched (LGPD/DPDP) — flagged for local counsel, stated not guessed",
     },
-    { channel: "community placement", state: "open", why: "per-community human-BD one-off, amortized; identify in vendor forums, never solicit there" },
-    { channel: "physical mail", state: "open", why: "no consent gate in EU/UK (ePrivacy covers electronic channels; post absent); print-API automated" },
-    { channel: "cold voice", state: "locked", why: "rejected everywhere — US TCPA wall, Spain closed; voice ships only as a post-consent A/B lane" },
-    { channel: "payouts", state: "open", why: "Tipalti — 196 countries already solved" },
+    { channel: "through communities", group: "contact", state: "open", why: "A one-off arrangement with each community's moderators, amortized; we identify people in vendor forums, never solicit there" },
+    { channel: "postal mail", group: "contact", state: "open", why: "No consent gate in EU/UK (ePrivacy covers electronic channels; post absent); print-API automated" },
+    { channel: "cold calls", group: "contact", state: "locked", why: "Rejected everywhere — US TCPA wall, Spain closed; voice ships only as a post-consent A/B lane" },
+    { channel: "paying contributors", group: "pay", state: "open", why: "Sending bounty money: Tipalti covers 196 countries — already solved" },
   ];
 }
 
