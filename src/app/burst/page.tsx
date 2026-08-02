@@ -208,10 +208,6 @@ export default async function BurstPage({
             <span className="text-dense text-subtle">
               a client opened a company with no coverage
             </span>
-            <span className="metric ml-auto text-dense text-subtle">
-              target <span className="font-medium text-ink">20</span> verified · clock{" "}
-              <span className="font-medium text-ink">30d</span>
-            </span>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -220,6 +216,9 @@ export default async function BurstPage({
               {vendor ? vendorName(vendor.name) : "—"}
             </span>
             <span className="provenance">{vendor?.domain}</span>
+          </div>
+
+          <div className="mt-3">
             <VendorPicker
               vendors={(vendors ?? []).map((v) => ({ name: v.name, domain: v.domain }))}
               current={vendor?.domain}
@@ -255,33 +254,29 @@ export default async function BurstPage({
         </section>
 
         {/* what the engine is held to — the brief's metrics ask, in-product */}
-        <section className="pane reveal reveal-d1 mt-4 px-5 py-3.5">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-              <span className="eyebrow">north star</span>
-              <span className="text-control font-medium text-ink">Time to coverage</span>
-              <span className="text-dense text-subtle">
-                days from demand to 20 verified · target ≤ 30
-              </span>
-            </div>
-            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-              <span className="eyebrow">client value</span>
-              <span className="text-control font-medium text-ink">Read rate</span>
-              <span className="text-dense text-subtle">
-                clients reading these reviews, then booking calls
-              </span>
-            </div>
-            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-              <span className="eyebrow">guardrail</span>
-              <span className="text-control font-medium text-ink">Opt-outs</span>
-              <span className="text-dense text-subtle">below their manual baseline, always</span>
-            </div>
+        <section className="pane reveal reveal-d1 relative mt-4 overflow-hidden">
+          <span className="absolute right-3.5 top-3.5">
             <InfoHint align="right">
               Hitting 20 in 30 days only counts if the reviews get read — reads pay
               the contributor and lead to expert calls — and if opt-outs stay below
               what manual outreach produces today. A fast burst that annoys people
               fails.
             </InfoHint>
+          </span>
+          <div className="grid divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            {(
+              [
+                ["north star", "Time to coverage", "days from demand to 20 verified · target ≤ 30"],
+                ["client value", "Read rate", "clients reading these reviews, then booking calls"],
+                ["guardrail", "Opt-outs", "below their manual baseline, always"],
+              ] as [string, string, string][]
+            ).map(([k, name, d]) => (
+              <div key={k} className="px-5 py-4">
+                <span className="eyebrow">{k}</span>
+                <span className="mt-1 block text-control font-medium text-ink">{name}</span>
+                <span className="mt-0.5 block text-dense text-subtle">{d}</span>
+              </div>
+            ))}
           </div>
         </section>
 

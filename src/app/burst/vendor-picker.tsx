@@ -34,7 +34,7 @@ export default function VendorPicker({
   }
 
   return (
-    <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-1.5">
+    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
@@ -62,11 +62,6 @@ export default function VendorPicker({
         >
           not indexed — map &ldquo;{q.trim()}&rdquo;
         </Link>
-      )}
-      {!query && vendors.length > 8 && (
-        <span className="provenance whitespace-nowrap">
-          +{vendors.length - 8} more · type to find
-        </span>
       )}
     </div>
   );
