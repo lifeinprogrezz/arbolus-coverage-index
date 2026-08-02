@@ -83,7 +83,7 @@ export default function Distribution() {
       />
       <text
         x={LEFT + 96}
-        y={thresholdY - 6}
+        y={thresholdY - 9}
         className="fill-subtle font-mono"
         fontSize="9.5"
         letterSpacing="0.06em"
