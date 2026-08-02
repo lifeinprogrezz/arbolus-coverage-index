@@ -291,11 +291,6 @@ export default function BookTable({
                                   {c.draft.body}
                                 </p>
                               </div>
-                              <p className="provenance mt-1.5">
-                                written by the composer from this person&rsquo;s own
-                                evidence — sending is the production switch, after
-                                the per-person legal check
-                              </p>
                             </div>
                           )}
                         </div>
