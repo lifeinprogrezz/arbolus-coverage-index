@@ -477,54 +477,77 @@ export default async function BurstPage({
         </div>
 
         {/* closing pair: their baseline | where this goes */}
-        <div className="reveal reveal-d4 mt-8 grid gap-6 lg:grid-cols-2">
-          {/* manual pod */}
-          <div className="pane p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-control font-semibold text-ink">
-                    Doing it by hand
-                  </span>
-                  <span className="pill bg-city-sanjose">their baseline</span>
-                  <InfoHint>
-                    Derived from Arbolus&rsquo;s own published numbers on the
-                    manual review operation — offered as their number to
-                    correct, not asserted about their internals.
-                  </InfoHint>
-                </div>
-                <div className="dg mt-3">
-                  <span className="dg-k">output</span>
-                  <span className="dg-v metric">12.4 verified / day</span>
-                  <span className="dg-k">people</span>
-                  <span className="dg-v metric">2–3 full-time</span>
-                  <span className="dg-k">cost each</span>
-                  <span className="dg-v metric">€40–100 all in</span>
-                </div>
-                <p className="mt-3 text-pretty text-caption leading-snug text-subtle">
-                  The first burst costs about the same per contributor. What differs:
-                  money we can switch on and off instead of fixed salaries, many bursts
-                  at once instead of one queue, a cost that falls with every run, and
-                  spend only on companies a client already asked for.
-                </p>
-              </div>
-
-              {/* at scale */}
-              <div className="rounded-xl border border-violet-100 bg-violet-50 p-5">
-                <div className="eyebrow">at scale</div>
-                <div className="metric mt-1.5 text-display text-ink">
-                  €150–350K
-                  <span className="text-title font-normal text-ink-60"> / yr</span>
-                </div>
-                <p className="mt-1 text-dense text-ink-60">
-                  100 companies triggered · ~2,000 verified contributors
-                </p>
-                <p className="mt-2.5 text-pretty text-dense text-subtle-deep">
-                  20,000 companies does not mean 20,000 bursts. We only pay bounties
-                  where a client asked and coverage was missing, well-covered vendors
-                  cost €0, and the free activation loops carry the rest of the
-                  catalogue.
-                </p>
-              </div>
-        </div>
+        {/* by hand vs the engine — same rows, honest comparison */}
+        <section className="reveal reveal-d4 mt-8">
+          <div className="pane overflow-hidden">
+            <div className="tracker-scroll overflow-x-auto">
+              <table className="w-full border-collapse text-control">
+                <thead>
+                  <tr className="border-b border-line text-left">
+                    <th className="w-[150px] px-3.5 py-3" />
+                    <th className="px-3.5 py-3">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-ink">Doing it by hand</span>
+                        <span className="pill bg-city-sanjose">their baseline</span>
+                        <InfoHint>
+                          Derived from Arbolus&rsquo;s own published numbers on
+                          the manual review operation — offered as their number
+                          to correct, not asserted about their internals.
+                        </InfoHint>
+                      </span>
+                    </th>
+                    <th className="bg-violet-50/60 px-3.5 py-3">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-ink">The engine, at scale</span>
+                        <span className="pill bg-city-newyork">100 bursts / yr</span>
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      [
+                        "verified reviews",
+                        "≈3,100 a year (12.4 a day)",
+                        "~2,000 a year, where clients asked",
+                      ],
+                      [
+                        "people",
+                        "2–3 full-time",
+                        "no dedicated team · escalation-only checks",
+                      ],
+                      [
+                        "cost per verified",
+                        "€40–100 all in",
+                        "€75–170 on the first burst, falling each run",
+                      ],
+                      [
+                        "the spend",
+                        "fixed salaries · one queue",
+                        "€150–350K a year, switchable · many bursts at once",
+                      ],
+                    ] as [string, string, string][]
+                  ).map(([k, hand, engine]) => (
+                    <tr key={k} className="border-b border-line last:border-0">
+                      <td className="px-3.5 py-2.5 font-mono text-caption uppercase tracking-[0.06em] text-subtle">
+                        {k}
+                      </td>
+                      <td className="metric px-3.5 py-2.5 text-dense text-ink-60">{hand}</td>
+                      <td className="metric bg-violet-50/60 px-3.5 py-2.5 text-dense text-ink">
+                        {engine}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p className="provenance mt-2.5">
+            20,000 companies does not mean 20,000 bursts — well-covered vendors cost
+            €0 and the free activation loops carry the rest of the catalogue
+          </p>
+        </section>
       </main>
       <SiteFooter />
     </div>
