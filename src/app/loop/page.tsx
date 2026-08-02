@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { redactQuote } from "@/lib/mask";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
 import InfoHint from "@/components/ui/info-hint";
@@ -53,21 +52,6 @@ const METRICS = [
 const TODAY_FACTS = ["you cannot know what you will earn", "$100 before anything pays out", "only pays if clients read you"];
 const BOUNTY_FACTS = ["amount named up front", "paid when you finish, by a stated date", "no minimum on this first payout"];
 
-// Presentation only: pull the trailing compliance/opt-out line out of a draft
-// body so it renders visually distinct. No match → body renders unchanged.
-function splitCompliance(body: string): { main: string; compliance: string | null } {
-  const lines = body.split("\n");
-  let i = lines.length - 1;
-  while (i >= 0 && lines[i].trim() === "") i--;
-  if (i >= 0 && /opt[ -]?out|unsubscribe|no further (contact|email)|remove you|found your details|public(ly)? (available|listed)/i.test(lines[i])) {
-    return {
-      main: lines.slice(0, i).join("\n").trimEnd(),
-      compliance: lines.slice(i).join("\n").trim(),
-    };
-  }
-  return { main: body, compliance: null };
-}
-
 export default async function LoopPage() {
   const supa = db();
   const { data: mappedVendors } = await supa
@@ -77,29 +61,16 @@ export default async function LoopPage() {
     .order("last_mapped_at", { ascending: false })
     .limit(4);
 
-  // drafts render NAME-REDACTED — same masking contract as the book
-  const { data: rawDrafts } = await supa
+  // the drafts themselves render per candidate in each vendor's book;
+  // here the loop only carries the flow fact: how many written, none sent
+  const { count: draftCount } = await supa
     .from("outreach_drafts")
-    .select("channel, subject, body, drafted_at, sent, candidates(full_name)")
-    .order("drafted_at", { ascending: false })
-    .limit(6);
-  // which vendor a draft is about, derived from its own text — no extra query
-  const knownVendors = (mappedVendors ?? []).map((v) => v.name).filter(Boolean);
-  const vendorInText = (text: string): string | null => {
-    const hay = text.toLowerCase();
-    return knownVendors.find((n) => hay.includes(n.toLowerCase())) ?? null;
-  };
-
-  const drafts = (rawDrafts ?? []).map((d) => {
-    const name = (d.candidates as { full_name?: string } | null)?.full_name ?? null;
-    return {
-      channel: d.channel,
-      sent: d.sent,
-      subject: redactQuote(d.subject, name),
-      body: redactQuote(d.body, name),
-      vendor: vendorInText(`${d.subject ?? ""} ${d.body ?? ""}`),
-    };
-  });
+    .select("*", { count: "exact", head: true });
+  const { count: sentCount } = await supa
+    .from("outreach_drafts")
+    .select("*", { count: "exact", head: true })
+    .eq("sent", true);
+  const latestVendor = (mappedVendors ?? [])[0];
 
   return (
     <div className="page-grain min-h-screen">
@@ -231,79 +202,38 @@ export default async function LoopPage() {
             </div>
           </section>
 
-          {/* drafted invites */}
-          <section>
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <h2 className="text-title text-ink">Invite queue</h2>
-              {drafts.length > 0 && (
-                <span className="metric text-dense text-subtle">({drafts.length})</span>
+          {/* the composer's output, as a flow fact — the drafts themselves
+              live on each candidate's row in the vendor's book */}
+          <section className="self-start">
+            <h2 className="mb-4 text-title text-ink">What the composer wrote</h2>
+            <div className="pane p-5">
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+                <div>
+                  <span className="eyebrow">invites written</span>
+                  <span className="metric mt-1 block text-display text-ink">
+                    {draftCount ?? 0}
+                  </span>
+                </div>
+                <div>
+                  <span className="eyebrow">sent</span>
+                  <span className="metric mt-1 block text-display text-success-text">
+                    {sentCount ?? 0}
+                  </span>
+                </div>
+                <p className="max-w-[230px] self-center text-dense text-subtle-deep">
+                  One per eligible candidate at the end of every map run —
+                  anchored to their evidence, opt-out included, never sent.
+                </p>
+              </div>
+              {latestVendor && (
+                <p className="mt-4 border-t border-line pt-3 text-dense text-subtle-deep">
+                  Read them on each candidate&rsquo;s row in{" "}
+                  <Link href={`/book/${latestVendor.domain}`}>
+                    the {vendorName(latestVendor.name)} book →
+                  </Link>
+                </p>
               )}
-              <span className="pill bg-city-sanjose">drafts only · names hidden</span>
-              <InfoHint>
-                The engine writes drafts. It never sends them, and it never writes a
-                word of anyone&rsquo;s review. Every draft carries the public evidence
-                it is based on, an opt-out line, and a{" "}
-                <span className="metric">sent: never</span> flag this prototype never
-                flips. Names are hidden here under the same rule as the book.
-              </InfoHint>
             </div>
-            {drafts.length === 0 ? (
-              <div className="pane p-5 text-dense text-subtle">
-                No drafts yet. After a map run, the drafts written from the evidence
-                appear here.
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {drafts.map((d, i) => {
-                  const { main, compliance } = splitCompliance(d.body ?? "");
-                  return (
-                    <details key={i} className="group pane overflow-hidden">
-                      <summary className="flex cursor-pointer items-center gap-3 px-4 py-2.5 transition-colors hover:bg-ink/[.03] [&::-webkit-details-marker]:hidden">
-                        <span className="metric shrink-0 text-caption text-ink-35">
-                          #{i + 1}
-                        </span>
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 10 10"
-                          className="shrink-0 text-subtle transition-transform duration-200 group-open:rotate-90"
-                          aria-hidden
-                        >
-                          <path
-                            d="M3 1.5 7.5 5 3 8.5"
-                            stroke="currentColor"
-                            strokeWidth="1.4"
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        <span className="pill shrink-0 bg-city-sanjose">{d.channel}</span>
-                        {d.vendor && (
-                          <span className="shrink-0 whitespace-nowrap text-dense font-medium text-violet-link">
-                            {vendorName(d.vendor)}
-                          </span>
-                        )}
-                        <span className="truncate text-control text-ink">{d.subject}</span>
-                        <span className="metric ml-auto shrink-0 rounded-md bg-ground-tint px-1.5 py-0.5 text-micro text-subtle">
-                          sent: {d.sent ? "yes" : "never"}
-                        </span>
-                      </summary>
-                      <div className="border-t border-line px-4 py-3">
-                        <p className="whitespace-pre-wrap text-dense leading-relaxed text-ink-60">
-                          {main}
-                        </p>
-                        {compliance && (
-                          <p className="provenance mt-3 whitespace-pre-wrap border-t border-dashed border-line pt-2.5">
-                            {compliance}
-                          </p>
-                        )}
-                      </div>
-                    </details>
-                  );
-                })}
-              </div>
-            )}
           </section>
         </div>
       </main>
