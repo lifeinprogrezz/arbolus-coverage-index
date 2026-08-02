@@ -369,10 +369,6 @@ export default async function BurstPage({
                 <h2 className="text-title text-ink">Move the assumptions</h2>
                 <AssumeTag />
               </span>
-              <span className="provenance">
-                the rates are assumptions · the people and expert counts are this
-                vendor&rsquo;s real book
-              </span>
             </div>
             <WalkSliders
               defaultSeeds={b.seeds ?? 20}
