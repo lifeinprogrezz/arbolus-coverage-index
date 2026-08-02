@@ -50,3 +50,12 @@ export const PERSONA_PILL: Record<number, string> = {
   3: "bg-city-sanjose",
   4: "bg-city-newyork",
 };
+
+// Consumer platforms classify forum users as "Individual (handle)" and the
+// handle lands in the employer/org field, which the name mask never touches.
+// Same masking contract: handles are identities, hidden unless unmasked.
+export function maskIndividualOrg(name: string | null | undefined, unmasked: boolean): string | null {
+  if (!name) return name ?? null;
+  if (unmasked) return name;
+  return name.replace(/^Individual \(.+\)$/, "Individual");
+}

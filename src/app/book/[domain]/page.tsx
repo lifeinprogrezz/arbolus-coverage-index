@@ -3,7 +3,7 @@ import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { channelMask, CHANNEL_STATE_PILL } from "@/lib/channel-mask";
-import { candidateLabel, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
+import { candidateLabel, maskIndividualOrg, patternGuess, redactQuote, sourceDomain } from "@/lib/mask";
 import AppHeader from "@/components/shell/app-header";
 import SiteFooter from "@/components/shell/site-footer";
 import CoLogo from "@/components/ui/co-logo";
@@ -112,7 +112,7 @@ export default async function BookPage({
       id: c.id,
       identity,
       title: c.title,
-      employer: c.employer,
+      employer: maskIndividualOrg(c.employer, unmasked),
       employer_domain: c.employer_domain,
       persona_class: c.persona_class,
       role_signal: c.role_signal,
@@ -155,7 +155,9 @@ export default async function BookPage({
   const hits = reservoirHits ?? [];
 
   const mask = channelMask(vendor.hq_country);
-  const churned = (orgs ?? []).filter((o) => o.status === "churned");
+  const churned = (orgs ?? [])
+    .filter((o) => o.status === "churned")
+    .map((o) => ({ ...o, org_name: maskIndividualOrg(o.org_name, unmasked) }));
   const toggleHref = unmasked
     ? `/book/${vendor.domain}`
     : `/book/${vendor.domain}?unmask=1`;
