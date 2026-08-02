@@ -342,7 +342,13 @@ export default async function BurstPage({
               </table>
             </div>
           </div>
-          <div className="mt-5">
+          <div className="mt-8">
+            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-title text-ink">Move the assumptions</h2>
+              <span className="provenance">
+                defaults are the base case · people and experts come from the real book
+              </span>
+            </div>
             <WalkSliders
               defaultSeeds={b.seeds ?? 20}
               defaultReservoir={b.reservoir_hits ?? 3}

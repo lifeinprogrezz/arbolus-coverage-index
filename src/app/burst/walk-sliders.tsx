@@ -91,14 +91,7 @@ export default function WalkSliders({ defaultSeeds, defaultReservoir }: Props) {
         .wk-range::-moz-range-track{height:3px;border-radius:999px;background:transparent}
       `}</style>
 
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-control font-semibold text-ink">Move the assumptions</h3>
-        <span className="provenance">
-          defaults are the base case · people and experts come from the real book
-        </span>
-      </div>
-
-      <div className="mt-2 grid gap-x-8 sm:grid-cols-2">
+      <div className="grid gap-x-8 sm:grid-cols-2">
         <Slider label="Experts we already have" unit="" min={0} max={8} step={1} value={reservoir} onChange={setReservoir} assumption="How often one of our experts already works at a company in the book. The first claim this experiment can prove or disprove." />
         <Slider label="People we can name" unit="" min={5} max={30} step={1} value={seeds} onChange={setSeeds} assumption="How many people public evidence turns up for a niche vendor. Spot-checked, not counted end to end." />
         <Slider label="Reply rate" unit="%" min={1} max={15} step={1} value={reply} onChange={setReply} assumption="The line that decides the result: 3% cold, 10% optimistic because the money is named up front." />
