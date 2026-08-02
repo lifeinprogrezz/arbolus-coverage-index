@@ -342,11 +342,6 @@ export default async function BurstPage({
               </table>
             </div>
           </div>
-          <p className="mt-2.5 text-pretty text-dense text-subtle">
-            On these assumptions the base case lands between 8 and 18. Raising the
-            bounty closes the rest of the way to 20: reachable, not guaranteed, and
-            if it misses the funnel names the stage that fell short.
-          </p>
           <div className="mt-5">
             <WalkSliders
               defaultSeeds={b.seeds ?? 20}
