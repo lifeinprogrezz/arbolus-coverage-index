@@ -60,6 +60,7 @@ const PLAYBOOK = [
 const WALK = [
   {
     stage: "Experts we already have",
+    origin: "internal",
     math: "companies in the book × our experts there × how many say yes",
     yield_: "~3",
     assumption:
@@ -67,6 +68,7 @@ const WALK = [
   },
   {
     stage: "Email the people we can name",
+    origin: "external",
     math: "5–30 people × 80% we find an address × 92% delivered × reply rate × 55% finish × 80% verified",
     yield_: "~0.5–1",
     assumption:
@@ -74,18 +76,21 @@ const WALK = [
   },
   {
     stage: "Colleague invites",
+    origin: "peer",
     math: "invites per person who joined, paid only when their review lands",
     yield_: "~2–6",
     assumption: "0.5–1.5 invites per person who joined, the way GLG pays on results.",
   },
   {
     stage: "Through their communities",
+    origin: "external",
     math: "one-off deal per community, spend capped",
     yield_: "~3",
     assumption: "2–6 per burst.",
   },
   {
     stage: "Letters in the post",
+    origin: "external",
     math: "~150 letters ≈ €125",
     yield_: "~1–4",
     assumption:
@@ -308,7 +313,10 @@ export default async function BurstPage({
                       key={w.stage}
                       className="border-b border-line align-top transition-colors hover:bg-ink/[.03]"
                     >
-                      <td className="px-3.5 py-2.5 font-medium text-ink">{w.stage}</td>
+                      <td className="px-3.5 py-2.5">
+                        <span className="block font-medium text-ink">{w.stage}</span>
+                        <span className="provenance">{w.origin}</span>
+                      </td>
                       <td className="px-3.5 py-2.5 text-dense text-subtle">
                         {w.math} <Assume>{w.assumption}</Assume>
                       </td>
