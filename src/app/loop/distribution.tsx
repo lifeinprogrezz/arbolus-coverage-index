@@ -155,7 +155,7 @@ export default function Distribution() {
         fontSize="10"
         letterSpacing="0.06em"
       >
-        COMPANIES, RANKED BY NUMBER OF REVIEWS →
+        COMPANIES · MOST REVIEWED → NEVER REVIEWED
       </text>
     </svg>
   );
