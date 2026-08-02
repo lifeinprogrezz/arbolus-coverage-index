@@ -99,11 +99,11 @@ const LANES: {
   { n: "02", name: "customer pages", reads: "Case studies and customer walls, read for named organizations and people.", tone: "live" },
   { n: "03", name: "wayback churn diff", reads: "Old snapshots of those pages from the Wayback Machine. Free history.", tone: "live" },
   { n: "03b", name: "logo-wall diff", reads: "Logos that appeared on the customer wall and later vanished — churned-customer candidates, with dates. Candidates, not fact: redesigns cause false churn.", tone: "live" },
-  { n: "04", name: "ats job-post sweep", reads: "Public job posts naming the vendor in a company's stack.", tone: "live" },
+  { n: "04", name: "ats job-post sweep", reads: "Public job posts naming the vendor in a company's stack. Anglo boards today; local boards (Japan, Brazil, India) are production extensions — the lane is geo-locked where they aren't wired, and says so.", tone: "live" },
   { n: "05", name: "peerspot reviews", reads: "Public reviews: named reviewers with roles and dates.", tone: "live" },
   { n: "06", name: "serp long-tail", reads: "Web search for mentions the structured lanes miss. Dark without its API key.", tone: "live" },
   { n: "07", name: "community", reads: "Public Discourse forums — people describing what they run. Slow, polite crawling.", tone: "nightly", tag: "nightly" },
-  { n: "08", name: "procurement", reads: "TED, the EU's public procurement journal. A contract award is the hardest evidence there is: the organization provably pays.", tone: "nightly", tag: "nightly" },
+  { n: "08", name: "procurement", reads: "TED, the EU's public procurement journal. A contract award is the hardest evidence there is: the organization provably pays. EU-only register; national registers are the production extension elsewhere.", tone: "nightly", tag: "nightly" },
   { n: "09", name: "github", reads: "Public code referencing the vendor's SDK corroborates candidates other lanes found. Never used to harvest people.", tone: "nightly", tag: "verify-only" },
   { n: "10", name: "classify · write", reads: "The only AI step: Claude Haiku reads what the lanes fetched and writes structured rows. Everything before it is deterministic fetching.", tone: "live" },
 ];

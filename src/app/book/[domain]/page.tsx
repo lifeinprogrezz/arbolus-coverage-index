@@ -271,16 +271,15 @@ export default async function BookPage({
           {/* channel-legality mask */}
           <section className="pane p-5">
             <div className="flex items-center gap-2">
-              <h2 className="eyebrow">What the rules let us do here</h2>
+              <h2 className="eyebrow">How we&rsquo;re allowed to contact them</h2>
               <span className="flex -translate-y-[0.75px] items-center">
                 <InfoHint>
                   <p>
-                    Three legal questions, one panel: which sources we may read,
-                    how we may contact the people above, and how we pay them.
-                    The pill is the status: <em>open</em> — go ahead ·{" "}
-                    <em>consent first</em> — only after they opt in ·{" "}
-                    <em>legal check</em> — that country&rsquo;s law is
-                    unresearched, counsel before use · <em>closed</em> — never.
+                    Each row is one way of reaching the people above, with its
+                    legal status: <em>open</em> — go ahead · <em>consent
+                    first</em> — only after they opt in · <em>legal check</em> —
+                    that country&rsquo;s law is unresearched, counsel before use ·{" "}
+                    <em>closed</em> — never.
                   </p>
                   <p className="mt-2">
                     Contact law follows the recipient, so in production these
@@ -293,36 +292,29 @@ export default async function BookPage({
               </span>
             </div>
             <div className="mt-2 flex flex-col">
-              {(
-                [
-                  ["read", "reading public evidence"],
-                  ["contact", "contacting people"],
-                  ["pay", "paying people"],
-                ] as const
-              ).map(([g, label]) => (
-                <Fragment key={g}>
-                  <span className="provenance mt-3 first:mt-1">{label}</span>
-                  {mask
-                    .filter((r) => r.group === g)
-                    .map((r) => (
-                      <div
-                        key={r.channel}
-                        className="flex items-center gap-2.5 border-b border-line/70 py-2 last:border-0"
-                      >
-                        <span
-                          className={`pill shrink-0 whitespace-nowrap ${CHANNEL_STATE_PILL[r.state]}`}
-                        >
-                          {CHANNEL_STATE_LABEL[r.state] ?? r.state.replace(/_/g, " ")}
-                        </span>
-                        <span className="text-control font-medium text-ink">{r.channel}</span>
-                        <span className="ml-auto">
-                          <InfoHint align="right">{r.why}</InfoHint>
-                        </span>
-                      </div>
-                    ))}
-                </Fragment>
-              ))}
+              {mask
+                .filter((r) => r.group === "contact")
+                .map((r) => (
+                  <div
+                    key={r.channel}
+                    className="flex items-center gap-2.5 border-b border-line/70 py-2 last:border-0"
+                  >
+                    <span
+                      className={`pill shrink-0 whitespace-nowrap ${CHANNEL_STATE_PILL[r.state]}`}
+                    >
+                      {CHANNEL_STATE_LABEL[r.state] ?? r.state.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-control font-medium text-ink">{r.channel}</span>
+                    <span className="ml-auto">
+                      <InfoHint align="right">{r.why}</InfoHint>
+                    </span>
+                  </div>
+                ))}
             </div>
+            <p className="provenance mt-3 border-t border-line/70 pt-2.5">
+              paying whoever says yes is open everywhere — 196 countries via the
+              payment provider
+            </p>
           </section>
         </div>
 
