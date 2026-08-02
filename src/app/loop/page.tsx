@@ -90,18 +90,26 @@ export default async function LoopPage() {
           </InfoHint>
         </div>
 
-        {/* the C1 thesis — same machines, new aim */}
-        <p className="reveal mt-4 max-w-3xl text-pretty text-body text-subtle-deep">
-          Every loop on this page is <span className="font-medium text-ink">live
-          in Arbolus today</span> — the royalty, the colleague invite, the extra
-          reviews people leave. But it all fires at the head: a review of a
-          popular tool earns views forever, a review of an empty company earns
-          $0, so nobody rational writes one. The proposal changes one thing —{" "}
-          <span className="font-medium text-ink">where the existing machine
-          points</span>. The index aims every loop at the companies clients open
-          and find empty, and one scoped price change makes the first review
-          there worth writing.
-        </p>
+        {/* the C1 thesis as a contrast pair — same machines, new aim */}
+        <div className="reveal mt-5 grid max-w-3xl gap-3 sm:grid-cols-2">
+          <div
+            className="pane p-4"
+            style={{ background: "var(--color-ground-tint)" }}
+          >
+            <span className="eyebrow">today · already live in Arbolus</span>
+            <p className="mt-1.5 text-dense leading-relaxed text-subtle-deep">
+              The same loops fire at the head: a popular tool earns views
+              forever, an empty company earns $0 — nobody rational reviews it.
+            </p>
+          </div>
+          <div className="pane border-violet-200 p-4 shadow-[var(--shadow-glow-violet)]">
+            <span className="eyebrow text-violet-link">with the index</span>
+            <p className="mt-1.5 text-dense leading-relaxed text-subtle-deep">
+              Every loop re-aimed at the companies clients open and find empty —
+              and one price change makes the first review there worth writing.
+            </p>
+          </div>
+        </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* R0 offer */}
